@@ -1,6 +1,7 @@
 // Recursive-descent top-down calculator
-//   that follows strictly the translation steps
-//   (i.e., first few slides of L8)
+// for Question1 part f.
+// author: WANG Haicheng
+// date  : Mar 25, 2017
 
 // To compile: flex rdcal_postfix.l; gcc -o rdcal_postfix lex.yy.c rdcal_postfix.c
 
@@ -125,10 +126,6 @@ Expression1* parseExpr1(){
     default:
     reportError();
   }
-  
-
-
-
 }
 
 int _cal(int loperand, int roprand, int op){
@@ -158,13 +155,30 @@ int parseExpr() {
   Expression1* expression = (Expression1*)malloc(sizeof(Expression1));
   i = match(NUM);
   expression = parseExpr1();
+  
   return cal(i, expression);
 }
 
+int parseGlobalExpr(){
+  int output = parseExpr();
+  if (next!=NL){
+    reportError();
+  }
+  return output;
+}
+void parseProg() {
+  switch(next) {
+  case NUM:
+    printf("=%d\n", parseGlobalExpr()); match(NL); parseProg();
+  case END: // Follow()
+    printf("Bye!\n"); exit(0);
+  }
+  reportError();
+}
 
   
-main() {
-  getToken();  
-  int output = parseExpr();
-  printf("=%d\n", output);
+int main() {
+    getToken();  
+    parseProg();
+    return 0;
 }

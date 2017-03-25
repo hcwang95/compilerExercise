@@ -20,6 +20,6 @@ def testDriver(command_line, size, length):
 			break
 if __name__ == '__main__':
 	command_line = './rdcal_postfix'
-	size = 100#input('test size:')
+	size = 100 #input('test size:')
 	length = 100 #input('postfix size')
 	testDriver(command_line, size, length)
