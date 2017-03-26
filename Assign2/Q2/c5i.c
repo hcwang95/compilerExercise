@@ -88,7 +88,16 @@ int ex(nodeType *p) {
             case READ:	    printf("? "); scanf("%d", &i);
         		            return sym[p->opr.op[0]->id.i] = i;
             case ';':       ex(p->opr.op[0]); return ex(p->opr.op[1]);
-            case '=':       return sym[p->opr.op[0]->id.i] = ex(p->opr.op[1]);
+            case '=':       if (p->opr.op[0]->type == typeOpr){
+                                index = p->opr.op[0]->opr.op[0]->id.i +
+                                        ex(p->opr.op[0]->opr.op[1]);
+                                if(index<26){
+                                    return sym[index] = ex(p->opr.op[1]);
+                                }else{
+                                    reportOutRange();
+                                }
+                            }
+                            return sym[p->opr.op[0]->id.i] = ex(p->opr.op[1]);
             case UMINUS:    return -ex(p->opr.op[0]);
             case '+':       return ex(p->opr.op[0]) + ex(p->opr.op[1]);
             case '-':       return ex(p->opr.op[0]) - ex(p->opr.op[1]);
@@ -105,10 +114,8 @@ int ex(nodeType *p) {
             case OR:	    return ex(p->opr.op[0]) || ex(p->opr.op[1]);
             case BREAK:     brk = 1; return 0;
             case CONTINUE:  cont = 1; return 0;
-            case REF:       index = ex(p->opr.op[0])+ex(p->opr.op[1]);
+            case REF:       index = p->opr.op[0]->id.i+ex(p->opr.op[1]);
                             if (index < 26){
-                                printf("index1: %d\n", ex(p->opr.op[0]));
-                                printf("index2: %d\n", ex(p->opr.op[1]));
                                 return sym[index];
                             } else {
                                 reportOutRange();

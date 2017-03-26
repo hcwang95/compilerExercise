@@ -35,8 +35,8 @@ int sym[26];                    /* symbol table */
 %left '+' '-'
 %left '*' '/' '%'
 %nonassoc UMINUS
-
-%type <nPtr> stmt expr stmt_list
+%nonassoc REF
+%type <nPtr> stmt expr stmt_list var
 
 %%
 
@@ -53,8 +53,8 @@ stmt:
           ';'                             { $$ = opr(';', 2, NULL, NULL); }
         | expr ';'                        { $$ = $1; }
         | PRINT expr ';'                  { $$ = opr(PRINT, 1, $2); }
-	    | READ VARIABLE ';'		          { $$ = opr(READ, 1, id($2)); }
-        | VARIABLE '=' expr ';'           { $$ = opr('=', 2, id($1), $3); }
+	    | READ var ';'		              { $$ = opr(READ, 1, $2); }
+        | var '=' expr ';'                { $$ = opr('=', 2, $1, $3); }
         | BREAK ';'                       { $$ = opr(BREAK, 2, NULL, NULL);}
         | CONTINUE ';'                    { $$ = opr(CONTINUE, 2, NULL, NULL);}
 	    | FOR '(' stmt stmt stmt ')' stmt { $$ = opr(FOR, 4, $3, $4,
@@ -72,7 +72,7 @@ stmt_list:
 
 expr:
           INTEGER               { $$ = con($1); }
-        | VARIABLE              { $$ = id($1); }
+        | var                   { $$ = $1; }
         | '-' expr %prec UMINUS { $$ = opr(UMINUS, 1, $2); }
         | expr '+' expr         { $$ = opr('+', 2, $1, $3); }
         | expr '-' expr         { $$ = opr('-', 2, $1, $3); }
@@ -90,6 +90,10 @@ expr:
         | '(' expr ')'          { $$ = $2; }
         ;
 
+var :
+          VARIABLE              { $$ = id($1); }
+        | VARIABLE '[' expr ']' { $$ = opr(REF, 2, id($1), $3); }
+        ;
 %%
 
 #define SIZEOF_NODETYPE ((char *)&p->con - (char *)p)
