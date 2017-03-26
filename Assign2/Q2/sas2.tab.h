@@ -30,8 +30,8 @@
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
-#ifndef YY_YY_C5C_TAB_H_INCLUDED
-# define YY_YY_C5C_TAB_H_INCLUDED
+#ifndef YY_YY_SAS2_TAB_H_INCLUDED
+# define YY_YY_SAS2_TAB_H_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
 # define YYDEBUG 0
@@ -45,42 +45,37 @@ extern int yydebug;
 # define YYTOKENTYPE
   enum yytokentype
   {
-    INTEGER = 258,
-    VARIABLE = 259,
-    FOR = 260,
-    WHILE = 261,
-    IF = 262,
-    PRINT = 263,
-    READ = 264,
-    BREAK = 265,
-    CONTINUE = 266,
-    IFX = 267,
-    ELSE = 268,
-    AND = 269,
-    OR = 270,
-    GE = 271,
-    LE = 272,
-    EQ = 273,
-    NE = 274,
-    UMINUS = 275
+    INT = 258,
+    REG = 259,
+    LABEL = 260,
+    PUSH = 261,
+    POP = 262,
+    LT = 263,
+    GT = 264,
+    GE = 265,
+    LE = 266,
+    NE = 267,
+    EQ = 268,
+    PUSHI = 269,
+    POPI = 270,
+    JZ = 271,
+    JMP = 272,
+    ADD = 273,
+    SUB = 274,
+    MUL = 275,
+    DIV = 276,
+    MOD = 277,
+    NEG = 278,
+    AND = 279,
+    OR = 280,
+    READ = 281,
+    PRINT = 282
   };
 #endif
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-
-union YYSTYPE
-{
-#line 20 "c5c.y" /* yacc.c:1909  */
-
-    int iValue;                 /* integer value */
-    char sIndex;                /* symbol table index */
-    nodeType *nPtr;             /* node pointer */
-
-#line 81 "c5c.tab.h" /* yacc.c:1909  */
-};
-
-typedef union YYSTYPE YYSTYPE;
+typedef int YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
 #endif
@@ -90,4 +85,4 @@ extern YYSTYPE yylval;
 
 int yyparse (void);
 
-#endif /* !YY_YY_C5C_TAB_H_INCLUDED  */
+#endif /* !YY_YY_SAS2_TAB_H_INCLUDED  */

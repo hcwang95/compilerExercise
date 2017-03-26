@@ -62,7 +62,7 @@
 
 
 /* Copy the first part of user declarations.  */
-#line 1 "c5.y" /* yacc.c:339  */
+#line 1 "c5i.y" /* yacc.c:339  */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -81,7 +81,7 @@ int yylex(void);
 void yyerror(char *s);
 int sym[26];                    /* symbol table */
 
-#line 85 "y.tab.c" /* yacc.c:339  */
+#line 85 "c5i.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -100,9 +100,9 @@ int sym[26];                    /* symbol table */
 #endif
 
 /* In a future release of Bison, this section will be replaced
-   by #include "y.tab.h".  */
-#ifndef YY_YY_Y_TAB_H_INCLUDED
-# define YY_YY_Y_TAB_H_INCLUDED
+   by #include "c5i.tab.h".  */
+#ifndef YY_YY_C5I_TAB_H_INCLUDED
+# define YY_YY_C5I_TAB_H_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
 # define YYDEBUG 0
@@ -136,38 +136,19 @@ extern int yydebug;
     UMINUS = 275
   };
 #endif
-/* Tokens.  */
-#define INTEGER 258
-#define VARIABLE 259
-#define FOR 260
-#define WHILE 261
-#define IF 262
-#define PRINT 263
-#define READ 264
-#define BREAK 265
-#define CONTINUE 266
-#define IFX 267
-#define ELSE 268
-#define AND 269
-#define OR 270
-#define GE 271
-#define LE 272
-#define EQ 273
-#define NE 274
-#define UMINUS 275
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 
 union YYSTYPE
 {
-#line 20 "c5.y" /* yacc.c:355  */
+#line 20 "c5i.y" /* yacc.c:355  */
 
     int iValue;                 /* integer value */
     char sIndex;                /* symbol table index */
     nodeType *nPtr;             /* node pointer */
 
-#line 171 "y.tab.c" /* yacc.c:355  */
+#line 152 "c5i.tab.c" /* yacc.c:355  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -180,11 +161,11 @@ extern YYSTYPE yylval;
 
 int yyparse (void);
 
-#endif /* !YY_YY_Y_TAB_H_INCLUDED  */
+#endif /* !YY_YY_C5I_TAB_H_INCLUDED  */
 
 /* Copy the second part of user declarations.  */
 
-#line 188 "y.tab.c" /* yacc.c:358  */
+#line 169 "c5i.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -1327,206 +1308,206 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 44 "c5.y" /* yacc.c:1646  */
+#line 44 "c5i.y" /* yacc.c:1646  */
     { exit(0); }
-#line 1333 "y.tab.c" /* yacc.c:1646  */
+#line 1314 "c5i.tab.c" /* yacc.c:1646  */
     break;
 
   case 3:
-#line 48 "c5.y" /* yacc.c:1646  */
+#line 48 "c5i.y" /* yacc.c:1646  */
     { ex((yyvsp[0].nPtr)); freeNode((yyvsp[0].nPtr)); }
-#line 1339 "y.tab.c" /* yacc.c:1646  */
+#line 1320 "c5i.tab.c" /* yacc.c:1646  */
     break;
 
   case 5:
-#line 53 "c5.y" /* yacc.c:1646  */
+#line 53 "c5i.y" /* yacc.c:1646  */
     { (yyval.nPtr) = opr(';', 2, NULL, NULL); }
-#line 1345 "y.tab.c" /* yacc.c:1646  */
+#line 1326 "c5i.tab.c" /* yacc.c:1646  */
     break;
 
   case 6:
-#line 54 "c5.y" /* yacc.c:1646  */
+#line 54 "c5i.y" /* yacc.c:1646  */
     { (yyval.nPtr) = (yyvsp[-1].nPtr); }
-#line 1351 "y.tab.c" /* yacc.c:1646  */
+#line 1332 "c5i.tab.c" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 55 "c5.y" /* yacc.c:1646  */
+#line 55 "c5i.y" /* yacc.c:1646  */
     { (yyval.nPtr) = opr(PRINT, 1, (yyvsp[-1].nPtr)); }
-#line 1357 "y.tab.c" /* yacc.c:1646  */
+#line 1338 "c5i.tab.c" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 56 "c5.y" /* yacc.c:1646  */
+#line 56 "c5i.y" /* yacc.c:1646  */
     { (yyval.nPtr) = opr(READ, 1, id((yyvsp[-1].sIndex))); }
-#line 1363 "y.tab.c" /* yacc.c:1646  */
+#line 1344 "c5i.tab.c" /* yacc.c:1646  */
     break;
 
   case 9:
-#line 57 "c5.y" /* yacc.c:1646  */
+#line 57 "c5i.y" /* yacc.c:1646  */
     { (yyval.nPtr) = opr('=', 2, id((yyvsp[-3].sIndex)), (yyvsp[-1].nPtr)); }
-#line 1369 "y.tab.c" /* yacc.c:1646  */
+#line 1350 "c5i.tab.c" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 58 "c5.y" /* yacc.c:1646  */
+#line 58 "c5i.y" /* yacc.c:1646  */
     { (yyval.nPtr) = opr(BREAK, 2, NULL, NULL);}
-#line 1375 "y.tab.c" /* yacc.c:1646  */
+#line 1356 "c5i.tab.c" /* yacc.c:1646  */
     break;
 
   case 11:
-#line 59 "c5.y" /* yacc.c:1646  */
+#line 59 "c5i.y" /* yacc.c:1646  */
     { (yyval.nPtr) = opr(CONTINUE, 2, NULL, NULL);}
-#line 1381 "y.tab.c" /* yacc.c:1646  */
+#line 1362 "c5i.tab.c" /* yacc.c:1646  */
     break;
 
   case 12:
-#line 60 "c5.y" /* yacc.c:1646  */
+#line 60 "c5i.y" /* yacc.c:1646  */
     { (yyval.nPtr) = opr(FOR, 4, (yyvsp[-4].nPtr), (yyvsp[-3].nPtr),
                                             (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
-#line 1388 "y.tab.c" /* yacc.c:1646  */
+#line 1369 "c5i.tab.c" /* yacc.c:1646  */
     break;
 
   case 13:
-#line 62 "c5.y" /* yacc.c:1646  */
+#line 62 "c5i.y" /* yacc.c:1646  */
     { (yyval.nPtr) = opr(WHILE, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
-#line 1394 "y.tab.c" /* yacc.c:1646  */
+#line 1375 "c5i.tab.c" /* yacc.c:1646  */
     break;
 
   case 14:
-#line 63 "c5.y" /* yacc.c:1646  */
+#line 63 "c5i.y" /* yacc.c:1646  */
     { (yyval.nPtr) = opr(IF, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
-#line 1400 "y.tab.c" /* yacc.c:1646  */
+#line 1381 "c5i.tab.c" /* yacc.c:1646  */
     break;
 
   case 15:
-#line 64 "c5.y" /* yacc.c:1646  */
+#line 64 "c5i.y" /* yacc.c:1646  */
     { (yyval.nPtr) = opr(IF, 3, (yyvsp[-4].nPtr), (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
-#line 1406 "y.tab.c" /* yacc.c:1646  */
+#line 1387 "c5i.tab.c" /* yacc.c:1646  */
     break;
 
   case 16:
-#line 65 "c5.y" /* yacc.c:1646  */
+#line 65 "c5i.y" /* yacc.c:1646  */
     { (yyval.nPtr) = (yyvsp[-1].nPtr); }
-#line 1412 "y.tab.c" /* yacc.c:1646  */
+#line 1393 "c5i.tab.c" /* yacc.c:1646  */
     break;
 
   case 17:
-#line 69 "c5.y" /* yacc.c:1646  */
+#line 69 "c5i.y" /* yacc.c:1646  */
     { (yyval.nPtr) = (yyvsp[0].nPtr); }
-#line 1418 "y.tab.c" /* yacc.c:1646  */
+#line 1399 "c5i.tab.c" /* yacc.c:1646  */
     break;
 
   case 18:
-#line 70 "c5.y" /* yacc.c:1646  */
+#line 70 "c5i.y" /* yacc.c:1646  */
     { (yyval.nPtr) = opr(';', 2, (yyvsp[-1].nPtr), (yyvsp[0].nPtr)); }
-#line 1424 "y.tab.c" /* yacc.c:1646  */
+#line 1405 "c5i.tab.c" /* yacc.c:1646  */
     break;
 
   case 19:
-#line 74 "c5.y" /* yacc.c:1646  */
+#line 74 "c5i.y" /* yacc.c:1646  */
     { (yyval.nPtr) = con((yyvsp[0].iValue)); }
-#line 1430 "y.tab.c" /* yacc.c:1646  */
+#line 1411 "c5i.tab.c" /* yacc.c:1646  */
     break;
 
   case 20:
-#line 75 "c5.y" /* yacc.c:1646  */
+#line 75 "c5i.y" /* yacc.c:1646  */
     { (yyval.nPtr) = id((yyvsp[0].sIndex)); }
-#line 1436 "y.tab.c" /* yacc.c:1646  */
+#line 1417 "c5i.tab.c" /* yacc.c:1646  */
     break;
 
   case 21:
-#line 76 "c5.y" /* yacc.c:1646  */
+#line 76 "c5i.y" /* yacc.c:1646  */
     { (yyval.nPtr) = opr(UMINUS, 1, (yyvsp[0].nPtr)); }
-#line 1442 "y.tab.c" /* yacc.c:1646  */
+#line 1423 "c5i.tab.c" /* yacc.c:1646  */
     break;
 
   case 22:
-#line 77 "c5.y" /* yacc.c:1646  */
+#line 77 "c5i.y" /* yacc.c:1646  */
     { (yyval.nPtr) = opr('+', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
-#line 1448 "y.tab.c" /* yacc.c:1646  */
+#line 1429 "c5i.tab.c" /* yacc.c:1646  */
     break;
 
   case 23:
-#line 78 "c5.y" /* yacc.c:1646  */
+#line 78 "c5i.y" /* yacc.c:1646  */
     { (yyval.nPtr) = opr('-', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
-#line 1454 "y.tab.c" /* yacc.c:1646  */
+#line 1435 "c5i.tab.c" /* yacc.c:1646  */
     break;
 
   case 24:
-#line 79 "c5.y" /* yacc.c:1646  */
+#line 79 "c5i.y" /* yacc.c:1646  */
     { (yyval.nPtr) = opr('*', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
-#line 1460 "y.tab.c" /* yacc.c:1646  */
+#line 1441 "c5i.tab.c" /* yacc.c:1646  */
     break;
 
   case 25:
-#line 80 "c5.y" /* yacc.c:1646  */
+#line 80 "c5i.y" /* yacc.c:1646  */
     { (yyval.nPtr) = opr('%', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
-#line 1466 "y.tab.c" /* yacc.c:1646  */
+#line 1447 "c5i.tab.c" /* yacc.c:1646  */
     break;
 
   case 26:
-#line 81 "c5.y" /* yacc.c:1646  */
+#line 81 "c5i.y" /* yacc.c:1646  */
     { (yyval.nPtr) = opr('/', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
-#line 1472 "y.tab.c" /* yacc.c:1646  */
+#line 1453 "c5i.tab.c" /* yacc.c:1646  */
     break;
 
   case 27:
-#line 82 "c5.y" /* yacc.c:1646  */
+#line 82 "c5i.y" /* yacc.c:1646  */
     { (yyval.nPtr) = opr('<', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
-#line 1478 "y.tab.c" /* yacc.c:1646  */
+#line 1459 "c5i.tab.c" /* yacc.c:1646  */
     break;
 
   case 28:
-#line 83 "c5.y" /* yacc.c:1646  */
+#line 83 "c5i.y" /* yacc.c:1646  */
     { (yyval.nPtr) = opr('>', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
-#line 1484 "y.tab.c" /* yacc.c:1646  */
+#line 1465 "c5i.tab.c" /* yacc.c:1646  */
     break;
 
   case 29:
-#line 84 "c5.y" /* yacc.c:1646  */
+#line 84 "c5i.y" /* yacc.c:1646  */
     { (yyval.nPtr) = opr(GE, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
-#line 1490 "y.tab.c" /* yacc.c:1646  */
+#line 1471 "c5i.tab.c" /* yacc.c:1646  */
     break;
 
   case 30:
-#line 85 "c5.y" /* yacc.c:1646  */
+#line 85 "c5i.y" /* yacc.c:1646  */
     { (yyval.nPtr) = opr(LE, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
-#line 1496 "y.tab.c" /* yacc.c:1646  */
+#line 1477 "c5i.tab.c" /* yacc.c:1646  */
     break;
 
   case 31:
-#line 86 "c5.y" /* yacc.c:1646  */
+#line 86 "c5i.y" /* yacc.c:1646  */
     { (yyval.nPtr) = opr(NE, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
-#line 1502 "y.tab.c" /* yacc.c:1646  */
+#line 1483 "c5i.tab.c" /* yacc.c:1646  */
     break;
 
   case 32:
-#line 87 "c5.y" /* yacc.c:1646  */
+#line 87 "c5i.y" /* yacc.c:1646  */
     { (yyval.nPtr) = opr(EQ, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
-#line 1508 "y.tab.c" /* yacc.c:1646  */
+#line 1489 "c5i.tab.c" /* yacc.c:1646  */
     break;
 
   case 33:
-#line 88 "c5.y" /* yacc.c:1646  */
+#line 88 "c5i.y" /* yacc.c:1646  */
     { (yyval.nPtr) = opr(AND, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
-#line 1514 "y.tab.c" /* yacc.c:1646  */
+#line 1495 "c5i.tab.c" /* yacc.c:1646  */
     break;
 
   case 34:
-#line 89 "c5.y" /* yacc.c:1646  */
+#line 89 "c5i.y" /* yacc.c:1646  */
     { (yyval.nPtr) = opr(OR, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
-#line 1520 "y.tab.c" /* yacc.c:1646  */
+#line 1501 "c5i.tab.c" /* yacc.c:1646  */
     break;
 
   case 35:
-#line 90 "c5.y" /* yacc.c:1646  */
+#line 90 "c5i.y" /* yacc.c:1646  */
     { (yyval.nPtr) = (yyvsp[-1].nPtr); }
-#line 1526 "y.tab.c" /* yacc.c:1646  */
+#line 1507 "c5i.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1530 "y.tab.c" /* yacc.c:1646  */
+#line 1511 "c5i.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1754,7 +1735,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 93 "c5.y" /* yacc.c:1906  */
+#line 93 "c5i.y" /* yacc.c:1906  */
 
 
 #define SIZEOF_NODETYPE ((char *)&p->con - (char *)p)

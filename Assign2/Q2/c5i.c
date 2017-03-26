@@ -34,7 +34,7 @@ int ex(nodeType *p) {
     case typeId:        return sym[p->id.i];
     case typeOpr:
         switch(p->opr.oper) {
-        	case FOR:	    for (itr=0; itr<4; ++itr){
+        	case FOR:	    for (itr=0; itr<3; ++itr){
                                 if (p->opr.op[itr]->opr.oper == BREAK||
                                     p->opr.op[itr]->opr.oper == CONTINUE){
                                     reportInvalid();
