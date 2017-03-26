@@ -17,6 +17,11 @@ void reportInvalid(){
     exit(0);
 }
 
+void reportOutRange(){
+    printf("index out of range\n");
+    exit(0);
+}
+
 int ex(nodeType *p) {
     if ((cont || brk)){
         if(loop_depth!=0){
@@ -28,6 +33,7 @@ int ex(nodeType *p) {
     }
     int i;
     int itr;
+    int index;
     if (!p) return 0;
     switch(p->type) {
     case typeCon:       return p->con.value;
@@ -99,6 +105,12 @@ int ex(nodeType *p) {
             case OR:	    return ex(p->opr.op[0]) || ex(p->opr.op[1]);
             case BREAK:     brk = 1; return 0;
             case CONTINUE:  cont = 1; return 0;
+            case REF:       index = ex(p->opr.op[0])+ex(p->opr.op[1]);
+                            if (index < 26){
+                                return sym[ex(p->opr.op[0])+ex(p->opr.op[1])]
+                            } else {
+                                reportOutRange();
+                            }
         }
     }
     return 0;
