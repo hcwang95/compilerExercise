@@ -107,7 +107,9 @@ int ex(nodeType *p) {
             case CONTINUE:  cont = 1; return 0;
             case REF:       index = ex(p->opr.op[0])+ex(p->opr.op[1]);
                             if (index < 26){
-                                return sym[ex(p->opr.op[0])+ex(p->opr.op[1])]
+                                printf("index1: %d\n", ex(p->opr.op[0]));
+                                printf("index2: %d\n", ex(p->opr.op[1]));
+                                return sym[index];
                             } else {
                                 reportOutRange();
                             }
