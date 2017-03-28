@@ -61,6 +61,10 @@ void yyerror(char *s) {
   printf("%s\n", s);
 }
 
+void reportOutRange(){
+  printf("Index out of range!!\n");
+  exit(0);
+}
 
 int main(int argc, char *argv[]) {
   int st[500];
@@ -79,15 +83,26 @@ int main(int argc, char *argv[]) {
   while (i < pc)
     switch (in[i]) {
       case PUSHN:
-	st[sp++] = op[i++]; break;
+	         st[sp++] = op[i++]; 
+           break;
       case PUSHR:
-	st[sp++] = reg[op[i++]]; break;
+	         st[sp++] = reg[op[i++]]; 
+           break;
       case PUSHI:
-	st[sp-1] = reg[op[i++]+st[sp-1]]; break; 
+           if (op[i]+st[sp-1] > 25){
+            reportOutRange();
+           }
+	         st[sp-1] = reg[op[i++]+st[sp-1]]; 
+           break; 
       case POP:
-	reg[op[i++]] = st[--sp]; break;
+	         reg[op[i++]] = st[--sp]; 
+           break;
       case POPI:
-	reg[op[i++] + st[sp-1]] = st[sp-2]; sp -= 2; break;
+           if (op[i] + st[sp-1] > 25){
+            reportOutRange();
+           }
+	         reg[op[i++] + st[sp-1]] = st[sp-2]; sp -= 2; 
+           break;
 
 #define EVAL(opr) st[sp-2] = st[sp-2] opr st[sp-1]; sp--; i++; break;
 
