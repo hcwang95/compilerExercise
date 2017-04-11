@@ -120,7 +120,14 @@ int ex_(nodeType *p, int lcont, int lbrk) {
                 break;
             case READ:
                 printf("\tread\n");
-                printf("\tpop\t%c\n", p->opr.op[0]->id.i + 'a');
+                if (p->opr.op[0]->type == typeOpr){
+                    ex_(p->opr.op[0]->opr.op[1], lcont, lbrk);
+                    printf("\tpush\t%d\n", p->opr.op[0]->opr.op[0]->id.i);
+                    printf("\tadd\n");
+                    printf("\tpopi\ta\n");
+                }else{
+                    printf("\tpop\t%c\n", p->opr.op[0]->id.i + 'a');
+                }
                 break;
             case PRINT:     
                 // here cannot be a break or continue statement

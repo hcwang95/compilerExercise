@@ -86,12 +86,21 @@ int ex(nodeType *p) {
                             return 0;
             case PRINT:     printf("%d\n", ex(p->opr.op[0])); return 0;
             case READ:	    printf("? "); scanf("%d", &i);
+            				if (p->opr.op[0]->type == typeOpr){
+                                index = p->opr.op[0]->opr.op[0]->id.i +
+                                        ex(p->opr.op[0]->opr.op[1]);
+                                if(index<26 && index >=0){
+                                    return sym[index] = i;
+                                }else{
+                                    reportOutRange();
+                                }
+                            }
         		            return sym[p->opr.op[0]->id.i] = i;
             case ';':       ex(p->opr.op[0]); return ex(p->opr.op[1]);
             case '=':       if (p->opr.op[0]->type == typeOpr){
                                 index = p->opr.op[0]->opr.op[0]->id.i +
                                         ex(p->opr.op[0]->opr.op[1]);
-                                if(index<26){
+                                if(index<26 && index >=0){
                                     return sym[index] = ex(p->opr.op[1]);
                                 }else{
                                     reportOutRange();
