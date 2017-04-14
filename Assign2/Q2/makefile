@@ -1,5 +1,7 @@
 # this is the make file for question 2
 
+all : c5i c5c sas2
+
 c5i: lex.yy.c y.tab.c c5i.c 
 	gcc -o c5i lex.yy.c y.tab.c c5i.c
 

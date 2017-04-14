@@ -1,0 +1,27 @@
+Recursive-descent top-down calculator
+for Question1 part f.
+author: WANG Haicheng
+date  : Mar 28, 2017
+
+To compile:   
+
+make rdcal_postfix
+
+OR
+
+flex rdcal_postfix.l; gcc -o rdcal_postfix lex.yy.c rdcal_postfix.c
+
+
+
+To execute:
+(1) using file pipe
+./rdcal_postfix <[filepath]
+(2) interactive
+
+./rdcal_postfix  [press ENTER]
+[type postfix expression]
+
+
+Important note:
+the calculator has a limit that the result must be in the range
+2^(-32) , 2^(32)-1, otherwise it will have integer overflow error

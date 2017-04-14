@@ -1,0 +1,30 @@
+LR bottom-up calculator
+for Question1 part d.
+author: WANG Haicheng
+date  : Mar 28, 2017
+
+make lrcal_postfix; 
+
+To compile:   
+
+make lrcal_postfix
+
+OR
+
+bison -d lrcal_postfix.y
+flex lrcal_postfix.l
+gcc -o lrcal_postfix lex.yy.c lrcal_postfix.tab.c
+
+
+
+To execute:
+(1) using file pipe
+./lrcal_postfix <[filepath]
+(2) interactive
+
+./lrcal_postfix  [press ENTER]
+[type postfix expression]
+
+Important note:
+the calculator has a limit that the result must be in the range
+2^(-32) , 2^(32)-1, otherwise it will have integer overflow error

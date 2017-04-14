@@ -1,0 +1,28 @@
+intepreter and compiler of simple calculator
+for Question2
+author: WANG Haicheng
+date  : Mar 28, 2017
+
+
+To compile all files
+including c5i c5c sas2
+
+make all
+
+To test intepreter:
+
+./c5i <[your input .sc file]
+
+To test compiler:
+
+./c5c <[your input .sc file] >[output .sas file]
+./sas2 [output .sas file]
+
+To test bubble sort
+
+./c5i bubble_sort.sc
+./c5c <bubble_sort.sc >bubble_sort.sas
+./sas2 bubble_sort.sas
+
+Note that sas2 has been changed to introduce register boundary checking
+but the instruction set is not changed.

@@ -1,7 +1,7 @@
-// LR bottom up calculator
-// for Question1 part d.
+// Recursive-descent top-down calculator
+// for Question1 part f.
 // author: WANG Haicheng
-// date  : Mar 28, 2017
+// date  : Mar 25, 2017
 
 // To compile: make lrcal_postfix; 
 
