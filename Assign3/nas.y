@@ -165,49 +165,49 @@ int main(int argc, char *argv[]) {
   while (i < pc)
     switch (in[i]) {
       case PUSHI:
-	st[SP] = op[i++]; ISP; break;
+		st[SP] = op[i++]; ISP; break;
       case PUSHR:
-	st[SP] = reg[op[i++]]; ISP; break;
+		st[SP] = reg[op[i++]]; ISP; break;
       case PUSHRI:
-	st[SP] = st[reg[op[i]] + opx[i]]; i++; ISP; break;
+		st[SP] = st[reg[op[i]] + opx[i]]; i++; ISP; break;
 	// check sp pt errors here?
       case PUSHRR:
-	st[SP] = st[reg[op[i]] + reg[opx[i]]]; i++; ISP; break;
+		st[SP] = st[reg[op[i]] + reg[opx[i]]]; i++; ISP; break;
       case POPR:
-	reg[op[i++]] = st[--SP]; break;
+		reg[op[i++]] = st[--SP]; break;
       case POPRI:
-	st[reg[op[i]] + opx[i]] = st[--SP]; i++; break;
+		st[reg[op[i]] + opx[i]] = st[--SP]; i++; break;
       case POPRR:
-	st[reg[op[i]] + reg[opx[i]]] = st[--SP]; i++; break;
+		st[reg[op[i]] + reg[opx[i]]] = st[--SP]; i++; break;
 
       case CALL:
-	// save old SP
-	st[SP] = SP - opx[i]; ISP;
-	// save old FP
-	st[SP] = FP; ISP;
-	// save return address
-	st[SP] = ++i; ISP;
-	// set new FP
-	FP = SP;
-	// jump!
-	i = lb[op[i-1]];
+		// save old SP
+		st[SP] = SP - opx[i]; ISP;
+		// save old FP
+		st[SP] = FP; ISP;
+		// save return address
+		st[SP] = ++i; ISP;
+		// set new FP
+		FP = SP;
+		// jump!
+		i = lb[op[i-1]];
 	break;
       case RET:
-	// keep return value
-	temp = st[--SP];
-	// return address
-	i = st[FP - 1];
-	// restore SP
-	SP = st[FP - 3];
-	// restore FP
-	FP = st[FP - 2];
-	// push return value
-	st[SP] = temp; ISP;
-	break;
+		// keep return value
+		temp = st[--SP];
+		// return address
+		i = st[FP - 1];
+		// restore SP
+		SP = st[FP - 3];
+		// restore FP
+		FP = st[FP - 2];
+		// push return value
+		st[SP] = temp; ISP;
+		break;
 
       case END:
-	i = 99999999;
-	break;
+		i = 99999999;
+		break;
 
 #define EVAL(opr) st[SP-2] = st[SP-2] opr st[SP-1]; SP--; i++; break;
 
@@ -225,44 +225,44 @@ int main(int argc, char *argv[]) {
       case AND: EVAL(&&)
       case OR: EVAL(||)
       case NEG:
-	st[SP-1] = -st[SP-1]; i++; break;
+		st[SP-1] = -st[SP-1]; i++; break;
       case J0:
-	i = st[--SP] ? i + 1 : lb[op[i]]; break;
+		i = st[--SP] ? i + 1 : lb[op[i]]; break;
       case J1:
-	i = st[--SP] ? lb[op[i]] : i + 1; break;
+		i = st[--SP] ? lb[op[i]] : i + 1; break;
       case JMP:
-	i = lb[op[i]]; break;
+		i = lb[op[i]]; break;
       case GETI:
-	scanf("%ld", &st[SP]);
-	getchar(); // chew up the newline
-	i++; ISP; break;
+		scanf("%ld", &st[SP]);
+		getchar(); // chew up the newline
+		i++; ISP; break;
       case GETS:
         scanf("%500[^\n]", buf);
-	getchar(); // chew up the newline
-	str = (char *) malloc(strlen(buf)+1);
-	strcpy(str, buf); st[SP] = (long) str; ISP;
-	i++;
-	break;
+		getchar(); // chew up the newline
+		str = (char *) malloc(strlen(buf)+1);
+		strcpy(str, buf); st[SP] = (long) str; ISP;
+		i++;
+		break;
       case GETC:
-	st[SP] = getchar(); ISP; i++; break;
+		st[SP] = getchar(); ISP; i++; break;
       case PUTI:
-	printf("%ld\n", st[--SP]); i++; break;
+		printf("%ld\n", st[--SP]); i++; break;
       case PUTIS:
-	printf((char *) op[i], st[--SP]); i++; break;
+		printf((char *) op[i], st[--SP]); i++; break;
       case PUTS:
-	printf("%s\n", (char *) st[--SP]); i++; break;
+		printf("%s\n", (char *) st[--SP]); i++; break;
       case PUTSS:
-	printf((char *) op[i], st[--SP]); i++; break;
+		printf((char *) op[i], st[--SP]); i++; break;
       case PUTC:
-	putchar(st[--SP]); putchar('\n'); i++; break;
+		putchar(st[--SP]); putchar('\n'); i++; break;
       case PUTCS:
-	printf((char *) op[i], st[--SP]); i++; break;
+		printf((char *) op[i], st[--SP]); i++; break;
       case PUTI_:
-	printf("%ld", st[--SP]); i++; break;
+		printf("%ld", st[--SP]); i++; break;
       case PUTS_:
-	printf("%s", (char *) st[--SP]); i++; break;
+		printf("%s", (char *) st[--SP]); i++; break;
       case PUTC_:
-	putchar(st[--SP]); i++; break;
+		putchar(st[--SP]); i++; break;
     }
   return 0;
 }
