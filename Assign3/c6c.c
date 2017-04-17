@@ -31,9 +31,15 @@ int ex_(nodeType *p, int lcont, int lbrk) {
     int lblx, lbly, lblz, lbl1, lbl2, itr, index, type;
     if (!p) return 0;
     switch(p->type) {
-      case typeCon:       
+      case typeConInt:       
           printf("\tpush\t%d\n", p->con.value); 
-          break;
+          return INTEGER;
+      case typeConChar:
+          printf("\tpush\t\'%c\'\n", p->con.value);
+          return CHARACTER;
+      case typeConStr:
+          printf("\tpush\t\"%s\"\n", p->con.str);
+          return STRING;
       case typeId:        
           printf("\tpush\t%c\n", p->id.i + 'a'); 
           break;
@@ -42,7 +48,7 @@ int ex_(nodeType *p, int lcont, int lbrk) {
             case FOR: 
                 // check statement without break and continue
                 for (itr=0; itr<3; ++itr){
-                    if (p->opr.op[itr]->opr.oper == BREAK||
+                    if (p->opr.op[itr]->opr.oper == BREAK ||
                         p->opr.op[itr]->opr.oper == CONTINUE){
                         reportInvalid();
                     }
@@ -134,7 +140,6 @@ int ex_(nodeType *p, int lcont, int lbrk) {
                 break;
             case PRINT:     
                 // here cannot be a break or continue statement
-            // TODO: ex should return the type of the result so that we could distinugish the type
                 type = ex_(p->opr.op[0], lcont, lbrk);
                 if (type == INTEGER){
                     printf("\tputi\n");

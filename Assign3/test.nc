@@ -1,6 +1,6 @@
 if (1>1){
-	print 1;
+	print '\n';
 }else{
-	print 2;
+	print "asdfajslk asdnfalkj aa10923823jtna\\n\n\nx";
 }
 print 3;

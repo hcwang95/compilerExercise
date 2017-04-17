@@ -2,11 +2,11 @@ typedef enum { typeConInt, typeConChar, typeConStr, typeId, typeOpr } nodeEnum;
 
 /* constants */
 typedef struct {
-    int value;                  /* value of constant */
+    int value;
+    char str[500];                  /* value of constant */
 } conNodeType;
 
 
-// TODO: remove it since it is no longer been in use in NAS
 /* identifiers */
 typedef struct {
     int i;                      /* subscript to sym array */

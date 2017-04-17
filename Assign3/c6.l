@@ -3,7 +3,11 @@
 #include "calc6.h"
 #include "y.tab.h"
 void yyerror(char *);
+char text[500];
 %}
+
+%x string
+
 
 %%
 
@@ -25,6 +29,21 @@ void yyerror(char *);
 [-()<\[\]>=+*/;{}.%] {
                 return *yytext;
              }
+\"      { BEGIN string; *text = 0; }
+<string>[^"\\]*  { strcat(text, yytext); }
+<string>\"       { strcpy(yylval.str, text); BEGIN 0; return STRING; }
+<string>\\\"     { strcat(text, "\""); }
+<string>\\n      { strcat(text, "\n"); }
+<string>\\t      { strcat(text, "\t"); }
+<string>\\       { strcat(text, "\\"); }
+
+
+'\\n'       { yylval.iValue = (int) '\n'; return CHAR; }
+'\\t'       { yylval.iValue = (int) '\t'; return CHAR; }
+'\\''       { yylval.iValue = (int) '\''; return CHAR; }
+''          { yylval.iValue = 0; return CHAR; }
+'[^']'      { yylval.iValue = (int) yytext[1]; return CHAR; }
+
 
 ">="            return GE;
 "<="            return LE;
