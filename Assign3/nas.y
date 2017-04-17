@@ -73,7 +73,7 @@ line:
 
 instruction:
 	PUSH INT	{ in[pc] = PUSHI; op[pc++] = $2; }
-	| PUSH STRING	{ 
+	| PUSH STRING	{
 		in[pc] = PUSHI;
 		str = (char *) malloc(strlen($2)+1);
 		strcpy(str, $2); op[pc++] = (long) str;

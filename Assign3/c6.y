@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
-#include "calc3.h"
+#include "calc6.h"
 
 
 /* prototypes */
@@ -98,7 +98,7 @@ var :
 
 #define SIZEOF_NODETYPE ((char *)&p->con - (char *)p)
 
-nodeType *con(int value) {
+nodeType *con(int value, int ConType) {
     nodeType *p;
     size_t nodeSize;
 
@@ -108,6 +108,17 @@ nodeType *con(int value) {
         yyerror("out of memory");
 
     /* copy information */
+    switch (ConType){
+        case 1: // integer
+            p->type = typeConInt;
+            break;
+        case 2: // char
+            p->type = typeConChar;
+            break;
+        case 3: // string
+            p->type = typeConStr;
+            break;
+    }
     p->type = typeCon;
     p->con.value = value;
 
