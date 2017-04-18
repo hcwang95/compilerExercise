@@ -32,14 +32,14 @@ int ex_(nodeType *p, int lcont, int lbrk) {
     if (!p) return 0;
     switch(p->type) {
       case typeConInt:       
-          printf("\tpush\t%d\n", p->con.value); 
-          return INTEGER;
+          printf("\tpush\t%d\n", p->con.value);
+          break;
       case typeConChar:
-          printf("\tpush\t\'%c\'\n", p->con.value);
-          return CHARACTER;
+          printf("\tpush\t\'%c\'\n", (char)p->con.value);
+          break;
       case typeConStr:
           printf("\tpush\t\"%s\"\n", p->con.str);
-          return STRING;
+          break;
       case typeId:        
           printf("\tpush\t%c\n", p->id.i + 'a'); 
           break;
@@ -138,29 +138,59 @@ int ex_(nodeType *p, int lcont, int lbrk) {
                     printf("\tpop\t%c\n", p->opr.op[0]->id.i + 'a');
                 }
                 break;
-            case PRINT:     
-                // here cannot be a break or continue statement
-                type = ex_(p->opr.op[0], lcont, lbrk);
-                if (type == INTEGER){
-                    printf("\tputi\n");
-                }else if(type == CHARACTER){
-                    printf("\tputc\n");
-                }else{
-                    printf("\tputs\n");
-                }
+            // case PRINT:     
+            //     // here cannot be a break or continue statement
+            //     type = ex_(p->opr.op[0], lcont, lbrk);
+            //     if (type == INTEGER){
+            //         printf("\tputi\n");
+            //     }else if(type == CHARACTER){
+            //         printf("\tputc\n");
+            //     }else{
+            //         printf("\tputs\n");
+            //     }
+            //     break;
+            case PUTI:
+                ex_(p->opr.op[0], lcont, lbrk);
+                printf("\tputi\n");
                 break;
+            case PUTI_:
+                ex_(p->opr.op[0], lcont, lbrk);
+                printf("\tputi_\n");
+                break;
+            case PUTC:
+                ex_(p->opr.op[0], lcont, lbrk);
+                printf("\tputc\n");
+                break;
+            case PUTC_:
+                ex_(p->opr.op[0], lcont, lbrk);
+                printf("\tputc_\n");
+                break;
+            case PUTS:
+                ex_(p->opr.op[0], lcont, lbrk);
+                printf("\tputs\n");
+                break;
+            case PUTS_:
+                ex_(p->opr.op[0], lcont, lbrk);
+                printf("\tputs_\n");
+                break;
+
             case '=':       
                 // here cannot be a break or continue statement
                 ex_(p->opr.op[1], lcont, lbrk);
-                // check if the it's index
-                if (p->opr.op[0]->type == typeOpr){
-                    ex_(p->opr.op[0]->opr.op[1], lcont, lbrk);
-                    printf("\tpush\t%d\n", p->opr.op[0]->opr.op[0]->id.i);
-                    printf("\tadd\n");
-                    printf("\tpopi\ta\n");
-                }else{
-                    printf("\tpop\t%c\n", p->opr.op[0]->id.i + 'a');
-                }
+                // get and check the name is in the current table
+                if (inTable())
+
+                // previous implementation
+
+                // // check if the it's index
+                // if (p->opr.op[0]->type == typeOpr){
+                //     ex_(p->opr.op[0]->opr.op[1], lcont, lbrk);
+                //     printf("\tpush\t%d\n", p->opr.op[0]->opr.op[0]->id.i);
+                //     printf("\tadd\n");
+                //     printf("\tpopi\ta\n");
+                // }else{
+                //     printf("\tpop\t%c\n", p->opr.op[0]->id.i + 'a');
+                // }
 
                 break;
             case UMINUS:    

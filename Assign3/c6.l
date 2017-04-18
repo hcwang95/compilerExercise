@@ -11,10 +11,10 @@ char text[500];
 
 %%
 
-[a-z]       { 
-                yylval.sIndex = *yytext - 'a';
-                return VARIABLE;
-            }
+// [a-z]       { 
+//                 yylval.sIndex = *yytext - 'a';
+//                 return VARIABLE;
+//             }
 
 0           {
                 yylval.iValue = atoi(yytext);
@@ -53,12 +53,21 @@ char text[500];
 "while"         return WHILE;
 "if"            return IF;
 "else"          return ELSE;
-"print"         return PRINT;
 "break"         return BREAK;
 "continue"      return CONTINUE;
 "read"		    return READ;
 "&&"		    return AND;
 "||"		    return OR;
+"puti"          return PUTI;
+"puti_"         return PUTI_;
+"putc"          return PUTC;
+"putc_"         return PUTC_;
+"puts"          return PUTS;
+"puts_"         return PUTS_;
+
+    // here we add the variable
+[[:alpha:]]([[:alnum:]]){0,11}         {strcpy(yylval.varName, text); 
+                                        return VARIABLE;}
 
 \/\/.*\n	;	/* skip comments */
 

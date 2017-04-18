@@ -7,27 +7,27 @@
 
 /* prototypes */
 nodeType *opr(int oper, int nops, ...);
-nodeType *id(int i);
+nodeType *varible(char* varName);
 nodeType *con(int value, char* str, int ConType);
 void freeNode(nodeType *p);
 int ex(nodeType *p);
 int yylex(void);
 
 void yyerror(char *s);
-int sym[26];                    /* symbol table */
+// int sym[26];                    /* symbol table */
 %}
 
 %union {
     int iValue;                 /* integer value and char value*/
-    char sIndex;                /* symbol table index */
+    char varName[12];                /* varible name */
     char str[500];                /* string content*/
     nodeType *nPtr;             /* node pointer */
 };
 
 %token <iValue> INTEGER CHAR
-%token <sIndex> VARIABLE
+%token <varName> VARIABLE
 %token <str> STRING
-%token FOR WHILE IF PRINT READ BREAK CONTINUE
+%token FOR WHILE IF PUTI PUTI_ PUTC PUTC_ PUTS PUTS_ READ BREAK CONTINUE
 %nonassoc IFX
 %nonassoc ELSE
 
@@ -54,7 +54,12 @@ function:
 stmt:
           ';'                             { $$ = opr(';', 2, NULL, NULL); }
         | expr ';'                        { $$ = $1; }
-        | PRINT expr ';'                  { $$ = opr(PRINT, 1, $2); }
+        | PUTI expr ';'                  { $$ = opr(PUTI, 1, $2); }
+        | PUTI_ expr ';'                  { $$ = opr(PUTI_, 1, $2); }
+        | PUTC expr ';'                  { $$ = opr(PUTC, 1, $2); }
+        | PUTC_ expr ';'                  { $$ = opr(PUTC_, 1, $2); }
+        | PUTS expr ';'                  { $$ = opr(PUTS, 1, $2); }
+        | PUTS_ expr ';'                  { $$ = opr(PUTS_, 1, $2); }
 	    | READ var ';'		              { $$ = opr(READ, 1, $2); }
         | var '=' expr ';'                { $$ = opr('=', 2, $1, $3); }
         | BREAK ';'                       { $$ = opr(BREAK, 2, NULL, NULL);}
@@ -95,8 +100,8 @@ expr:
         ;
 
 var :
-          VARIABLE              { $$ = id($1); }
-        | VARIABLE '[' expr ']' { $$ = opr(REF, 2, id($1), $3); }
+          VARIABLE              { $$ = varible($1); }
+        | VARIABLE '[' expr ']' { $$ = opr(REF, 2, varible($1), $3); }
         ;
 %%
 
@@ -134,18 +139,23 @@ nodeType *con(int value, char* str, int ConType) {
     return p;
 }
 
-nodeType *id(int i) {
+nodeType *varible(char* varName) {
     nodeType *p;
     size_t nodeSize;
 
     /* allocate node */
-    nodeSize = SIZEOF_NODETYPE + sizeof(idNodeType);
+    nodeSize = SIZEOF_NODETYPE + sizeof(varibleNodeType);
     if ((p = malloc(nodeSize)) == NULL)
         yyerror("out of memory");
 
     /* copy information */
-    p->type = typeId;
-    p->id.i = i;
+    if (varName != NULL){
+        strcpy(p->varName, varName);
+    }
+    // -1 is the default value for undecided type of varible.
+    p-> varType = -1; 
+    // -1 is the default value for the offset
+    p-> offset = -1;
 
     return p;
 }
@@ -181,6 +191,11 @@ void freeNode(nodeType *p) {
         for (i = 0; i < p->opr.nops; i++)
             freeNode(p->opr.op[i]);
     }
+    // else if (p->type == typeVarInt ||
+    //             p->type == typeVarChar ||
+    //             p->type == typeVarStr){
+    //     free()
+    // }
     free (p);
 }
 
