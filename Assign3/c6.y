@@ -7,14 +7,23 @@
 
 /* prototypes */
 nodeType *opr(int oper, int nops, ...);
-nodeType *varible(char* varName);
+nodeType *var(char* varName);
 nodeType *con(int value, char* str, int ConType);
 void freeNode(nodeType *p);
 int ex(nodeType *p);
 int yylex(void);
 
 void yyerror(char *s);
-// int sym[26];                    /* symbol table */
+typedef struct tableNode{
+    char varName[12];
+    int offset;
+    struct tableNode * leftNode;
+    struct tableNode * rightNode;
+}tableNode;
+
+tableNode* Table = NULL;
+
+static int varCount = 0;
 %}
 
 %union {
@@ -25,9 +34,9 @@ void yyerror(char *s);
 };
 
 %token <iValue> INTEGER CHAR
-%token <varName> VARIABLE
 %token <str> STRING
-%token FOR WHILE IF PUTI PUTI_ PUTC PUTC_ PUTS PUTS_ READ BREAK CONTINUE
+%token <varName> VARIABLE
+%token FOR WHILE IF PUTI PUTI_ PUTC PUTC_ PUTS PUTS_ READ BREAK CONTINUE 
 %nonassoc IFX
 %nonassoc ELSE
 
@@ -100,8 +109,8 @@ expr:
         ;
 
 var :
-          VARIABLE              { $$ = varible($1); }
-        | VARIABLE '[' expr ']' { $$ = opr(REF, 2, varible($1), $3); }
+          VARIABLE              { $$ = var($1);}
+        | VARIABLE '[' expr ']' { $$ = opr(REF, 2, var($1), $3); }
         ;
 %%
 
@@ -139,7 +148,7 @@ nodeType *con(int value, char* str, int ConType) {
     return p;
 }
 
-nodeType *varible(char* varName) {
+nodeType *var(char* varName) {
     nodeType *p;
     size_t nodeSize;
 
@@ -149,13 +158,17 @@ nodeType *varible(char* varName) {
         yyerror("out of memory");
 
     /* copy information */
-    if (varName != NULL){
-        strcpy(p->varName, varName);
+    p->type = typeVar;
+
+    // set the offset
+    int offset = getOffsetFromTable(varName, Table);
+
+    if (offset == -1){
+        p->var.offset = varCount++;
+        updateTable(varName, p->var.offset, &Table);
+    }else{
+        p->var.offset = offset;
     }
-    // -1 is the default value for undecided type of varible.
-    p-> varType = -1; 
-    // -1 is the default value for the offset
-    p-> offset = -1;
 
     return p;
 }
@@ -197,6 +210,42 @@ void freeNode(nodeType *p) {
     //     free()
     // }
     free (p);
+}
+
+
+int getOffsetFromTable(char* varName, tableNode* root){
+    if (root == NULL){
+        return -1;
+    }else{
+
+        int flag = strcmp(root->varName, varName);
+        if (flag == 0){
+            return root->offset;
+        }
+        else if(flag < 0){
+            return getOffsetFromTable(varName, root->leftNode);
+        }else{
+            return getOffsetFromTable(varName, root->rightNode);
+        }
+    }
+}
+
+void updateTable(char* varName, int offset, tableNode** root){
+    if (*root == NULL){
+        tableNode * newOne = (tableNode*)malloc(sizeof(tableNode));
+        strcpy(newOne->varName, varName);
+        newOne->offset = offset;
+        newOne->leftNode = NULL;
+        newOne->rightNode = NULL;
+        *root = newOne;
+    }else{
+        int flag = strcmp((*root)->varName, varName);
+        if(flag < 0){
+            updateTable(varName, offset, &((*root)->leftNode));
+        }else{
+            updateTable(varName, offset, &((*root)->rightNode));
+        }
+    }
 }
 
 void yyerror(char *s) {

@@ -1,4 +1,5 @@
-typedef enum { typeConInt, typeConChar, typeConStr, typeId, typeOpr } nodeEnum;
+typedef enum { typeConInt, typeConChar, typeConStr, \
+               typeVar, typeOpr } nodeEnum;
 
 /* constants */
 typedef struct {
@@ -9,8 +10,9 @@ typedef struct {
 
 /* identifiers */
 typedef struct {
-    int i;                      /* subscript to sym array */
-} idNodeType;
+    int varType;                    /* type of the varible */
+    int offset;                     /* offset of frame pointer in order to hold the value */
+} varibleNodeType;
 
 /* operators */
 typedef struct {
@@ -26,10 +28,9 @@ typedef struct nodeTypeTag {
     /* because operNodeType may dynamically increase */
     union {
         conNodeType con;        /* constants */
-        idNodeType id;          /* identifiers */
+        varibleNodeType var;          /* identifiers */
         oprNodeType opr;        /* operators */
     };
 } nodeType;
 
 // TODO: remove it since it is no longer been in use in NAS
-extern int sym[26];

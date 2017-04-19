@@ -3,10 +3,8 @@
 #include "y.tab.h"
 
 static int lbl;
+static int currenVarCount;
 
-#define INTEGER 1
-#define CHARACTER 2
-#define STRING 3
 
 void reportOutOfLoop(){
     printf("break or continue statement not within loop\n");
@@ -40,8 +38,8 @@ int ex_(nodeType *p, int lcont, int lbrk) {
       case typeConStr:
           printf("\tpush\t\"%s\"\n", p->con.str);
           break;
-      case typeId:        
-          printf("\tpush\t%c\n", p->id.i + 'a'); 
+      case typeVar:        
+          printf("\tpush\tfp[%d]\n", p->var.offset);
           break;
       case typeOpr:
           switch(p->opr.oper) {
@@ -122,33 +120,22 @@ int ex_(nodeType *p, int lcont, int lbrk) {
                 }
                 break;
             case REF:
-                ex_(p->opr.op[1], lcont, lbrk);
-                printf("\tpush\t%d\n", p->opr.op[0]->id.i);
-                printf("\tadd\n");
-                printf("\tpushi\ta\n");
+                // ex_(p->opr.op[1], lcont, lbrk);
+                // printf("\tpush\t%d\n", p->opr.op[0]->id.i);
+                // printf("\tadd\n");
+                // printf("\tpushi\ta\n");
                 break;
             case READ:
-                printf("\tread\n");
-                if (p->opr.op[0]->type == typeOpr){
-                    ex_(p->opr.op[0]->opr.op[1], lcont, lbrk);
-                    printf("\tpush\t%d\n", p->opr.op[0]->opr.op[0]->id.i);
-                    printf("\tadd\n");
-                    printf("\tpopi\ta\n");
-                }else{
-                    printf("\tpop\t%c\n", p->opr.op[0]->id.i + 'a');
-                }
+                // printf("\tread\n");
+                // if (p->opr.op[0]->type == typeOpr){
+                //     ex_(p->opr.op[0]->opr.op[1], lcont, lbrk);
+                //     printf("\tpush\t%d\n", p->opr.op[0]->opr.op[0]->id.i);
+                //     printf("\tadd\n");
+                //     printf("\tpopi\ta\n");
+                // }else{
+                //     printf("\tpop\t%c\n", p->opr.op[0]->id.i + 'a');
+                // }
                 break;
-            // case PRINT:     
-            //     // here cannot be a break or continue statement
-            //     type = ex_(p->opr.op[0], lcont, lbrk);
-            //     if (type == INTEGER){
-            //         printf("\tputi\n");
-            //     }else if(type == CHARACTER){
-            //         printf("\tputc\n");
-            //     }else{
-            //         printf("\tputs\n");
-            //     }
-            //     break;
             case PUTI:
                 ex_(p->opr.op[0], lcont, lbrk);
                 printf("\tputi\n");
@@ -177,9 +164,11 @@ int ex_(nodeType *p, int lcont, int lbrk) {
             case '=':       
                 // here cannot be a break or continue statement
                 ex_(p->opr.op[1], lcont, lbrk);
-                // get and check the name is in the current table
-                if (inTable())
-
+                if (p->opr.op[0]->var.offset == currenVarCount){
+                    currenVarCount++;
+                }else{
+                    printf("\tpop\tfp[%d]\n", p->opr.op[0]->var.offset);
+                }
                 // previous implementation
 
                 // // check if the it's index

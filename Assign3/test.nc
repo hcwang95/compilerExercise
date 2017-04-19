@@ -1,6 +1,13 @@
-if (1>1){
-	print '\n';
+x = 10;
+yabc = 10;
+asdfasdf = 100;
+a123 = 15;
+if (x>1){
+	puti_ x;
 }else{
-	print "asdfajslk asdnfalkj aa10923823jtna\\n\n\nx";
+	puts "asdfajslk asdnfalkj aa10923823jtna\\n\n\nx";
+	x = 20;
 }
-print 3;
+puti x+10;
+abc = 11;
+ggtest = 10;

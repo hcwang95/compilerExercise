@@ -11,11 +11,6 @@ char text[500];
 
 %%
 
-// [a-z]       { 
-//                 yylval.sIndex = *yytext - 'a';
-//                 return VARIABLE;
-//             }
-
 0           {
                 yylval.iValue = atoi(yytext);
                 return INTEGER;
@@ -65,8 +60,7 @@ char text[500];
 "puts"          return PUTS;
 "puts_"         return PUTS_;
 
-    // here we add the variable
-[[:alpha:]]([[:alnum:]]){0,11}         {strcpy(yylval.varName, text); 
+[[:alpha:]]([[:alnum:]]){0,11}         {strcpy(yylval.varName, yytext); 
                                         return VARIABLE;}
 
 \/\/.*\n	;	/* skip comments */
