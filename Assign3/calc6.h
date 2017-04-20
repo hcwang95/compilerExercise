@@ -1,5 +1,6 @@
 typedef enum { typeConInt, typeConChar, typeConStr, \
-               typeVar, typeOpr } nodeEnum;
+               typeVar, typeVarInt, typeVarChar, typeVarStr, \
+               typeOpr } nodeEnum;
 
 /* constants */
 typedef struct {

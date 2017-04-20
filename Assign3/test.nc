@@ -3,9 +3,9 @@ yabc = 10;
 asdfasdf = 100;
 a123 = 15;
 if (x>1){
-	puti_ x;
+	putc_ '\n';
 }else{
-	puts "asdfajslk asdnfalkj aa10923823jtna\\n\n\nx";
+	puts "asdfajslk asdnfalkj aa10923823jtna\"\n\n\nx";
 	x = 20;
 }
 puti x+10;

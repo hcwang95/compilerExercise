@@ -5,20 +5,84 @@
 static int lbl;
 static int currenVarCount;
 
+// #define DEBUG
+// #define CHECK
 
+
+#ifdef DEBUG
+void checkNode(nodeType* p){
+    if (!p) return;
+    printf("check the node info: \n");
+    printf("node type: %d\n", p->type);
+    printf("node type reference:\n\ttypeConInt:0\n\ttypeConChar:1\n\ttypeConStr:2 \
+               \n\ttypeVar:3\n\ttypeVarInt:4\n\ttypeVarChar:5\n\ttypeVarStr:6 \
+               \n\ttypeOpr:7\n");
+    if (p->type == typeConInt){
+        printf("constant int in the node: %d\n", p->con.value);
+    }else if(p->type == typeConStr){
+        printf("constant str in the node: %s\n", p->con.str);
+    }else if(p->type == typeConChar){
+        printf("constant char in the node: %c\n", (char)p->con.value);
+    }else if(p->type == typeVar){
+        printf("the offset of the varible is: %d\n", p->var.offset);
+    }else if(p->type == typeOpr){
+        printf("this is opration node, totally there is %d subNodes\n", p->opr.nops);
+        printf("Here are the subNodes infomation:\n");  
+        int i;        
+        for (i = 0; i < p->opr.nops; i++){
+            checkNode(p->opr.op[i]);
+        }
+        printf("finish the printing for the subNodes of opration node with oprator %c.\n", (char)p->opr.oper);
+    }
+}
+#endif
 void reportOutOfLoop(){
     printf("break or continue statement not within loop\n");
-    exit(0);
+    // exit(0);
 }
 
 void reportInvalid(){
     printf("invalid break or continue statement\n");
-    exit(0);
+    // exit(0);
+}
+
+void reportUndefined(){
+    printf("undefined varible\n");
+    // exit(0);
+}
+
+void reportMisMatched(){
+    printf("the type of argument does not match the function used\n");
+    // exit(0);
 }
 
 
+void checkDefined(nodeType *p){
+    if (p->var.offset >= currenVarCount){
+        reportUndefined();
+    }
+}
 
-
+void checkUndefiedAndMatching(nodeType *p, int typeCon){
+    if (p->type == typeVar){
+        #ifdef DEBUG
+        printf("find the type of varible\n");
+        #endif
+        checkDefined(p);
+    }else if (p->type == typeOpr){
+        int i;
+        for (i = 0; i < p->opr.nops; i++){
+            checkUndefiedAndMatching(p->opr.op[i], typeCon);
+        }
+    }else{
+        #ifdef DEBUG
+        printf("find the type of constant\n");
+        #endif
+        if (p->type != typeCon){
+            reportMisMatched();
+        }
+    }
+}
 int ex_(nodeType *p, int lcont, int lbrk);
 int ex(nodeType *p){
     ex_(p,-1,-1);
@@ -33,7 +97,7 @@ int ex_(nodeType *p, int lcont, int lbrk) {
           printf("\tpush\t%d\n", p->con.value);
           break;
       case typeConChar:
-          printf("\tpush\t\'%c\'\n", (char)p->con.value);
+          printf("\tpush\t\'%s\'\n", p->con.str);
           break;
       case typeConStr:
           printf("\tpush\t\"%s\"\n", p->con.str);
@@ -89,7 +153,13 @@ int ex_(nodeType *p, int lcont, int lbrk) {
                 if (p->opr.nops > 2) {
                     /* if else */
                     printf("\tj0\tL%03d\n", lbl1 = lbl++);
+                    #ifdef DEBUG
+                        printf("positive part\n");
+                    #endif
                     ex_(p->opr.op[1], lcont, lbrk);
+                    #ifdef DEBUG
+                        printf("jump to negative part\n");
+                    #endif
                     printf("\tjmp\tL%03d\n", lbl2 = lbl++);
                     printf("L%03d:\n", lbl1);
                     ex_(p->opr.op[2], lcont, lbrk);
@@ -137,26 +207,57 @@ int ex_(nodeType *p, int lcont, int lbrk) {
                 // }
                 break;
             case PUTI:
+                #ifdef DEBUG
+                    printf("check the node we want PUTI\n");
+                    checkNode(p->opr.op[0]);
+                #endif
+                // check for varible type or constant type
+                checkUndefiedAndMatching(p->opr.op[0], typeConInt);
                 ex_(p->opr.op[0], lcont, lbrk);
                 printf("\tputi\n");
                 break;
             case PUTI_:
+                #ifdef DEBUG
+                    printf("check the node we want PUTI_\n");
+                    checkNode(p->opr.op[0]);
+                #endif
+                // check for varible type or constant type
+                checkUndefiedAndMatching(p->opr.op[0], typeConInt);
                 ex_(p->opr.op[0], lcont, lbrk);
                 printf("\tputi_\n");
                 break;
             case PUTC:
+                // check for varible type or constant type
+                checkUndefiedAndMatching(p->opr.op[0], typeConChar);
                 ex_(p->opr.op[0], lcont, lbrk);
                 printf("\tputc\n");
                 break;
             case PUTC_:
+                // check for varible type or constant type
+                checkUndefiedAndMatching(p->opr.op[0], typeConChar);
                 ex_(p->opr.op[0], lcont, lbrk);
                 printf("\tputc_\n");
                 break;
             case PUTS:
+                #ifdef DEBUG
+                    printf("check the node we want PUTS\n");
+                    checkNode(p->opr.op[0]);
+                #endif
+                // check for varible type or constant type
+                checkUndefiedAndMatching(p->opr.op[0], typeConStr);
+                #ifdef DEBUG
+                printf("after checking\n");
+                #endif
                 ex_(p->opr.op[0], lcont, lbrk);
                 printf("\tputs\n");
                 break;
             case PUTS_:
+                #ifdef DEBUG
+                    printf("check the node we want PUTS_\n");
+                    checkNode(p->opr.op[0]);
+                #endif
+                // check for varible type or constant type
+                checkUndefiedAndMatching(p->opr.op[0], typeConStr);
                 ex_(p->opr.op[0], lcont, lbrk);
                 printf("\tputs_\n");
                 break;

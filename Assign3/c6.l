@@ -27,17 +27,17 @@ char text[500];
 \"      { BEGIN string; *text = 0; }
 <string>[^"\\]*  { strcat(text, yytext); }
 <string>\"       { strcpy(yylval.str, text); BEGIN 0; return STRING; }
-<string>\\\"     { strcat(text, "\""); }
-<string>\\n      { strcat(text, "\n"); }
-<string>\\t      { strcat(text, "\t"); }
+<string>\\\"     { strcat(text, "\\\""); }
+<string>\\n      { strcat(text, "\\n"); }
+<string>\\t      { strcat(text, "\\t"); }
 <string>\\       { strcat(text, "\\"); }
 
 
-'\\n'       { yylval.iValue = (int) '\n'; return CHAR; }
-'\\t'       { yylval.iValue = (int) '\t'; return CHAR; }
-'\\''       { yylval.iValue = (int) '\''; return CHAR; }
-''          { yylval.iValue = 0; return CHAR; }
-'[^']'      { yylval.iValue = (int) yytext[1]; return CHAR; }
+'\\n'       { strcpy(yylval.str, "\\n"); return CHAR; }
+'\\t'       { strcpy(yylval.str, "\\t"); return CHAR; }
+'\\''       { strcpy(yylval.str, "\\");  return CHAR; }
+''          { strcpy(yylval.str, "");    return CHAR; }
+'[^']'      { strcpy(yylval.str, text);  return CHAR; }
 
 
 ">="            return GE;

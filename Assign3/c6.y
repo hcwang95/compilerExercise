@@ -33,8 +33,8 @@ static int varCount = 0;
     nodeType *nPtr;             /* node pointer */
 };
 
-%token <iValue> INTEGER CHAR
-%token <str> STRING
+%token <iValue> INTEGER
+%token <str> STRING CHAR
 %token <varName> VARIABLE
 %token FOR WHILE IF PUTI PUTI_ PUTC PUTC_ PUTS PUTS_ READ BREAK CONTINUE 
 %nonassoc IFX
@@ -88,7 +88,7 @@ stmt_list:
 
 expr:
           INTEGER               { $$ = con($1, NULL, 1); }
-        | CHAR                  { $$ = con($1, NULL, 2); }
+        | CHAR                  { $$ = con(NULL, $1, 2); }
         | STRING                { $$ = con(NULL, $1, 3); }
         | var                   { $$ = $1; }
         | '-' expr %prec UMINUS { $$ = opr(UMINUS, 1, $2); }
