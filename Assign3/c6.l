@@ -4,12 +4,18 @@
 #include "y.tab.h"
 void yyerror(char *);
 char text[500];
+char linebuf[500];
 %}
+%option yylineno
 
 %x string
 
 
 %%
+
+\n[^\n]*            {//strcpy(linebuf, yytext); /* save the next line */
+                     yyless(1);        /* give back all but the \n to rescan */
+                    }
 
 0           {
                 yylval.iValue = atoi(yytext);
@@ -50,7 +56,6 @@ char text[500];
 "else"          return ELSE;
 "break"         return BREAK;
 "continue"      return CONTINUE;
-"read"		    return READ;
 "&&"		    return AND;
 "||"		    return OR;
 "puti"          return PUTI;
@@ -59,13 +64,18 @@ char text[500];
 "putc_"         return PUTC_;
 "puts"          return PUTS;
 "puts_"         return PUTS_;
+"geti"          return GETI;
+"getc"          return GETC;
+"gets"          return GETS;
 
 [[:alpha:]]([[:alnum:]]){0,11}         {strcpy(yylval.varName, yytext); 
+                                        printf("find a varible : %s\n", yytext);
                                         return VARIABLE;}
 
 \/\/.*\n	;	/* skip comments */
 
-[ \t\n]+        ;       /* ignore whitespace */
+[ \t]+        ;       /* ignore whitespace */
+
 
 .               yyerror("Unknown character");
 %%

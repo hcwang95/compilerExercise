@@ -1,4 +1,4 @@
-	push	10
+	push	1
 	push	10
 	push	100
 	push	15
@@ -6,14 +6,13 @@
 	push	1
 	compGT
 	j0	L000
+	push	'\n'
+	pop		fp[0]
 	push	fp[0]
-	puti_
+	puti
 	jmp	L001
 L000:
-	push	"asdfajslk asdnfalkj aa10923823jtna\
-
-
-x"
+	push	"asdfajslk asdnfalkj aa10923823jtna\"\n\n\nx"
 	puts
 	push	20
 	pop	fp[0]

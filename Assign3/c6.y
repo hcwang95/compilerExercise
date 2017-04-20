@@ -4,6 +4,14 @@
 #include <stdarg.h>
 #include "calc6.h"
 
+#ifndef CHECK
+#define CHECK
+#endif
+
+
+extern int yylineno;
+extern char* linebuf;
+extern char* yytext;
 
 /* prototypes */
 nodeType *opr(int oper, int nops, ...);
@@ -36,7 +44,7 @@ static int varCount = 0;
 %token <iValue> INTEGER
 %token <str> STRING CHAR
 %token <varName> VARIABLE
-%token FOR WHILE IF PUTI PUTI_ PUTC PUTC_ PUTS PUTS_ READ BREAK CONTINUE 
+%token FOR WHILE IF PUTI PUTI_ PUTC PUTC_ PUTS PUTS_ GETI GETC GETS BREAK CONTINUE 
 %nonassoc IFX
 %nonassoc ELSE
 
@@ -69,12 +77,15 @@ stmt:
         | PUTC_ expr ';'                  { $$ = opr(PUTC_, 1, $2); }
         | PUTS expr ';'                  { $$ = opr(PUTS, 1, $2); }
         | PUTS_ expr ';'                  { $$ = opr(PUTS_, 1, $2); }
-	    | READ var ';'		              { $$ = opr(READ, 1, $2); }
+        | GETI expr ';'                    { $$ = opr(GETI, 1, $2); }
+        | GETC expr ';'                    { $$ = opr(GETC, 1, $2); }
+        | GETS expr ';'                    { $$ = opr(GETS, 1, $2); }
         | var '=' expr ';'                { $$ = opr('=', 2, $1, $3); }
         | BREAK ';'                       { $$ = opr(BREAK, 2, NULL, NULL);}
         | CONTINUE ';'                    { $$ = opr(CONTINUE, 2, NULL, NULL);}
 	    | FOR '(' stmt stmt stmt ')' stmt { $$ = opr(FOR, 4, $3, $4,
-                                            $5, $7); }
+                                            $5, $7); 
+    }
         | WHILE '(' expr ')' stmt         { $$ = opr(WHILE, 2, $3, $5); }
         | IF '(' expr ')' stmt %prec IFX  { $$ = opr(IF, 2, $3, $5); }
         | IF '(' expr ')' stmt ELSE stmt  { $$ = opr(IF, 3, $3, $5, $7); }
@@ -149,6 +160,9 @@ nodeType *con(int value, char* str, int ConType) {
 }
 
 nodeType *var(char* varName) {
+    #ifdef CHECK
+        printf("create Node for %s\n", varName);
+    #endif
     nodeType *p;
     size_t nodeSize;
 
@@ -249,7 +263,8 @@ void updateTable(char* varName, int offset, tableNode** root){
 }
 
 void yyerror(char *s) {
-    fprintf(stdout, "%s\n", s);
+    fprintf(stderr, "line %d: %s at %s in this line:\n%s\n",
+               yylineno, s, yytext, linebuf);
 }
 
 int main(int argc, char **argv) {

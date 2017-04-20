@@ -189,22 +189,30 @@ int ex_(nodeType *p, int lcont, int lbrk) {
                   printf("\tjmp\tL%03d\n", lcont);
                 }
                 break;
-            case REF:
-                // ex_(p->opr.op[1], lcont, lbrk);
-                // printf("\tpush\t%d\n", p->opr.op[0]->id.i);
-                // printf("\tadd\n");
-                // printf("\tpushi\ta\n");
+
+            case GETI:
+                printf("\tgeti\n");
+                if (p->opr.op[0]->var.offset == currenVarCount){
+                    currenVarCount++;
+                }else{
+                    printf("\tpop\tfp[%d]\n", p->opr.op[0]->var.offset);
+                }
                 break;
-            case READ:
-                // printf("\tread\n");
-                // if (p->opr.op[0]->type == typeOpr){
-                //     ex_(p->opr.op[0]->opr.op[1], lcont, lbrk);
-                //     printf("\tpush\t%d\n", p->opr.op[0]->opr.op[0]->id.i);
-                //     printf("\tadd\n");
-                //     printf("\tpopi\ta\n");
-                // }else{
-                //     printf("\tpop\t%c\n", p->opr.op[0]->id.i + 'a');
-                // }
+            case GETC:
+                printf("\tgetc\n");
+                if (p->opr.op[0]->var.offset == currenVarCount){
+                    currenVarCount++;
+                }else{
+                    printf("\tpop\tfp[%d]\n", p->opr.op[0]->var.offset);
+                }
+                break;
+            case GETS:
+                printf("\tgets\n");
+                if (p->opr.op[0]->var.offset == currenVarCount){
+                    currenVarCount++;
+                }else{
+                    printf("\tpop\tfp[%d]\n", p->opr.op[0]->var.offset);
+                }
                 break;
             case PUTI:
                 #ifdef DEBUG
@@ -270,18 +278,6 @@ int ex_(nodeType *p, int lcont, int lbrk) {
                 }else{
                     printf("\tpop\tfp[%d]\n", p->opr.op[0]->var.offset);
                 }
-                // previous implementation
-
-                // // check if the it's index
-                // if (p->opr.op[0]->type == typeOpr){
-                //     ex_(p->opr.op[0]->opr.op[1], lcont, lbrk);
-                //     printf("\tpush\t%d\n", p->opr.op[0]->opr.op[0]->id.i);
-                //     printf("\tadd\n");
-                //     printf("\tpopi\ta\n");
-                // }else{
-                //     printf("\tpop\t%c\n", p->opr.op[0]->id.i + 'a');
-                // }
-
                 break;
             case UMINUS:    
                 // here cannot be a break or continue statement
