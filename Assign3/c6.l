@@ -2,18 +2,36 @@
 #include <stdlib.h>
 #include "calc6.h"
 #include "y.tab.h"
-void yyerror(char *);
+#include <stdarg.h>
+void yyerror(char *, ...);
+char line[500];
 char text[500];
-char linebuf[500];
+typedef struct YYLTYPE
+{
+  int first_line;
+  int first_column;
+  int last_line;
+  int last_column;
+} YYLTYPE;
+
+/* handle locations */
+int yycolumn = 1;
+YYLTYPE yylloc;
+
+#define YY_USER_ACTION yylloc.first_line = yylloc.last_line = yylineno; \
+    yylloc.first_column = yycolumn; yylloc.last_column = yycolumn+yyleng-1; \
+    yycolumn += yyleng;
 %}
-%option yylineno
+%option yylineno 
 
 %x string
 
 
 %%
 
-\n[^(\n)]*            {//strcpy(linebuf, yytext); /* save the next line */
+\n[^\n]*          {
+                     strncpy(line, yytext+1, sizeof(line));/* save the next line */
+                     yycolumn = 1;
                      yyless(1);        /* give back all but the \n to rescan */
                     }
 
@@ -81,6 +99,38 @@ char linebuf[500];
 
 .               yyerror("Unknown character");
 %%
+
+void
+yyerror(char *s, ...)
+{
+  va_list ap;
+  va_start(ap, s);
+
+
+  if(yylloc.first_line){
+    int i = 0;
+    char* mark = (char*)malloc(yylloc.last_column * sizeof(char));
+    for (i;i<yylloc.last_column;++i){
+        if (i<yylloc.first_column-1){
+            mark[i] = ' ';
+        }else{
+            mark[i] = '^';
+        }
+    }
+    fprintf(stderr, "line:%d error: %s at this line:\n%s\n%s\n", yylloc.first_line, s, \
+        line,mark);
+  }
+   
+  fprintf(stderr, "\n");
+
+}
+
+// void yyerror(char *s) {
+//     fprintf(stderr, "line %d: %s at %s in this line:\n%s\n",
+//                yylineno, s, yytext, line);
+// }
+
+
 int yywrap(void) {
     return 1;
 }

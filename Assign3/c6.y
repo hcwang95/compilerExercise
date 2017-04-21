@@ -13,8 +13,8 @@
 // #endif
 
 extern int yylineno;
-extern char* linebuf;
 extern char* yytext;
+extern char* line;
 
 /* prototypes */
 nodeType *opr(int oper, int nops, ...);
@@ -271,10 +271,6 @@ void updateTable(char* varName, int offset, tableNode** root){
     }
 }
 
-void yyerror(char *s) {
-    fprintf(stderr, "line %d: %s at %s in this line:\n%s\n",
-               yylineno, s, yytext, linebuf);
-}
 
 int main(int argc, char **argv) {
 extern FILE* yyin;
