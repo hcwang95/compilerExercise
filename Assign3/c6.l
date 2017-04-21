@@ -13,7 +13,7 @@ char linebuf[500];
 
 %%
 
-\n[^\n]*            {//strcpy(linebuf, yytext); /* save the next line */
+\n[^(\n)]*            {//strcpy(linebuf, yytext); /* save the next line */
                      yyless(1);        /* give back all but the \n to rescan */
                     }
 
@@ -68,8 +68,10 @@ char linebuf[500];
 "getc"          return GETC;
 "gets"          return GETS;
 
-[[:alpha:]]([[:alnum:]]){0,11}         {strcpy(yylval.varName, yytext); 
+[[:alpha:]]([[:alnum:]]){0,11}         {strcpy(yylval.varName, yytext);
+                                        #ifdef DEBUG 
                                         printf("find a varible : %s\n", yytext);
+                                        #endif
                                         return VARIABLE;}
 
 \/\/.*\n	;	/* skip comments */

@@ -4,10 +4,13 @@
 #include <stdarg.h>
 #include "calc6.h"
 
-#ifndef CHECK
-#define CHECK
-#endif
+// #ifndef CHECK
+// #define CHECK
+// #endif
 
+// #ifndef DEBUG
+// #define DEBUG
+// #endif
 
 extern int yylineno;
 extern char* linebuf;
@@ -140,6 +143,7 @@ nodeType *con(int value, char* str, int ConType) {
     switch (ConType){
         case 1: // integer
             p->type = typeConInt;
+            p->con.value = value;
             break;
         case 2: // char
             p->type = typeConChar;
@@ -151,6 +155,9 @@ nodeType *con(int value, char* str, int ConType) {
 
     if (value!=NULL){
         p->con.value = value;
+        #ifdef CHECK
+        printf("get a value: %d\n", value);
+        #endif
     }
     if (str!=NULL){
         strcpy(p->con.str, str);
@@ -160,7 +167,7 @@ nodeType *con(int value, char* str, int ConType) {
 }
 
 nodeType *var(char* varName) {
-    #ifdef CHECK
+    #ifdef DEBUG
         printf("create Node for %s\n", varName);
     #endif
     nodeType *p;
@@ -183,7 +190,9 @@ nodeType *var(char* varName) {
     }else{
         p->var.offset = offset;
     }
-
+    #ifdef DEBUG
+        printf("set offset for %s as %d\n", varName, p->var.offset);
+    #endif
     return p;
 }
 

@@ -5,9 +5,13 @@
 static int lbl;
 static int currenVarCount;
 
-// #define DEBUG
+// #ifndef CHECK
 // #define CHECK
+// #endif
 
+// #ifndef DEBUG
+// #define DEBUG
+// #endif
 
 #ifdef DEBUG
 void checkNode(nodeType* p){
@@ -94,6 +98,9 @@ int ex_(nodeType *p, int lcont, int lbrk) {
     if (!p) return 0;
     switch(p->type) {
       case typeConInt:       
+          #ifdef DEBUG
+            printf("find the constant int %d\n", p->con.value);
+          #endif
           printf("\tpush\t%d\n", p->con.value);
           break;
       case typeConChar:
@@ -115,6 +122,9 @@ int ex_(nodeType *p, int lcont, int lbrk) {
                         reportInvalid();
                     }
                 }
+                #ifdef DEBUG
+                checkNode(p);
+                #endif
                 ex_(p->opr.op[0], lcont, lbrk);
                 printf("L%03d:\n", lblx = lbl++);
                 ex_(p->opr.op[1], lcont, lbrk);
@@ -275,6 +285,9 @@ int ex_(nodeType *p, int lcont, int lbrk) {
                 ex_(p->opr.op[1], lcont, lbrk);
                 if (p->opr.op[0]->var.offset == currenVarCount){
                     currenVarCount++;
+                    #ifdef DEBUG
+                    printf("find a new varible\n");
+                    #endif
                 }else{
                     printf("\tpop\tfp[%d]\n", p->opr.op[0]->var.offset);
                 }
