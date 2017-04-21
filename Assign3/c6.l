@@ -109,9 +109,9 @@ yyerror(char *s, ...)
 
   if(yylloc.first_line){
     int i = 0;
-    char* mark = (char*)malloc(yylloc.last_column * sizeof(char));
-    for (i;i<yylloc.last_column;++i){
-        if (i<yylloc.first_column-1){
+    char* mark = (char*)malloc((yylloc.last_column+1) * sizeof(char));
+    for (i;i<=yylloc.last_column;++i){
+        if (i<yylloc.first_column-2){
             mark[i] = ' ';
         }else{
             mark[i] = '^';
@@ -125,10 +125,6 @@ yyerror(char *s, ...)
 
 }
 
-// void yyerror(char *s) {
-//     fprintf(stderr, "line %d: %s at %s in this line:\n%s\n",
-//                yylineno, s, yytext, line);
-// }
 
 
 int yywrap(void) {

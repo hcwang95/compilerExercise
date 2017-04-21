@@ -4,6 +4,8 @@
 
 static int lbl;
 static int currenVarCount;
+extern tableNode* Table;
+
 
 // #ifndef CHECK
 // #define CHECK
@@ -12,6 +14,8 @@ static int currenVarCount;
 // #ifndef DEBUG
 // #define DEBUG
 // #endif
+
+
 
 #ifdef DEBUG
 void checkNode(nodeType* p){
@@ -40,6 +44,16 @@ void checkNode(nodeType* p){
     }
 }
 #endif
+
+
+int size(tableNode* root){
+    if (root == NULL){
+        return 0;
+    }
+    else{
+        return size(root->leftNode) + size(rightNode) + 1;
+    }
+}
 void reportOutOfLoop(){
     printf("break or continue statement not within loop\n");
     // exit(0);

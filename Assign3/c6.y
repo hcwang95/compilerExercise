@@ -25,12 +25,7 @@ int ex(nodeType *p);
 int yylex(void);
 
 void yyerror(char *s);
-typedef struct tableNode{
-    char varName[12];
-    int offset;
-    struct tableNode * leftNode;
-    struct tableNode * rightNode;
-}tableNode;
+
 
 tableNode* Table = NULL;
 

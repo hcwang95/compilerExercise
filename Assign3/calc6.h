@@ -34,4 +34,9 @@ typedef struct nodeTypeTag {
     };
 } nodeType;
 
-// TODO: remove it since it is no longer been in use in NAS
+typedef struct tableNode{
+    char varName[12];
+    int offset;
+    struct tableNode * leftNode;
+    struct tableNode * rightNode;
+}tableNode;
