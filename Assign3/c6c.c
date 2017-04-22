@@ -3,7 +3,7 @@
 #include "y.tab.h"
 
 static int lbl;
-static int currenVarCount;
+static int currenVarCount = 0;
 extern tableNode* Table;
 static tableNode* typeTable;
 
@@ -175,6 +175,9 @@ int checkDefined(nodeType *p){
 
     //
     if (p->var.offset >= currenVarCount){
+        #ifdef DEBUG
+        printf("offset:%d > currenVarCount:%d\n", p->var.offset,currenVarCount);
+        #endif
         reportUndefined(p->var.offset);
         return -1;
     }
@@ -222,23 +225,23 @@ void localMemAlloc(int size){
 // this function have two responsibilties:
 // 1. check if the expression is consistent in terms of type
 // 2. if consistent, return the consistent type.
-
-int getType(nodeType* p){
+// Note that the type are all casted to constant type
+int getRValueType(nodeType* p){
     if (p->type == typeVar) {
-        return checkDefined(p);
+        return checkDefined(p) - 4;
     }
     if (p->type == typeConInt) return typeConInt;
     if (p->type == typeConChar) return typeConChar;
     if (p->type == typeConStr) return typeConStr;
     if (p->type == typeOpr){
         if (p->opr.nops == 1){
-            return getType(p->opr.op[0]); // deal with UMINUS
+            return getRValueType(p->opr.op[0]); // deal with UMINUS
         }else{
             // deal with double operands
             int * typeList = (int*)malloc(p->opr.nops * sizeof(int));
             int i;        
             for (i = 0; i < p->opr.nops; ++i){
-                typeList[i] = getType(p->opr.op[i]);
+                typeList[i] = getRValueType(p->opr.op[i]);
                 // if there is one variable undefined
                 if (typeList[i] == -1){
                     return -1;
@@ -518,7 +521,7 @@ int ex_(nodeType *p, int lcont, int lbrk) {
                 #ifdef DEBUG
                 printf("starting updating the varible type\n");
                 #endif
-                updateVarType(p->opr.op[0], getType(p->opr.op[1])+4);
+                updateVarType(p->opr.op[0], getRValueType(p->opr.op[1])+4);
                 #ifdef DEBUG
                 printf("finish updating the varible type\n");
                 #endif
