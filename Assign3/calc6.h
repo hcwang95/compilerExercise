@@ -2,6 +2,8 @@ typedef enum { typeConInt, typeConChar, typeConStr, \
                typeVar, typeVarInt, typeVarChar, typeVarStr, \
                typeOpr } nodeEnum;
 
+
+typedef enum { variableUseBeforeDefined=1, typeMisMatched, breakContinueError  } exitCodeEnum;
 /* constants */
 typedef struct {
     int value;
@@ -35,10 +37,8 @@ typedef struct nodeTypeTag {
 } nodeType;
 
 typedef struct tableNode{
-    union{
-        char varName[12];
-        int varType;
-    };
+    char varName[12];
+    int varType;
     int offset;
     int lineNo;
     struct tableNode * leftNode;

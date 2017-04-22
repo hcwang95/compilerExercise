@@ -7,3 +7,4 @@ More feature:
 
 	User Experience Support:
 		syntax error location suggestion
+		error code return

@@ -8,6 +8,7 @@ if (x<1){
 	puts "asdfajslk asdnfalkj aa10923823jtna\"\n\n\nx";
 	x = 20;
 }
-puti x+10;
-abc = 11;
-ggtest = 10;
+getc x;
+puti x;
+// abc = 11;
+// ggtest = 10;

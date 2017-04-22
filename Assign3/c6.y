@@ -265,6 +265,7 @@ void updateTable(char* varName, int offset, tableNode** root){
     if (*root == NULL){
         tableNode * newOne = (tableNode*)malloc(sizeof(tableNode));
         strcpy(newOne->varName, varName);
+        newOne->varType = typeVar;
         newOne->lineNo = yylineno;
         newOne->offset = offset;
         newOne->leftNode = NULL;
