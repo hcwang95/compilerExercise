@@ -35,6 +35,7 @@ static int varCount = 0;
 %union {
     int iValue;                 /* integer value and char value*/
     char varName[12];                /* varible name */
+    char funcName[12];
     char str[500];                /* string content*/
     nodeType *nPtr;             /* node pointer */
 };
@@ -42,7 +43,9 @@ static int varCount = 0;
 %token <iValue> INTEGER
 %token <str> STRING CHAR
 %token <varName> VARIABLE
-%token FOR WHILE IF PUTI PUTI_ PUTC PUTC_ PUTS PUTS_ GETI GETC GETS BREAK CONTINUE FUNC
+%token <funcName> FUNCTION
+%token FOR WHILE IF PUTI PUTI_ PUTC PUTC_ PUTS PUTS_
+%token GETI GETC GETS BREAK CONTINUE FUNC FUNCCALL
 %nonassoc IFX
 %nonassoc ELSE
 
@@ -53,7 +56,7 @@ static int varCount = 0;
 %left '*' '/' '%'
 %nonassoc UMINUS
 %nonassoc REF
-%type <nPtr> stmt expr stmt_list var function
+%type <nPtr> stmt expr expr_list stmt_list var function
 
 %%
 
@@ -62,7 +65,7 @@ program:
         ;
 
 function:
-          function stmt         { $$ = opr(FUNC, 2, $1, $2);}
+          function stmt         { $$ = opr(FUNC, 2, $1, $2); }
         | /* NULL */
         ;
 
@@ -87,6 +90,7 @@ stmt:
         | IF '(' expr ')' stmt %prec IFX  { $$ = opr(IF, 2, $3, $5); }
         | IF '(' expr ')' stmt ELSE stmt  { $$ = opr(IF, 3, $3, $5, $7); }
         | '{' stmt_list '}'               { $$ = $2; }
+        | FUNCTION '(' expr_list ')'      { $$ = opr(FUNCCALL, 2, $1, $3); }
         ;
 
 stmt_list:
@@ -115,7 +119,10 @@ expr:
 	    | expr OR expr		    { $$ = opr(OR, 2, $1, $3); }
         | '(' expr ')'          { $$ = $2; }
         ;
-
+expr_list:
+          expr                  { $$ = $1; }
+        | expr_list ',' expr    { $$ = opr(',', 2, $1, $3); }
+        | /* NULL */
 var :
           VARIABLE              { $$ = var($1);}
         | VARIABLE '[' expr ']' { $$ = opr(REF, 2, var($1), $3); }

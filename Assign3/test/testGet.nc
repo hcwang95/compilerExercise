@@ -1,5 +1,6 @@
 fori = 10;
 getiabc = 10;
+abase(10);
 whileaaa = 20;
 cd = 0;
 asdfnen=20;

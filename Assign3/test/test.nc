@@ -1,3 +1,4 @@
+abase(10);
 x = 10;
 yabc = 10;
 asdfasdf = 100;

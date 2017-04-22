@@ -14,6 +14,8 @@ typedef struct YYLTYPE
   int last_column;
 } YYLTYPE;
 
+#define DEBUG
+
 /* handle locations */
 int yycolumn = 1;
 YYLTYPE yylloc;
@@ -24,7 +26,7 @@ YYLTYPE yylloc;
 %}
 %option yylineno 
 
-%x string
+%x string varfunc
 
 
 %%
@@ -86,11 +88,30 @@ YYLTYPE yylloc;
 "getc"          return GETC;
 "gets"          return GETS;
 
-[[:alpha:]]([[:alnum:]]){0,11}         {strcpy(yylval.varName, yytext);
+
+
+[[:alpha:]]([[:alnum:]]){0,11}         {
+                                        strcpy(yylval.varName, yytext);
+                                        BEGIN varfunc;}
+<varfunc>[ \t\n]*                    ; /* ignore white space */
+<varfunc>[^(]                        {
                                         #ifdef DEBUG 
-                                        printf("find a varible : %s\n", yytext);
+                                        printf("find a varible : %s\n", yylval.varName);
                                         #endif
-                                        return VARIABLE;}
+                                        yyless(0);
+                                        BEGIN 0;
+                                        return VARIABLE;
+                                       }
+<varfunc>"("                         {
+                                         #ifdef DEBUG 
+                                         printf("find a function : %s\n", yylval.varName);
+                                         #endif
+                                         strcpy(yylval.funcName, yylval.varName);
+                                         yyless(0);
+                                         BEGIN 0;
+                                         return FUNCTION;
+                                       }
+
 
 \/\/.*\n	;	/* skip comments */
 
