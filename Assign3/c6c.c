@@ -51,7 +51,7 @@ int size(tableNode* root){
         return 0;
     }
     else{
-        return size(root->leftNode) + size(rightNode) + 1;
+        return size(root->leftNode) + size(root->rightNode) + 1;
     }
 }
 void reportOutOfLoop(){
@@ -101,8 +101,19 @@ void checkUndefiedAndMatching(nodeType *p, int typeCon){
         }
     }
 }
+
+void localMemAlloc(int size){
+    printf("\tpush\tsp\n");
+    printf("\tpush\t%d\n", size);
+    printf("\tadd\n");
+    printf("\tpop\tsp\n");
+}
+
 int ex_(nodeType *p, int lcont, int lbrk);
 int ex(nodeType *p){
+    int functionTotalVarCount = size(Table);
+    fprintf(stderr, "total varible size : %d\n", functionTotalVarCount);
+    localMemAlloc(functionTotalVarCount);
     ex_(p,-1,-1);
     // printf("\tend\n");
 }
@@ -128,6 +139,10 @@ int ex_(nodeType *p, int lcont, int lbrk) {
           break;
       case typeOpr:
           switch(p->opr.oper) {
+            case FUNC:
+                ex_(p->opr.op[0], lcont, lbrk);
+                ex_(p->opr.op[1], lcont, lbrk);
+                break;
             case FOR: 
                 // check statement without break and continue
                 for (itr=0; itr<3; ++itr){

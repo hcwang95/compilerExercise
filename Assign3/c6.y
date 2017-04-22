@@ -42,7 +42,7 @@ static int varCount = 0;
 %token <iValue> INTEGER
 %token <str> STRING CHAR
 %token <varName> VARIABLE
-%token FOR WHILE IF PUTI PUTI_ PUTC PUTC_ PUTS PUTS_ GETI GETC GETS BREAK CONTINUE 
+%token FOR WHILE IF PUTI PUTI_ PUTC PUTC_ PUTS PUTS_ GETI GETC GETS BREAK CONTINUE FUNC
 %nonassoc IFX
 %nonassoc ELSE
 
@@ -53,37 +53,36 @@ static int varCount = 0;
 %left '*' '/' '%'
 %nonassoc UMINUS
 %nonassoc REF
-%type <nPtr> stmt expr stmt_list var
+%type <nPtr> stmt expr stmt_list var function
 
 %%
 
 program:
-        function                { exit(0); }
+        function                { ex($1); freeNode($1); exit(0); }
         ;
 
 function:
-          function stmt         { ex($2); freeNode($2); }
+          function stmt         { $$ = opr(FUNC, 2, $1, $2);}
         | /* NULL */
         ;
 
 stmt:
           ';'                             { $$ = opr(';', 2, NULL, NULL); }
         | expr ';'                        { $$ = $1; }
-        | PUTI expr ';'                  { $$ = opr(PUTI, 1, $2); }
+        | PUTI expr ';'                   { $$ = opr(PUTI, 1, $2); }
         | PUTI_ expr ';'                  { $$ = opr(PUTI_, 1, $2); }
-        | PUTC expr ';'                  { $$ = opr(PUTC, 1, $2); }
+        | PUTC expr ';'                   { $$ = opr(PUTC, 1, $2); }
         | PUTC_ expr ';'                  { $$ = opr(PUTC_, 1, $2); }
-        | PUTS expr ';'                  { $$ = opr(PUTS, 1, $2); }
+        | PUTS expr ';'                   { $$ = opr(PUTS, 1, $2); }
         | PUTS_ expr ';'                  { $$ = opr(PUTS_, 1, $2); }
-        | GETI expr ';'                    { $$ = opr(GETI, 1, $2); }
-        | GETC expr ';'                    { $$ = opr(GETC, 1, $2); }
-        | GETS expr ';'                    { $$ = opr(GETS, 1, $2); }
+        | GETI expr ';'                   { $$ = opr(GETI, 1, $2); }
+        | GETC expr ';'                   { $$ = opr(GETC, 1, $2); }
+        | GETS expr ';'                   { $$ = opr(GETS, 1, $2); }
         | var '=' expr ';'                { $$ = opr('=', 2, $1, $3); }
-        | BREAK ';'                       { $$ = opr(BREAK, 2, NULL, NULL);}
-        | CONTINUE ';'                    { $$ = opr(CONTINUE, 2, NULL, NULL);}
+        | BREAK ';'                       { $$ = opr(BREAK, 2, NULL, NULL); }
+        | CONTINUE ';'                    { $$ = opr(CONTINUE, 2, NULL, NULL); }
 	    | FOR '(' stmt stmt stmt ')' stmt { $$ = opr(FOR, 4, $3, $4,
-                                            $5, $7); 
-    }
+                                            $5, $7); }
         | WHILE '(' expr ')' stmt         { $$ = opr(WHILE, 2, $3, $5); }
         | IF '(' expr ')' stmt %prec IFX  { $$ = opr(IF, 2, $3, $5); }
         | IF '(' expr ')' stmt ELSE stmt  { $$ = opr(IF, 3, $3, $5, $7); }
