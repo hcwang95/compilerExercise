@@ -1,0 +1,9 @@
+Feature List:
+
+Basic feature
+
+More feature:
+	Programming Language Feature Support
+
+	User Experience Support:
+		syntax error location suggestion

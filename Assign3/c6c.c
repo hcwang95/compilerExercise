@@ -5,6 +5,7 @@
 static int lbl;
 static int currenVarCount;
 extern tableNode* Table;
+tableNode* typeTable;
 
 
 // #ifndef CHECK
@@ -55,29 +56,34 @@ int size(tableNode* root){
     }
 }
 void reportOutOfLoop(){
-    printf("break or continue statement not within loop\n");
+    yyerror("break or continue statement not within loop\n");
     // exit(0);
 }
 
 void reportInvalid(){
-    printf("invalid break or continue statement\n");
+    fprintf(stderr, "invalid break or continue statement\n");
     // exit(0);
 }
 
-void reportUndefined(){
-    printf("undefined varible\n");
+void reportUndefined(int offset){
+    tableNode* var;
+    var = getNodeFromTable(offset, Table);
+    fprintf(stderr, "line %d: undefined varible: '%s'\n", var->lineNo, var->varName);
     // exit(0);
 }
 
 void reportMisMatched(){
-    printf("the type of argument does not match the function used\n");
+    fprintf(stderr, "the type of argument does not match the function used\n" );
     // exit(0);
 }
 
 
 void checkDefined(nodeType *p){
+    #ifdef DEBUG
+    printf("check varible definition\n");
+    #endif
     if (p->var.offset >= currenVarCount){
-        reportUndefined();
+        reportUndefined(p->var.offset);
     }
 }
 
@@ -87,6 +93,9 @@ void checkUndefiedAndMatching(nodeType *p, int typeCon){
         printf("find the type of varible\n");
         #endif
         checkDefined(p);
+        #ifdef DEBUG
+        printf("check the variable finish\n");
+        #endif
     }else if (p->type == typeOpr){
         int i;
         for (i = 0; i < p->opr.nops; i++){
@@ -109,6 +118,51 @@ void localMemAlloc(int size){
     printf("\tpop\tsp\n");
 }
 
+int getType(nodeType* p){
+    if (p->type == typeVar) {
+        reportUndefined(p->var.offset);
+        return -1;
+    }
+    if (p->type == typeConInt) return typeConInt;
+    if (p->type == typeConChar) return typeConChar;
+    if (p->type == typeConStr) return typeConStr;
+    if (p->type == typeOpr){
+        if (p->opr.nops == 1){
+            return getType(p->opr.op[0]); // deal with UMINUS
+        }else{
+            // deal with double operands
+            int * typeList = (int*)malloc(p->opr.nops * sizeof(int));
+            int i;        
+            for (i = 0; i < p->opr.nops; ++i){
+                typeList[i] = getType(p->opr.op[i]);
+                // if there is one variable undefined
+                if (typeList[i] == -1){
+                    return -1;
+                }
+            }
+            int accType = -1;
+            // currently not allow string or char as valid argument for AND OR
+            for (i = 0; i < p->opr.nops; ++i){
+                if (accType==-1){
+                    accType = typeList[i];
+                }else{
+                    if (accType != typeList[i]){
+                        reportMisMatched();
+                        return -1;
+                    }
+                }
+            }
+            return accType;
+        }
+    }
+}
+
+void updateVarType(nodeType * p, int type){
+    if (type == -1){
+        return;
+    }
+
+}
 int ex_(nodeType *p, int lcont, int lbrk);
 int ex(nodeType *p){
     int functionTotalVarCount = size(Table);
@@ -326,6 +380,10 @@ int ex_(nodeType *p, int lcont, int lbrk) {
                 }else{
                     printf("\tpop\tfp[%d]\n", p->opr.op[0]->var.offset);
                 }
+                #ifdef DEBUG
+                printf("starting update the varible type\n");
+                #endif
+                updateVarType(p->opr.op[0]->var.offset, getType(p->opr.op[0]));
                 break;
             case UMINUS:    
                 // here cannot be a break or continue statement

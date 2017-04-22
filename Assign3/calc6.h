@@ -35,8 +35,12 @@ typedef struct nodeTypeTag {
 } nodeType;
 
 typedef struct tableNode{
-    char varName[12];
+    union{
+        char varName[12];
+        int varType;
+    };
     int offset;
+    int lineNo;
     struct tableNode * leftNode;
     struct tableNode * rightNode;
 }tableNode;

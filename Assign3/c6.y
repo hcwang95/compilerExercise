@@ -247,10 +247,25 @@ int getOffsetFromTable(char* varName, tableNode* root){
     }
 }
 
+char* getNodeFromTable(int offset, tableNode* root){
+    if (root == NULL){
+        return NULL;
+    }else{
+        if (root->offset == offset){
+            return root;
+        }else{
+            return getNodeFromTable(offset, root->leftNode) != NULL?\
+                    getNodeFromTable(offset, root->leftNode):
+                    getNodeFromTable(offset, root->rightNode);
+        }
+    }
+}
+
 void updateTable(char* varName, int offset, tableNode** root){
     if (*root == NULL){
         tableNode * newOne = (tableNode*)malloc(sizeof(tableNode));
         strcpy(newOne->varName, varName);
+        newOne->lineNo = yylineno;
         newOne->offset = offset;
         newOne->leftNode = NULL;
         newOne->rightNode = NULL;
