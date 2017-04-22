@@ -45,7 +45,7 @@ static int varCount = 0;
 %token <varName> VARIABLE
 %token <funcName> FUNCTION
 %token FOR WHILE IF PUTI PUTI_ PUTC PUTC_ PUTS PUTS_
-%token GETI GETC GETS BREAK CONTINUE FUNC FUNCCALL
+%token GETI GETC GETS BREAK CONTINUE FUNC FUNCCALL FUNCDEF
 %nonassoc IFX
 %nonassoc ELSE
 
@@ -56,7 +56,7 @@ static int varCount = 0;
 %left '*' '/' '%'
 %nonassoc UMINUS
 %nonassoc REF
-%type <nPtr> stmt expr expr_list stmt_list var function
+%type <nPtr> stmt expr expr_list stmt_list var function functiondef innerfunction
 
 %%
 
@@ -65,10 +65,19 @@ program:
         ;
 
 function:
-          function stmt         { $$ = opr(FUNC, 2, $1, $2); }
+          function functiondef stmt         { $$ = opr(FUNC, 2, $1, $3); }
         | /* NULL */
         ;
 
+functiondef:
+          FUNCTION '(' expr_list ')' '{' innerfunction '}' { $$ = opr(FUNCDEF, 3, $1, $3, $6); }
+        | /* NULL */
+        ;
+
+innerfunction:
+          innerfunction stmt                   { $$ = opr(FUNC, 2, $1, $2); }
+        | /* NULL */
+        ;
 stmt:
           ';'                             { $$ = opr(';', 2, NULL, NULL); }
         | expr ';'                        { $$ = $1; }
@@ -90,7 +99,7 @@ stmt:
         | IF '(' expr ')' stmt %prec IFX  { $$ = opr(IF, 2, $3, $5); }
         | IF '(' expr ')' stmt ELSE stmt  { $$ = opr(IF, 3, $3, $5, $7); }
         | '{' stmt_list '}'               { $$ = $2; }
-        | FUNCTION '(' expr_list ')'      { $$ = opr(FUNCCALL, 2, $1, $3); }
+        | FUNCTION expr_list ';'  { $$ = opr(FUNCCALL, 2, $1, $2); }
         ;
 
 stmt_list:
@@ -119,8 +128,10 @@ expr:
 	    | expr OR expr		    { $$ = opr(OR, 2, $1, $3); }
         | '(' expr ')'          { $$ = $2; }
         ;
+
 expr_list:
-          expr                  { $$ = $1; }
+          '(' expr_list ')'     { $$ = $2; }
+        | expr                  { $$ = $1; }
         | expr_list ',' expr    { $$ = opr(',', 2, $1, $3); }
         | /* NULL */
 var :

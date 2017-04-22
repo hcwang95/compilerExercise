@@ -1,8 +1,8 @@
-abase(10);
 x = 10;
 yabc = 10;
 asdfasdf = 100;
 a123 = 15;
+add(x,yabc);
 if (x<1){
 	putc_ '\n';
 }else{
@@ -13,3 +13,9 @@ gets x;
 puts x;
 abc = 11;
 ggtest = 10;
+
+add(a,b)
+
+
+{
+}

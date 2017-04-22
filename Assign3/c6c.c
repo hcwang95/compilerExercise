@@ -8,6 +8,7 @@ extern tableNode* Table;
 static tableNode* typeTable;
 
 
+
 // #ifndef CHECK
 // #define CHECK
 // #endif

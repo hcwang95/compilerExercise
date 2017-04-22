@@ -47,7 +47,7 @@ YYLTYPE yylloc;
                 return INTEGER;
             }
 
-[-()<\[\]>=+*/;{}.%] {
+[-()<\[\]>=+*/;{},.%] {
                 return *yytext;
              }
 \"      { BEGIN string; *text = 0; }
@@ -143,6 +143,7 @@ yyerror(char *s, ...)
   }
    
   fprintf(stderr, "\n");
+  exit(syntaxError);
 
 }
 
