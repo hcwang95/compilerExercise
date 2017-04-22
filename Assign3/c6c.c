@@ -112,7 +112,9 @@ void localMemAlloc(int size){
 int ex_(nodeType *p, int lcont, int lbrk);
 int ex(nodeType *p){
     int functionTotalVarCount = size(Table);
+    #ifdef DEBUG
     fprintf(stderr, "total varible size : %d\n", functionTotalVarCount);
+    #endif
     localMemAlloc(functionTotalVarCount);
     ex_(p,-1,-1);
     // printf("\tend\n");
@@ -233,6 +235,7 @@ int ex_(nodeType *p, int lcont, int lbrk) {
                 printf("\tgeti\n");
                 if (p->opr.op[0]->var.offset == currenVarCount){
                     currenVarCount++;
+                    printf("\tpop\tfp[%d]\n", p->opr.op[0]->var.offset);
                 }else{
                     printf("\tpop\tfp[%d]\n", p->opr.op[0]->var.offset);
                 }
@@ -241,6 +244,7 @@ int ex_(nodeType *p, int lcont, int lbrk) {
                 printf("\tgetc\n");
                 if (p->opr.op[0]->var.offset == currenVarCount){
                     currenVarCount++;
+                    printf("\tpop\tfp[%d]\n", p->opr.op[0]->var.offset);
                 }else{
                     printf("\tpop\tfp[%d]\n", p->opr.op[0]->var.offset);
                 }
@@ -249,6 +253,7 @@ int ex_(nodeType *p, int lcont, int lbrk) {
                 printf("\tgets\n");
                 if (p->opr.op[0]->var.offset == currenVarCount){
                     currenVarCount++;
+                    printf("\tpop\tfp[%d]\n", p->opr.op[0]->var.offset);
                 }else{
                     printf("\tpop\tfp[%d]\n", p->opr.op[0]->var.offset);
                 }
@@ -314,6 +319,7 @@ int ex_(nodeType *p, int lcont, int lbrk) {
                 ex_(p->opr.op[1], lcont, lbrk);
                 if (p->opr.op[0]->var.offset == currenVarCount){
                     currenVarCount++;
+                    printf("\tpop\tfp[%d]\n", p->opr.op[0]->var.offset);
                     #ifdef DEBUG
                     printf("find a new varible\n");
                     #endif

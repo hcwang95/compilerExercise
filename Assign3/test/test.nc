@@ -2,7 +2,7 @@ x = 10;
 yabc = 10;
 asdfasdf = 100;
 a123 = 15;
-if (x>1){
+if (x<1){
 	putc_ '\n';
 }else{
 	puts "asdfajslk asdnfalkj aa10923823jtna\"\n\n\nx";
