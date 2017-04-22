@@ -70,14 +70,11 @@ function:
         ;
 
 functiondef:
-          FUNCTION '(' expr_list ')' '{' innerfunction '}' { $$ = opr(FUNCDEF, 3, $1, $3, $6); }
+          FUNCTION '(' expr_list ')' '{' stmt_list '}' { $$ = opr(FUNCDEF, 3, $1, $3, $6); }
         | /* NULL */
         ;
 
-innerfunction:
-          innerfunction stmt                   { $$ = opr(FUNC, 2, $1, $2); }
-        | /* NULL */
-        ;
+
 stmt:
           ';'                             { $$ = opr(';', 2, NULL, NULL); }
         | expr ';'                        { $$ = $1; }
@@ -128,6 +125,7 @@ expr:
 	    | expr OR expr		    { $$ = opr(OR, 2, $1, $3); }
         | '(' expr ')'          { $$ = $2; }
         ;
+
 
 expr_list:
           '(' expr_list ')'     { $$ = $2; }

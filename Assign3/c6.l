@@ -35,7 +35,7 @@ YYLTYPE yylloc;
                      strncpy(line, yytext+1, sizeof(line));/* save the next line */
                      yycolumn = 1;
                      yyless(1);        /* give back all but the \n to rescan */
-                    }
+                  }
 
 0           {
                 yylval.iValue = atoi(yytext);
@@ -50,7 +50,7 @@ YYLTYPE yylloc;
 [-()<\[\]>=+*/;{},.%] {
                 return *yytext;
              }
-\"      { BEGIN string; *text = 0; }
+\"               { BEGIN string; *text = 0; }
 <string>[^"\\]*  { strcat(text, yytext); }
 <string>\"       { strcpy(yylval.str, text); BEGIN 0; return STRING; }
 <string>\\\"     { strcat(text, "\\\""); }
@@ -70,14 +70,14 @@ YYLTYPE yylloc;
 "<="            return LE;
 "=="            return EQ;
 "!="            return NE;
-"for"		    return FOR;
+"for"		        return FOR;
 "while"         return WHILE;
 "if"            return IF;
 "else"          return ELSE;
 "break"         return BREAK;
 "continue"      return CONTINUE;
-"&&"		    return AND;
-"||"		    return OR;
+"&&"		        return AND;
+"||"		        return OR;
 "puti"          return PUTI;
 "puti_"         return PUTI_;
 "putc"          return PUTC;
