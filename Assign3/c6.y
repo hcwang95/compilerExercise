@@ -155,6 +155,9 @@ nodeType *con(int value, char* str, int ConType) {
     }
     if (str!=NULL){
         strcpy(p->con.str, str);
+        #ifdef CHECK
+        printf("get a value: %s\n", p->con.str);
+        #endif
     }
 
     return p;

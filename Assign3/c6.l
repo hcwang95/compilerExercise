@@ -57,11 +57,11 @@ YYLTYPE yylloc;
 <string>\\       { strcat(text, "\\"); }
 
 
-'\\n'       { strcpy(yylval.str, "\\n"); return CHAR; }
-'\\t'       { strcpy(yylval.str, "\\t"); return CHAR; }
-'\\''       { strcpy(yylval.str, "\\");  return CHAR; }
+'\\n'       { strcpy(yylval.str, "\'\\n\'"); return CHAR; }
+'\\t'       { strcpy(yylval.str, "\'\\t\'"); return CHAR; }
+'\\''       { strcpy(yylval.str, "\'\\\'");  return CHAR; }
+'[^']'      { strcpy(yylval.str, yytext); return CHAR; }
 ''          { strcpy(yylval.str, "");    return CHAR; }
-'[^']'      { strcpy(yylval.str, text);  return CHAR; }
 
 
 ">="            return GE;
