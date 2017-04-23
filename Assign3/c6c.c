@@ -299,7 +299,7 @@ int ex_(nodeType *p, int lcont, int lbrk) {
           printf("\tpush\t%d\n", p->con.value);
           break;
       case typeConChar:
-          printf("\tpush\t\'%s\'\n", p->con.str);
+          printf("\tpush\t%s\n", p->con.str);
           break;
       case typeConStr:
           printf("\tpush\t\"%s\"\n", p->con.str);
