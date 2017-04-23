@@ -44,10 +44,11 @@ YYLTYPE yylloc;
 
 [1-9][0-9]* {
                 yylval.iValue = atoi(yytext);
+                printf("find a constant\n");
                 return INTEGER;
             }
 
-[-()<\[\]>=+*/;{},.%] {
+[-,()<\[\]>=+*/;{}.%] {
                 return *yytext;
              }
 \"               { BEGIN string; *text = 0; }
@@ -87,12 +88,14 @@ YYLTYPE yylloc;
 "geti"          return GETI;
 "getc"          return GETC;
 "gets"          return GETS;
+"function"      return FUNCTION;
 
 
 
 [[:alpha:]]([[:alnum:]]){0,11}         {
                                         strcpy(yylval.varName, yytext);
-                                        BEGIN varfunc;}
+                                        BEGIN varfunc;
+                                        printf("enter the condition parsing\n");}
 <varfunc>[ \t\n]*                    ; /* ignore white space */
 <varfunc>[^(]                        {
                                         #ifdef DEBUG 
@@ -109,7 +112,7 @@ YYLTYPE yylloc;
                                          strcpy(yylval.funcName, yylval.varName);
                                          yyless(0);
                                          BEGIN 0;
-                                         return FUNCTION;
+                                         return FUNCNAME;
                                        }
 
 

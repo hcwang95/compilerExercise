@@ -2,7 +2,7 @@ x = 10;
 yabc = 10;
 asdfasdf = 100;
 a123 = 15;
-add(x,yabc);
+add(a, b);  
 if (x<1){
 	putc_ '\n';
 }else{
@@ -14,8 +14,7 @@ puts x;
 abc = 11;
 ggtest = 10;
 
-add(a,b)
-
-
+function add(a,b)
 {
-}
+	puti a+b;
+};

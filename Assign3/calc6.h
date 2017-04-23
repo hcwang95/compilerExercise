@@ -1,6 +1,6 @@
 typedef enum { typeConInt, typeConChar, typeConStr, \
                typeVar, typeVarInt, typeVarChar, typeVarStr, \
-               typeOpr } nodeEnum;
+               typeOpr, typeVarFunc } nodeEnum;
 
 
 typedef enum { variableUseBeforeDefined=1, typeMisMatched, breakContinueError,\
