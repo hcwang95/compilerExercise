@@ -14,6 +14,8 @@ typedef struct YYLTYPE
   int last_column;
 } YYLTYPE;
 
+#define DEBUG
+
 /* handle locations */
 int yycolumn = 1;
 YYLTYPE yylloc;
@@ -24,7 +26,7 @@ YYLTYPE yylloc;
 %}
 %option yylineno 
 
-%x string
+%x string varfunc
 
 
 %%
@@ -33,7 +35,7 @@ YYLTYPE yylloc;
                      strncpy(line, yytext+1, sizeof(line));/* save the next line */
                      yycolumn = 1;
                      yyless(1);        /* give back all but the \n to rescan */
-                    }
+                  }
 
 0           {
                 yylval.iValue = atoi(yytext);
@@ -42,13 +44,14 @@ YYLTYPE yylloc;
 
 [1-9][0-9]* {
                 yylval.iValue = atoi(yytext);
+                printf("find a constant\n");
                 return INTEGER;
             }
 
-[-()<\[\]>=+*/;{}.%] {
+[-,()<\[\]>=+*/;{}.%] {
                 return *yytext;
              }
-\"      { BEGIN string; *text = 0; }
+\"               { BEGIN string; *text = 0; }
 <string>[^"\\]*  { strcat(text, yytext); }
 <string>\"       { strcpy(yylval.str, text); BEGIN 0; return STRING; }
 <string>\\\"     { strcat(text, "\\\""); }
@@ -68,14 +71,14 @@ YYLTYPE yylloc;
 "<="            return LE;
 "=="            return EQ;
 "!="            return NE;
-"for"		    return FOR;
+"for"		        return FOR;
 "while"         return WHILE;
 "if"            return IF;
 "else"          return ELSE;
 "break"         return BREAK;
 "continue"      return CONTINUE;
-"&&"		    return AND;
-"||"		    return OR;
+"&&"		        return AND;
+"||"		        return OR;
 "puti"          return PUTI;
 "puti_"         return PUTI_;
 "putc"          return PUTC;
@@ -85,12 +88,33 @@ YYLTYPE yylloc;
 "geti"          return GETI;
 "getc"          return GETC;
 "gets"          return GETS;
+"function"      return FUNCTION;
 
-[[:alpha:]]([[:alnum:]]){0,11}         {strcpy(yylval.varName, yytext);
+
+
+[[:alpha:]]([[:alnum:]]){0,11}         {
+                                        strcpy(yylval.varName, yytext);
+                                        BEGIN varfunc;
+                                        printf("enter the condition parsing\n");}
+<varfunc>[ \t\n]*                    ; /* ignore white space */
+<varfunc>[^(]                        {
                                         #ifdef DEBUG 
-                                        printf("find a varible : %s\n", yytext);
+                                        printf("find a varible : %s\n", yylval.varName);
                                         #endif
-                                        return VARIABLE;}
+                                        yyless(0);
+                                        BEGIN 0;
+                                        return VARIABLE;
+                                       }
+<varfunc>"("                         {
+                                         #ifdef DEBUG 
+                                         printf("find a function : %s\n", yylval.varName);
+                                         #endif
+                                         strcpy(yylval.funcName, yylval.varName);
+                                         yyless(0);
+                                         BEGIN 0;
+                                         return FUNCNAME;
+                                       }
+
 
 \/\/.*\n	;	/* skip comments */
 
@@ -122,6 +146,7 @@ yyerror(char *s, ...)
   }
    
   fprintf(stderr, "\n");
+  exit(syntaxError);
 
 }
 

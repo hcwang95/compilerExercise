@@ -1,9 +1,10 @@
 typedef enum { typeConInt, typeConChar, typeConStr, \
                typeVar, typeVarInt, typeVarChar, typeVarStr, \
-               typeOpr } nodeEnum;
+               typeOpr, typeVarFunc } nodeEnum;
 
 
-typedef enum { variableUseBeforeDefined=1, typeMisMatched, breakContinueError  } exitCodeEnum;
+typedef enum { variableUseBeforeDefined=1, typeMisMatched, breakContinueError,\
+               syntaxError  } exitCodeEnum;
 /* constants */
 typedef struct {
     int value;
