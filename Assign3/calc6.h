@@ -15,7 +15,10 @@ typedef struct {
 /* identifiers */
 typedef struct {
     int varType;                    /* type of the varible */
-    int offset;                     /* offset of frame pointer in order to hold the value */
+    union{
+        int offset;                     /* offset of frame pointer in order to hold the value */
+        char funcName[12];              /* this is for function varible storing name */
+    };
 } varibleNodeType;
 
 /* operators */
@@ -45,3 +48,11 @@ typedef struct tableNode{
     struct tableNode * leftNode;
     struct tableNode * rightNode;
 }tableNode;
+
+typedef struct functionNode
+{
+    char funcName[12];
+    int label;
+    struct functionNode* leftNode;
+    struct functionNode* rightNode;
+}functionNode;

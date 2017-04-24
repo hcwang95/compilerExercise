@@ -18,7 +18,7 @@ extern char* line;
 
 /* prototypes */
 nodeType *opr(int oper, int nops, ...);
-nodeType *var(char* varName);
+nodeType *var(char* varName, int isFunc);
 nodeType *con(int value, char* str, int ConType);
 void freeNode(nodeType *p);
 int ex(nodeType *p);
@@ -72,8 +72,8 @@ function:
         ;
 
 functiondef:
-          FUNCTION FUNCNAME '(' var_list ')' '{' stmt_list '}' { $$ = opr(FUNCDEF, 3, var($2), $4, $7); }
-        | /* NULL */
+          FUNCTION FUNCNAME '(' var_list ')' '{' stmt_list '}' { $$ = opr(FUNCDEF, 3, var($2, 1), $4, $7); }
+        | /* NULL */                                           { $$ = NULL; }
         ;
 
 
@@ -98,7 +98,7 @@ stmt:
         | IF '(' expr ')' stmt %prec IFX  { $$ = opr(IF, 2, $3, $5); }
         | IF '(' expr ')' stmt ELSE stmt  { $$ = opr(IF, 3, $3, $5, $7); }
         | '{' stmt_list '}'               { $$ = $2; }
-        | FUNCNAME  '(' expr_list ')' ';' { $$ = opr(FUNCCALL, 2, var($1), $3); printf("gg\n");}
+        | FUNCNAME  '(' expr_list ')' ';' { $$ = opr(FUNCCALL, 2, var($1,1), $3); }
         ;
 
 stmt_list:
@@ -130,13 +130,13 @@ expr:
 
 
 expr_list:
-          expr                  { $$ = $1;printf("f\n"); }
-        | expr_list ',' expr    { $$ = opr(',', 2, $1, $3); printf("f\n");}
+          expr                  { $$ = $1; }
+        | expr_list ',' expr    { $$ = opr(',', 2, $1, $3); }
         | /* NULL */
         ;
 var :
-          VARIABLE              { $$ = var($1);}
-        | VARIABLE '[' expr ']' { $$ = opr(REF, 2, var($1), $3); }
+          VARIABLE              { $$ = var($1, 0);}
+        | VARIABLE '[' expr ']' { $$ = opr(REF, 2, var($1, 0), $3); }
         ;
 
 var_list:
@@ -188,7 +188,7 @@ nodeType *con(int value, char* str, int ConType) {
     return p;
 }
 
-nodeType *var(char* varName) {
+nodeType *var(char* varName, int isFunc) {
     #ifdef DEBUG
         printf("create Node for %s\n", varName);
     #endif
@@ -201,20 +201,29 @@ nodeType *var(char* varName) {
         yyerror("out of memory");
 
     /* copy information */
-    p->type = typeVar;
+    if (!isFunc){
+        p->type = typeVar;
+        // set the offset
+        int offset = getOffsetFromTable(varName, Table);
 
-    // set the offset
-    int offset = getOffsetFromTable(varName, Table);
-
-    if (offset == -1){
-        p->var.offset = varCount++;
-        updateTable(varName, p->var.offset, &Table);
+        if (offset == -1){
+            p->var.offset = varCount++;
+            updateTable(varName, p->var.offset, &Table);
+        }else{
+            p->var.offset = offset;
+        }
+        #ifdef DEBUG
+            printf("set offset for %s as %d\n", varName, p->var.offset);
+        #endif
     }else{
-        p->var.offset = offset;
+        p->type = typeVarFunc;
+        #ifdef DEBUG
+            printf("create a node for function %s\n", varName);
+        #endif
+        strcpy(p->var.funcName, varName);
     }
-    #ifdef DEBUG
-        printf("set offset for %s as %d\n", varName, p->var.offset);
-    #endif
+
+    
     return p;
 }
 
@@ -243,17 +252,11 @@ nodeType *opr(int oper, int nops, ...) {
 
 void freeNode(nodeType *p) {
     int i;
-
     if (!p) return;
     if (p->type == typeOpr) {
         for (i = 0; i < p->opr.nops; i++)
             freeNode(p->opr.op[i]);
     }
-    // else if (p->type == typeVarInt ||
-    //             p->type == typeVarChar ||
-    //             p->type == typeVarStr){
-    //     free()
-    // }
     free (p);
 }
 

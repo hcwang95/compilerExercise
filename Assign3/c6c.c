@@ -6,6 +6,7 @@ static int lbl;
 static int currenVarCount = 0;
 extern tableNode* Table;
 static tableNode* typeTable;
+static functionNode * functionTable;
 
 
 
@@ -168,13 +169,6 @@ int checkDefined(nodeType *p){
     #ifdef DEBUG
     printf("check varible definition\n");
     #endif
-
-    //
-
-    // TDOO redefine the rule
-
-
-    //
     if (p->var.offset >= currenVarCount){
         #ifdef DEBUG
         printf("offset:%d > currenVarCount:%d\n", p->var.offset,currenVarCount);
@@ -531,6 +525,27 @@ int ex_(nodeType *p, int lcont, int lbrk) {
                 // here cannot be a break or continue statement
                 ex_(p->opr.op[0], lcont, lbrk);
                 printf("\tneg\n");
+                break;
+
+            // for function
+            case FUNCCALL:
+                #ifdef DEBUG
+                    printf("find a function call node\n");
+                #endif
+                // try to get the function
+                int label = findLabel(p->opr.op[0]->var.funcName,functionTable);
+                if (label == -1){
+                    // set for new
+                    label = lbl++;
+                    updateFuncTable(p->opr.op[0]->var.funcName, label, functionTable);
+                }else{
+                    #ifdef DEBUG
+                        printf("this function has been called first time\n");
+                    #endif
+                }
+                // push all argument
+                ex_(p->opr.op[1], lcont, lbrk);
+                
                 break;
             default:
                 // here cannot be a break or continue statement
