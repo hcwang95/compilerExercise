@@ -87,7 +87,10 @@ int checkDefined(nodeType *p){
 }
 
 
-void checkUndefiedAndMatching(nodeType *p, int typeCon){
+void checkUndefiedAndMatching(nodeType *p, int typeCon, bool check){
+    if (!check){
+        return;
+    }
     if (p->type == typeVar){
         #ifdef DEBUG
         printf("find the type of varible\n");
@@ -105,7 +108,7 @@ void checkUndefiedAndMatching(nodeType *p, int typeCon){
     }else if (p->type == typeOpr){
         int i;
         for (i = 0; i < p->opr.nops; i++){
-            checkUndefiedAndMatching(p->opr.op[i], typeCon);
+            checkUndefiedAndMatching(p->opr.op[i], typeCon, check);
         }
     }else{
         #ifdef DEBUG

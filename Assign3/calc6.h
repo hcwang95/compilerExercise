@@ -16,7 +16,7 @@ typedef struct {
 typedef struct {
     int varType;                    /* type of the varible */
     int offset;                     /* offset of frame pointer in order to hold the value */
-    char funcName[12];              /* this is for function varible storing name */
+    char varName[12];             
 } varibleNodeType;
 
 /* operators */

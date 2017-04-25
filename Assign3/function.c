@@ -1,5 +1,5 @@
 // this is code collection for function
-
+#include <stdbool.h>
 
 
 int size(tableNode* root){
@@ -76,4 +76,66 @@ void updateVarType(nodeType * p, int type){
         #endif
     }
 
+}
+
+void construct(char* varName, int offset, tableNode** root){
+    if (*root == NULL){
+        tableNode * newOne = (tableNode*)malloc(sizeof(tableNode));
+        strcpy(newOne->varName, varName);
+        newOne->varType = typeVar;
+        newOne->lineNo = -1;
+        newOne->offset = offset;
+        newOne->leftNode = NULL;
+        newOne->rightNode = NULL;
+        *root = newOne;
+    }else{
+        int flag = strcmp((*root)->varName, varName);
+        if(flag < 0){
+            construct(varName, offset, &((*root)->leftNode));
+        }else{
+            construct(varName, offset, &((*root)->rightNode));
+        }
+    }
+}
+
+
+
+// if param isParam is true, then traverse
+// right node first
+void traverse(nodeType* p, bool isParam){
+
+    if(isParam){
+        // for parameter
+        if(p->type >= typeVar && p->type <= typeVarStr){
+            construct(p->var.varName, -4-funcVarCount++, &funcVarTable);
+        }
+        else if(p->type == typeOpr){
+            traverse(p->opr.op[1], isParam);
+            traverse(p->opr.op[0], isParam);
+        }
+
+    }else{
+        // for normal statements
+        if(p->type >= typeVar && p->type <= typeVarStr){
+            int offset = getOffsetFromTable(p->var.varName, funcVarTable);
+            if (offset == -1){
+                construct(p->var.varName, funcVarCount++, &funcVarTable);
+            }
+        }else if(p->type == typeOpr){
+            int i;
+            for(i = 0; i < p->opr.nops; ++i){
+                traverse(p->opr.op[i], isParam);
+            }
+        }
+    }
+}
+
+// using static varible funcVarTable to construct variable tree
+// for function inner variables
+void constructVarTable(nodeType* p){
+    // first construct for parameters
+
+    traverse(p->opr.op[1], true);
+    funcVarCount = 0;
+    traverse(p->opr.op[2], false);
 }

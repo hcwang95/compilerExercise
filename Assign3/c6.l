@@ -88,6 +88,7 @@ YYLTYPE yylloc;
 "getc"          return GETC;
 "gets"          return GETS;
 "function"      return FUNCTION;
+"return"        return RETURN;
 
 
 
@@ -123,9 +124,7 @@ YYLTYPE yylloc;
 .               yyerror("Unknown character");
 %%
 
-void
-yyerror(char *s, ...)
-{
+void yyerror(char *s, ...) {
   va_list ap;
   va_start(ap, s);
 

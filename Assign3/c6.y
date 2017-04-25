@@ -56,7 +56,7 @@ static int varCount = 0;
 %token <funcName> FUNCNAME
 %token FOR WHILE IF PUTI PUTI_ PUTC PUTC_ PUTS PUTS_
 %token GETI GETC GETS BREAK CONTINUE FUNC FUNCCALL FUNCDEF
-%token FUNCTION
+%token FUNCTION RETURN
 %nonassoc IFX
 %nonassoc ELSE
 
@@ -111,6 +111,7 @@ stmt:
         | IF '(' expr ')' stmt ELSE stmt  { $$ = opr(IF, 3, $3, $5, $7); }
         | '{' stmt_list '}'               { $$ = $2; }
         | FUNCNAME  '(' expr_list ')' ';' { $$ = opr(FUNCCALL, 2, var($1,1), $3); }
+        | RETURN expr                     { $$ = opr(RETURN, 1, $2); }
         ;
 
 stmt_list:
@@ -213,7 +214,9 @@ nodeType *var(char* varName, int isFunc) {
         yyerror("out of memory");
 
     /* copy information */
+    strcpy(p->var.varName, varName);
     if (!isFunc){
+
         p->type = typeVar;
         // set the offset
         int offset = getOffsetFromTable(varName, Table);
@@ -224,7 +227,7 @@ nodeType *var(char* varName, int isFunc) {
         }else{
             p->var.offset = offset;
         }
-        strcpy(p->var.funcName, " ");
+        strcpy(p->var.varName, " ");
         #ifdef DEBUG
             printf("set offset for %s as %d\n", varName, p->var.offset);
         #endif
@@ -233,7 +236,6 @@ nodeType *var(char* varName, int isFunc) {
         #ifdef DEBUG
             printf("create a node for function %s\n", varName);
         #endif
-        strcpy(p->var.funcName, varName);
         p->var.offset = -1;
          #ifdef DEBUG
             printf("finish node for function %s\n", varName);
@@ -294,7 +296,7 @@ int getOffsetFromTable(char* varName, tableNode* root){
     }
 }
 
-char* getNodeFromTable(int offset, tableNode* root){
+tableNode* getNodeFromTable(int offset, tableNode* root){
     if (root == NULL){
         return NULL;
     }else{
@@ -339,11 +341,6 @@ void registerFunc(nodeType* p, functionDefNode** node){
     }
 }
 
-
-void updateOffset(int currentValCount){
-    printf("TODO\n");
-
-}
 void preprocessFuncDef(nodeType* p){
     // handle no definition case
     if (p==NULL){
@@ -358,8 +355,7 @@ void preprocessFuncDef(nodeType* p){
     // TODO: how to manage offset for all varibles offset
 
 
-
-    updateOffset(varCount);
+    // construct function only variable table
     // register to the final function def table
     registerFunc(p, &funcDefList);
 
@@ -371,36 +367,6 @@ void preprocessFuncDef(nodeType* p){
 
 
 #ifdef DEBUG
-void checkNode_(nodeType* p){
-    if (!p) return;
-    printf("check the node info: \n");
-    printf("node type: %d\n", p->type);
-    // printf("node type reference:\n\ttypeConInt:0\n\ttypeConChar:1\n\ttypeConStr:2 \
-    //            \n\ttypeVar:3\n\ttypeVarInt:4\n\ttypeVarChar:5\n\ttypeVarStr:6 \
-    //            \n\ttypeOpr:7\n");
-    if (p->type == typeConInt){
-        printf("constant int in the node: %d\n", p->con.value);
-    }else if(p->type == typeConStr){
-        printf("constant str in the node: %s\n", p->con.str);
-    }else if(p->type == typeConChar){
-        printf("constant char in the node: %c\n", (char)p->con.value);
-    }else if(p->type == typeVar||
-             p->type == typeVarInt ||
-             p->type == typeVarChar||
-             p->type == typeVarStr){
-        printf("the offset of the varible is: %d\n", p->var.offset);
-    }else if(p->type == typeOpr){
-        printf("this is opration node, totally there is %d subNodes\n", p->opr.nops);
-        printf("Here are the subNodes infomation:\n");  
-        int i;        
-        for (i = 0; i < p->opr.nops; i++){
-            checkNode(p->opr.op[i]);
-        }
-        printf("finish the printing for the subNodes of opration node with oprator %c.\n", (char)p->opr.oper);
-    }
-}
-#endif
-#ifdef DEBUG
 
 void checkFunctionList(functionDefNode* node){
     printf("check the function list\n");
@@ -408,8 +374,8 @@ void checkFunctionList(functionDefNode* node){
         printf("finish the function check\n");
         return;
     }else{
-        checkNode_(node->p);
-        printf("find a node with function name %s\n", node->p->opr.op[0]->var.funcName);
+        checkNode(node->p);
+        printf("find a node with function name %s\n", node->p->opr.op[0]->var.varName);
         checkFunctionList(node->next);
     }
 }

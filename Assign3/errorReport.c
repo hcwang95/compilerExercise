@@ -22,7 +22,7 @@ void reportMisMatched(){
     exit(typeMisMatched);
 }
 
-void reportUnused(char* funcName){
+void reportFuncUnused(char* funcName){
     fprintf(stderr, "function: %s has been defined but not used\n", funcName);
     exit(funcUnused);
 }

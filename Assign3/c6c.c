@@ -19,16 +19,18 @@ static tableNode* typeTable;
 static functionNode * functionTable;
 extern functionDefNode* funcDefList;
 extern tableNode* Table;
+static int funcVarCount = 0;
+static tableNode* funcVarTable;
 
 #include "errorReport.c"
 #include "nodeCheck.c"
-#include "variableType.c"
 #include "function.c"
+#include "variableType.c"
 
 
 
 
-int ex_(nodeType *p, int lcont, int lbrk);
+int ex_(nodeType *p, int lcont, int lbrk, bool isMain);
 
 // define all functions that are mentioned by the user
 void defineFunc(){
@@ -39,27 +41,30 @@ void defineFunc(){
     temp = funcDefList;
     while(temp!=NULL){
         int paraCnt = countParam(temp->p->opr.op[1]);
-        int label = findLabel(temp->p->opr.op[0]->var.funcName, paraCnt, functionTable);
         #ifdef DEBUG
             printf("execute for function:%s, with %d argument(s)\n", \
-                    temp->p->opr.op[0]->var.funcName, paraCnt);
+                    temp->p->opr.op[0]->var.varName, paraCnt);
         #endif
-        ex_(temp->p, -1, -1);
+        ex_(temp->p, -1, -1, false);
+        free(temp);
+        temp = temp -> next;
     }
+
+
 }
 
 
 int ex(nodeType *p){
-    int functionTotalVarCount = size(Table);
+    int totalVarCount = size(Table);
     #ifdef DEBUG
-    fprintf(stderr, "total varible size : %d\n", functionTotalVarCount);
+    fprintf(stderr, "total varible size : %d\n", totalVarCount);
     #endif
-    localMemAlloc(functionTotalVarCount);
-    ex_(p,-1,-1);
-    // printf("\tend\n");
+    localMemAlloc(totalVarCount);
+    ex_(p,-1,-1, true);
+    printf("\tend\n");
 }
 
-int ex_(nodeType *p, int lcont, int lbrk) {
+int ex_(nodeType *p, int lcont, int lbrk, bool isMain) {
     int lblx, lbly, lblz, lbl1, lbl2, itr, index, type,\
         paraCnt, label;
     if (!p) return 0;
@@ -69,22 +74,27 @@ int ex_(nodeType *p, int lcont, int lbrk) {
             printf("find the constant int %d\n", p->con.value);
           #endif
           printf("\tpush\t%d\n", p->con.value);
-          break;
+          return 0;
       case typeConChar:
           printf("\tpush\t%s\n", p->con.str);
-          break;
+          return 0;
       case typeConStr:
           printf("\tpush\t\"%s\"\n", p->con.str);
-          break;
-      case typeVar:        
-          printf("\tpush\tfp[%d]\n", p->var.offset);
-          break;
+          return 0;
+      case typeVar:   
+          if (isMain){
+              printf("\tpush\tfp[%d]\n", p->var.offset);
+          }else{
+              int offset = getOffsetFromTable(p->var.varName, funcVarTable);
+              printf("\tpush\tfp[%d]\n", offset); 
+          }  
+          return 0;
       case typeOpr:
           switch(p->opr.oper) {
             case FUNC:
-                ex_(p->opr.op[0], lcont, lbrk);
-                ex_(p->opr.op[1], lcont, lbrk);
-                break;
+                if (ex_(p->opr.op[0], lcont, lbrk, isMain)) return 1;
+                if (ex_(p->opr.op[1], lcont, lbrk, isMain)) return 1;
+                return 0;
             case FOR: 
                 // check statement without break and continue
                 for (itr=0; itr<3; ++itr){
@@ -96,17 +106,17 @@ int ex_(nodeType *p, int lcont, int lbrk) {
                 #ifdef DEBUG
                 checkNode(p);
                 #endif
-                ex_(p->opr.op[0], lcont, lbrk);
+                if (ex_(p->opr.op[0], lcont, lbrk, isMain)) return 1;
                 printf("L%03d:\n", lblx = lbl++);
-                ex_(p->opr.op[1], lcont, lbrk);
+                if (ex_(p->opr.op[1], lcont, lbrk, isMain)) return 1;
                 printf("\tj0\tL%03d\n", lbly = lbl++);
-                ex_(p->opr.op[3], lblz = lbl++, lbly);
+                if (ex_(p->opr.op[3], lblz = lbl++, lbly, isMain)) return 1;;
                 printf("\tjmp\tL%03d\n", lblz);
                 printf("L%03d:\n", lblz);
-                ex_(p->opr.op[2], lcont, lbrk);
+                if (ex_(p->opr.op[2], lcont, lbrk, isMain)) return 1;
                 printf("\tjmp\tL%03d\n", lblx);
                 printf("L%03d:\n", lbly);
-                break;
+                return 0;
             case WHILE:
                 // check statement without break and continue
                 if (p->opr.op[0]->type == typeOpr){
@@ -116,12 +126,12 @@ int ex_(nodeType *p, int lcont, int lbrk) {
                   }
                 }
                 printf("L%03d:\n", lbl1 = lbl++);
-                ex_(p->opr.op[0], lcont, lbrk);
+                if (ex_(p->opr.op[0], lcont, lbrk, isMain)) return 1;
                 printf("\tj0\tL%03d\n", lbl2 = lbl++);
-                ex_(p->opr.op[1], lbl1, lbl2);
+                if (ex_(p->opr.op[1], lbl1, lbl2, isMain)) return 1;
                 printf("\tjmp\tL%03d\n", lbl1);
                 printf("L%03d:\n", lbl2);
-                break;
+                return 0;
             case IF:
                 // check statement without break and continue
                 if (p->opr.op[0]->type == typeOpr){
@@ -130,28 +140,28 @@ int ex_(nodeType *p, int lcont, int lbrk) {
                       reportInvalid();
                   }
                 }
-                ex_(p->opr.op[0], lcont, lbrk);
+                if (ex_(p->opr.op[0], lcont, lbrk, isMain)) return 1;
                 if (p->opr.nops > 2) {
                     /* if else */
                     printf("\tj0\tL%03d\n", lbl1 = lbl++);
                     #ifdef DEBUG
                         printf("positive part\n");
                     #endif
-                    ex_(p->opr.op[1], lcont, lbrk);
+                    if (ex_(p->opr.op[1], lcont, lbrk, isMain)) return 1;
                     #ifdef DEBUG
                         printf("jump to negative part\n");
                     #endif
                     printf("\tjmp\tL%03d\n", lbl2 = lbl++);
                     printf("L%03d:\n", lbl1);
-                    ex_(p->opr.op[2], lcont, lbrk);
+                    if (ex_(p->opr.op[2], lcont, lbrk, isMain)) return 1;
                     printf("L%03d:\n", lbl2);
                 } else {
                     /* if */
                     printf("\tj0\tL%03d\n", lbl1 = lbl++);
-                    ex_(p->opr.op[1], lcont, lbrk);
+                    if (ex_(p->opr.op[1], lcont, lbrk, isMain)) return 1;
                     printf("L%03d:\n", lbl1);
                 }
-                break;
+                return 0;
             case BREAK:
                 if (lbrk == -1){
                   printf("%d\n", lbrk);
@@ -160,7 +170,7 @@ int ex_(nodeType *p, int lcont, int lbrk) {
                 }else{
                   printf("\tjmp\tL%03d\n", lbrk);
                 }
-                break;
+                return 0;
             case CONTINUE:
                 if (lcont == -1){
                   printf("%d\n", lbrk);
@@ -169,8 +179,7 @@ int ex_(nodeType *p, int lcont, int lbrk) {
                 }else{
                   printf("\tjmp\tL%03d\n", lcont);
                 }
-                break;
-
+                return 0;
             case GETI:
                 printf("\tgeti\n");
                 if (p->opr.op[0]->var.offset == currenVarCount){
@@ -186,7 +195,7 @@ int ex_(nodeType *p, int lcont, int lbrk) {
                 #ifdef DEBUG
                 printf("finish updating the varible type\n");
                 #endif
-                break;
+                return 0;
             case GETC:
                 printf("\tgetc\n");
                 if (p->opr.op[0]->var.offset == currenVarCount){
@@ -202,7 +211,7 @@ int ex_(nodeType *p, int lcont, int lbrk) {
                 #ifdef DEBUG
                 printf("finish updating the varible type\n");
                 #endif
-                break;
+                return 0;
             case GETS:
                 printf("\tgets\n");
                 if (p->opr.op[0]->var.offset == currenVarCount){
@@ -218,66 +227,66 @@ int ex_(nodeType *p, int lcont, int lbrk) {
                 #ifdef DEBUG
                 printf("finish updating the varible type\n");
                 #endif
-                break;
+                return 0;
             case PUTI:
                 #ifdef DEBUG
                     printf("check the node we want PUTI\n");
                     checkNode(p->opr.op[0]);
                 #endif
                 // check for varible type or constant type
-                checkUndefiedAndMatching(p->opr.op[0], typeConInt);
-                ex_(p->opr.op[0], lcont, lbrk);
+                checkUndefiedAndMatching(p->opr.op[0], typeConInt, isMain);
+                if (ex_(p->opr.op[0], lcont, lbrk, isMain)) return 1;
                 printf("\tputi\n");
-                break;
+                return 0;
             case PUTI_:
                 #ifdef DEBUG
                     printf("check the node we want PUTI_\n");
                     checkNode(p->opr.op[0]);
                 #endif
                 // check for varible type or constant type
-                checkUndefiedAndMatching(p->opr.op[0], typeConInt);
-                ex_(p->opr.op[0], lcont, lbrk);
+                checkUndefiedAndMatching(p->opr.op[0], typeConInt, isMain);
+                if (ex_(p->opr.op[0], lcont, lbrk, isMain)) return 1;
                 printf("\tputi_\n");
-                break;
+                return 0;
             case PUTC:
                 // check for varible type or constant type
-                checkUndefiedAndMatching(p->opr.op[0], typeConChar);
-                ex_(p->opr.op[0], lcont, lbrk);
+                checkUndefiedAndMatching(p->opr.op[0], typeConChar, isMain);
+                if (ex_(p->opr.op[0], lcont, lbrk, isMain)) return 1;
                 printf("\tputc\n");
-                break;
+                return 0;
             case PUTC_:
                 // check for varible type or constant type
-                checkUndefiedAndMatching(p->opr.op[0], typeConChar);
-                ex_(p->opr.op[0], lcont, lbrk);
+                checkUndefiedAndMatching(p->opr.op[0], typeConChar, isMain);
+                if (ex_(p->opr.op[0], lcont, lbrk, isMain)) return 1;
                 printf("\tputc_\n");
-                break;
+                return 0;
             case PUTS:
                 #ifdef DEBUG
                     printf("check the node we want PUTS\n");
                     checkNode(p->opr.op[0]);
                 #endif
                 // check for varible type or constant type
-                checkUndefiedAndMatching(p->opr.op[0], typeConStr);
+                checkUndefiedAndMatching(p->opr.op[0], typeConStr, isMain);
                 #ifdef DEBUG
                 printf("after checking\n");
                 #endif
-                ex_(p->opr.op[0], lcont, lbrk);
+                if (ex_(p->opr.op[0], lcont, lbrk, isMain)) return 1;
                 printf("\tputs\n");
-                break;
+                return 0;
             case PUTS_:
                 #ifdef DEBUG
                     printf("check the node we want PUTS_\n");
                     checkNode(p->opr.op[0]);
                 #endif
                 // check for varible type or constant type
-                checkUndefiedAndMatching(p->opr.op[0], typeConStr);
-                ex_(p->opr.op[0], lcont, lbrk);
+                checkUndefiedAndMatching(p->opr.op[0], typeConStr, isMain);
+                if (ex_(p->opr.op[0], lcont, lbrk, isMain)) return 1;
                 printf("\tputs_\n");
-                break;
+                return 0;
 
             case '=':       
                 // here cannot be a break or continue statement
-                ex_(p->opr.op[1], lcont, lbrk);
+                if (ex_(p->opr.op[1], lcont, lbrk, isMain)) return 1;
                 if (p->opr.op[0]->var.offset == currenVarCount){
                     updateCurrentVarCountAndTypeTable(p->opr.op[0]->var.offset);
                     printf("\tpop\tfp[%d]\n", p->opr.op[0]->var.offset);
@@ -294,17 +303,17 @@ int ex_(nodeType *p, int lcont, int lbrk) {
                 #ifdef DEBUG
                 printf("finish updating the varible type\n");
                 #endif
-                break;
+                return 0;
             case UMINUS:    
                 // here cannot be a break or continue statement
-                ex_(p->opr.op[0], lcont, lbrk);
+                if (ex_(p->opr.op[0], lcont, lbrk, isMain)) return 1;
                 printf("\tneg\n");
-                break;
+                return 0;
             // for arugment pushing return the value of parameter count
             case ',':
-                ex_(p->opr.op[0], lcont, lbrk);
-                ex_(p->opr.op[1], lcont, lbrk);
-                break;
+                if (ex_(p->opr.op[0], lcont, lbrk, isMain)) return 1;
+                if (ex_(p->opr.op[1], lcont, lbrk, isMain)) return 1;
+                return 0;
             // for function
             case FUNCCALL:
                 #ifdef DEBUG
@@ -314,60 +323,69 @@ int ex_(nodeType *p, int lcont, int lbrk) {
                 paraCnt = countParam(p->opr.op[1]);
 
                 // try to get the function
-                label = findLabel(p->opr.op[0]->var.funcName, paraCnt, functionTable);
+                label = findLabel(p->opr.op[0]->var.varName, paraCnt, functionTable);
                 if (label == -1){
                     // set for new
                     label = lbl++;
                     // if first call, update for the table by creating node
-                    updateFuncTable(p->opr.op[0]->var.funcName, label, paraCnt, &functionTable);
+                    updateFuncTable(p->opr.op[0]->var.varName, label, paraCnt, &functionTable);
                 }else{
                     #ifdef DEBUG
                         printf("this function has been called first time\n");
                     #endif
                 }
                 // push all argument (expresssion)
-                ex_(p->opr.op[1], lcont, lbrk);
+                if (ex_(p->opr.op[1], lcont, lbrk, isMain)) return 1;
                 // print call cmd
                 printf("\tcall\tL%03d, %d\n", label, paraCnt);
-
-                break;
+                return 0;
             case FUNCDEF:
                 // this will happen when main function has been compiled
                 // and all varible offset are rearranged well.
                 // check if there is usage first
                 paraCnt = countParam(p->opr.op[1]);
-                label = findLabel(p->opr.op[0]->var.funcName, paraCnt, functionTable);
+                label = findLabel(p->opr.op[0]->var.varName, paraCnt, functionTable);
                 if (label == -1){
                     // no usage give warning and discard those code snippets
-                    reportUnused(p->opr.op[0]->var.funcName);
+                    reportFuncUnused(p->opr.op[0]->var.varName);
                     return 0;
                 }else{
                     // there is at least one call
-                    printf("L%03d\n", label);
-                    ex_(p->opr.op[2], lcont, lbrk);
+                    printf("L%03d:\n", label);
+
+                    // construct another table for one function
+                    constructVarTable(p);
+                    int totalVarCount = size(funcVarTable);
+                    if (totalVarCount - paraCnt > 0){
+                        localMemAlloc(totalVarCount - paraCnt);
+                    }
+                    if (ex_(p->opr.op[2], lcont, lbrk, isMain)) return 1;
+                   
+                    printf("\tret\n");
+                    
                     #ifdef DEBUG
-                        printf("finish compiling for fucntion : %s\n", p->opr.op[0]->var.funcName);
+                        printf("finish compiling for fucntion : %s\n", p->opr.op[0]->var.varName);
                     #endif
                 }
-                break;
+                return 0;
             default:
                 // here cannot be a break or continue statement
-                ex_(p->opr.op[0], lcont, lbrk);
-                ex_(p->opr.op[1], lcont, lbrk);
+                if (ex_(p->opr.op[0], lcont, lbrk, isMain)) return 1;
+                if (ex_(p->opr.op[1], lcont, lbrk, isMain)) return 1;
                 switch(p->opr.oper) {
-                    case '+':   printf("\tadd\n"); break;
-                    case '-':   printf("\tsub\n"); break; 
-                    case '*':   printf("\tmul\n"); break;
-                    case '/':   printf("\tdiv\n"); break;
-                    case '%':   printf("\tmod\n"); break;
-                    case '<':   printf("\tcompLT\n"); break;
-                    case '>':   printf("\tcompGT\n"); break;
-                    case GE:    printf("\tcompGE\n"); break;
-                    case LE:    printf("\tcompLE\n"); break;
-                    case NE:    printf("\tcompNE\n"); break;
-                    case EQ:    printf("\tcompEQ\n"); break;
-                    case AND:   printf("\tand\n"); break;
-                    case OR:    printf("\tor\n"); break;
+                    case '+':   printf("\tadd\n"); return 0;
+                    case '-':   printf("\tsub\n"); return 0;
+                    case '*':   printf("\tmul\n"); return 0;
+                    case '/':   printf("\tdiv\n"); return 0;
+                    case '%':   printf("\tmod\n"); return 0;
+                    case '<':   printf("\tcompLT\n"); return 0;
+                    case '>':   printf("\tcompGT\n"); return 0;
+                    case GE:    printf("\tcompGE\n"); return 0;
+                    case LE:    printf("\tcompLE\n"); return 0;
+                    case NE:    printf("\tcompNE\n"); return 0;
+                    case EQ:    printf("\tcompEQ\n"); return 0;
+                    case AND:   printf("\tand\n"); return 0;
+                    case OR:    printf("\tor\n"); return 0;
                 }
         }
     }
