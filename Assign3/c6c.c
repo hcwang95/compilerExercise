@@ -2,13 +2,6 @@
 #include "calc6.h"
 #include "y.tab.h"
 
-static int lbl;
-static int currenVarCount = 0;
-extern tableNode* Table;
-static tableNode* typeTable;
-static functionNode * functionTable;
-
-
 
 // #ifndef CHECK
 // #define CHECK
@@ -20,308 +13,42 @@ static functionNode * functionTable;
 
 
 
-#ifdef DEBUG
-void checkNode(nodeType* p){
-    if (!p) return;
-    printf("check the node info: \n");
-    printf("node type: %d\n", p->type);
-    printf("node type reference:\n\ttypeConInt:0\n\ttypeConChar:1\n\ttypeConStr:2 \
-               \n\ttypeVar:3\n\ttypeVarInt:4\n\ttypeVarChar:5\n\ttypeVarStr:6 \
-               \n\ttypeOpr:7\n");
-    if (p->type == typeConInt){
-        printf("constant int in the node: %d\n", p->con.value);
-    }else if(p->type == typeConStr){
-        printf("constant str in the node: %s\n", p->con.str);
-    }else if(p->type == typeConChar){
-        printf("constant char in the node: %c\n", (char)p->con.value);
-    }else if(p->type == typeVar||
-             p->type == typeVarInt ||
-             p->type == typeVarChar||
-             p->type == typeVarStr){
-        printf("the offset of the varible is: %d\n", p->var.offset);
-    }else if(p->type == typeOpr){
-        printf("this is opration node, totally there is %d subNodes\n", p->opr.nops);
-        printf("Here are the subNodes infomation:\n");  
-        int i;        
-        for (i = 0; i < p->opr.nops; i++){
-            checkNode(p->opr.op[i]);
-        }
-        printf("finish the printing for the subNodes of opration node with oprator %c.\n", (char)p->opr.oper);
-    }
-}
+static int lbl;
+static int currenVarCount;
+static tableNode* typeTable;
+static functionNode * functionTable;
+extern functionDefNode* funcDefList;
+extern tableNode* Table;
 
-void checkTableNode(tableNode* root){
-    if (root == NULL){
-        return;
-    }else{
-        printf("checking Node:\n");
-        printf("\tvarName:%s\n\tvarType:%d\n\toffset:%d\n", root->varName, root->varType, root->offset);
-        printf("checking its subnodes\n");
-        checkTableNode(root->leftNode);
-        checkTableNode(root->leftNode);
-        printf("finish chekcing subnodes for variable:%s\n", root->varName);
-    }
-}
-#endif
+#include "errorReport.c"
+#include "nodeCheck.c"
+#include "variableType.c"
+#include "function.c"
 
 
-int size(tableNode* root){
-    if (root == NULL){
-        return 0;
-    }
-    else{
-        return size(root->leftNode) + size(root->rightNode) + 1;
-    }
-}
-void reportOutOfLoop(){
-    yyerror("break or continue statement not within loop\n");
-    exit(breakContinueError);
-}
-
-void reportInvalid(){
-    fprintf(stderr, "invalid break or continue statement\n");
-    exit(breakContinueError);
-}
-
-void reportUndefined(int offset){
-    tableNode* var;
-    var = getNodeFromTable(offset, Table);
-    fprintf(stderr, "line %d: undefined varible: '%s'\n", var->lineNo, var->varName);
-    exit(variableUseBeforeDefined);
-}
-
-void reportMisMatched(){
-    fprintf(stderr, "the type of argument does not match the function used\n" );
-    exit(typeMisMatched);
-}
-
-void reportUnused(char* funcName){
-    fprintf(stderr, "function: %s has been defined but not used\n", funcName);
-    exit(funcUnused);
-}
-
-int getTypeFromTable(int offset, tableNode* root){
-    if (root==NULL){
-        return -1;
-    }else{
-        if (root->offset == offset){
-            return root->varType;
-        }else{
-            return getTypeFromTable(offset, root->leftNode)!=-1?
-                    getTypeFromTable(offset, root->leftNode):
-                    getTypeFromTable(offset, root->rightNode);
-        }
-    }
-}
-
-void createTypeNode(tableNode* src, tableNode** root){
-    if (*root==NULL){
-        tableNode* newOne = (tableNode*)malloc(sizeof(tableNode));
-        strcpy(newOne->varName, src->varName);
-        newOne->varType = typeVar;
-        newOne->offset = src->offset;
-        newOne->lineNo = src->lineNo;
-        newOne->leftNode = NULL;
-        newOne->rightNode = NULL;
-        *root = newOne;
-    }else{
-        int flag = strcmp((*root)->varName, src->varName);
-        if(flag < 0){
-            createTypeNode(src, &((*root)->leftNode));
-        }else{
-            createTypeNode(src, &((*root)->rightNode));
-        }
-    }
-}
-
-void updateNodeType(int offset, int type, tableNode* root){
-    #ifdef DEBUG
-    printf("starting update inside fucntion updateNodeType\n");
-    #endif
-    if (root==NULL){
-        return;
-    }else{
-        if(root->offset == offset){
-            root->varType = type;
-            #ifdef DEBUG
-            printf("update the varType in some node\n");
-            #endif
-        }else{
-            #ifdef DEBUG
-            printf("update the varType in subnode\n");
-            #endif
-            updateNodeType(offset, type, root->leftNode);
-            updateNodeType(offset, type, root->rightNode);
-        }
-    }
-}
-void updateCurrentVarCountAndTypeTable(int offset){
-    currenVarCount++;
-    // create a node and add in typetable
-    
-    tableNode* node = getNodeFromTable(offset, Table);
-    #ifdef DEBUG
-    printf("starting creating node for the varible: %s\n", node->varName);
-    #endif
-    createTypeNode(node, &typeTable);
-    #ifdef DEBUG
-    printf("finish creating node for the varible: %s\n", node->varName);
-    #endif
 
 
-}
-int checkDefined(nodeType *p){
-    #ifdef DEBUG
-    printf("check varible definition\n");
-    #endif
-    if (p->var.offset >= currenVarCount){
-        #ifdef DEBUG
-        printf("offset:%d > currenVarCount:%d\n", p->var.offset,currenVarCount);
-        #endif
-        reportUndefined(p->var.offset);
-        return -1;
-    }
-    return getTypeFromTable(p->var.offset, typeTable);
-}
-
-
-void checkUndefiedAndMatching(nodeType *p, int typeCon){
-    if (p->type == typeVar){
-        #ifdef DEBUG
-        printf("find the type of varible\n");
-        #endif
-        int typeVar = checkDefined(p);
-        if (typeVar - typeCon !=4){
-            #ifdef CHECK
-            printf("typeVar: %d, typeCon: %d\n", typeVar, typeCon);
-            #endif
-            reportMisMatched();
-        }
-        #ifdef DEBUG
-        printf("check the variable finish\n");
-        #endif
-    }else if (p->type == typeOpr){
-        int i;
-        for (i = 0; i < p->opr.nops; i++){
-            checkUndefiedAndMatching(p->opr.op[i], typeCon);
-        }
-    }else{
-        #ifdef DEBUG
-        printf("find the type of constant\n");
-        #endif
-        if (p->type != typeCon){
-            reportMisMatched();
-        }
-    }
-}
-
-// function of counting parameter for a function call
-int countParam(nodeType * p){
-    if (p == NULL){
-        return 0;
-    }else if(p->type != typeOpr){
-        return 1;
-    }else{
-        // case of oprator = ','
-        return countParam(p->opr.op[0]) + countParam(p->opr.op[1]);
-    }
-}
-
-int findLabel(char* funcName, int paramCnt, functionNode* root){
-    if (root == NULL){
-        return -1;
-    }else{
-        int flag = strcmp(root->funcName, funcName);
-        if (flag == 0 && root->paramCount == paramCnt){
-            return root->label;
-        }else{
-            return (flag<0)?findLabel(funcName, paramCnt, root->leftNode):
-                            findLabel(funcName, paramCnt, root->rightNode);
-        }
-    }
-}
-
-void updateFuncTable(char* funcName, int label, int paramCnt, functionNode** root){
-    if (*root == NULL){
-        functionNode * newOne = (functionNode*)malloc(sizeof(functionNode));
-        strcpy(newOne->funcName, funcName);
-        newOne->label = label;
-        newOne->paramCount = paramCnt;
-        newOne->leftNode = NULL;
-        newOne->rightNode = NULL;
-        *root = newOne;
-    }else{
-        int flag = strcmp((*root)->funcName, funcName);
-        (flag<0)?updateFuncTable(funcName, label, paramCnt, &((*root)->leftNode)):
-                 updateFuncTable(funcName, label, paramCnt, &((*root)->rightNode));
-    }
-}
-void localMemAlloc(int size){
-    printf("\tpush\tsp\n");
-    printf("\tpush\t%d\n", size);
-    printf("\tadd\n");
-    printf("\tpop\tsp\n");
-}
-
-// this function have two responsibilties:
-// 1. check if the expression is consistent in terms of type
-// 2. if consistent, return the consistent type.
-// Note that the type are all casted to constant type
-int getRValueType(nodeType* p){
-    if (p->type == typeVar) {
-        return checkDefined(p) - 4;
-    }
-    if (p->type == typeConInt) return typeConInt;
-    if (p->type == typeConChar) return typeConChar;
-    if (p->type == typeConStr) return typeConStr;
-    if (p->type == typeOpr){
-        if (p->opr.nops == 1){
-            return getRValueType(p->opr.op[0]); // deal with UMINUS
-        }else{
-            // deal with double operands
-            int * typeList = (int*)malloc(p->opr.nops * sizeof(int));
-            int i;        
-            for (i = 0; i < p->opr.nops; ++i){
-                typeList[i] = getRValueType(p->opr.op[i]);
-                // if there is one variable undefined
-                if (typeList[i] == -1){
-                    return -1;
-                }
-            }
-            int accType = -1;
-            // currently not allow string or char as valid argument for AND OR
-            for (i = 0; i < p->opr.nops; ++i){
-                if (accType==-1){
-                    accType = typeList[i];
-                }else{
-                    if (accType != typeList[i]){
-                        reportMisMatched();
-                        return -1;
-                    }
-                }
-            }
-            return accType;
-        }
-    }
-}
-
-void updateVarType(nodeType * p, int type){
-    if (type == -1){
-        return;
-    }else{
-        #ifdef DEBUG
-        checkTableNode(typeTable);
-        printf("starting updating type node table for offset: %d\n", p->var.offset);
-        #endif
-
-        updateNodeType(p->var.offset, type, typeTable);
-        #ifdef DEBUG
-        printf("finish updating type node table\n");
-        #endif
-    }
-
-}
 int ex_(nodeType *p, int lcont, int lbrk);
+
+// define all functions that are mentioned by the user
+void defineFunc(){
+    #ifdef DEBUG
+        printf("enter final definition for functions\n");
+    #endif
+    functionDefNode* temp;
+    temp = funcDefList;
+    while(temp!=NULL){
+        int paraCnt = countParam(temp->p->opr.op[1]);
+        int label = findLabel(temp->p->opr.op[0]->var.funcName, paraCnt, functionTable);
+        #ifdef DEBUG
+            printf("execute for function:%s, with %d argument(s)\n", \
+                    temp->p->opr.op[0]->var.funcName, paraCnt);
+        #endif
+        ex_(temp->p, -1, -1);
+    }
+}
+
+
 int ex(nodeType *p){
     int functionTotalVarCount = size(Table);
     #ifdef DEBUG

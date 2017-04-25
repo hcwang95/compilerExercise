@@ -8,29 +8,38 @@
 // #define CHECK
 // #endif
 
-#ifndef DEBUG
-#define DEBUG
+// #ifndef DEBUG
+// #define DEBUG
+// #endif
+
+
+
+#ifdef DEBUG
+void checkFunctionList(functionDefNode* root);
 #endif
+
+
 
 extern int yylineno;
 extern char* yytext;
 extern char* line;
+
+
 
 /* prototypes */
 nodeType *opr(int oper, int nops, ...);
 nodeType *var(char* varName, int isFunc);
 nodeType *con(int value, char* str, int ConType);
 void freeNode(nodeType *p);
+void preprocessFuncDef(nodeType* p);
 int ex(nodeType *p);
 int yylex(void);
-
 void yyerror(char *s);
-
-
 tableNode* Table = NULL;
 functionDefNode* funcDefList = NULL;
-
 static int varCount = 0;
+
+
 %}
 
 %union {
@@ -64,7 +73,7 @@ static int varCount = 0;
 %%
 
 program:
-          function                { ex($1); freeNode($1); exit(0); }
+          function                { ex($1); defineFunc(); freeNode($1); exit(0); }
         ;
 
 function:
@@ -215,7 +224,7 @@ nodeType *var(char* varName, int isFunc) {
         }else{
             p->var.offset = offset;
         }
-        p->var.funcName = NULL;
+        strcpy(p->var.funcName, " ");
         #ifdef DEBUG
             printf("set offset for %s as %d\n", varName, p->var.offset);
         #endif
@@ -329,13 +338,82 @@ void registerFunc(nodeType* p, functionDefNode** node){
         registerFunc(p, &((*node)->next));
     }
 }
+
+
+void updateOffset(int currentValCount){
+    printf("TODO\n");
+
+}
 void preprocessFuncDef(nodeType* p){
+    // handle no definition case
+    if (p==NULL){
+        return 0;
+    }
     #ifdef DEBUG
-        printf("current varCount: %s\n", varCount);
+        printf("current varCount: %d\n", varCount);
     #endif
+
+
+
+    // TODO: how to manage offset for all varibles offset
+
+
+
+    updateOffset(varCount);
     // register to the final function def table
     registerFunc(p, &funcDefList);
+
+    #ifdef DEBUG
+        printf("finish register function\n");
+        checkFunctionList(funcDefList);
+    #endif
 }
+
+
+#ifdef DEBUG
+void checkNode_(nodeType* p){
+    if (!p) return;
+    printf("check the node info: \n");
+    printf("node type: %d\n", p->type);
+    // printf("node type reference:\n\ttypeConInt:0\n\ttypeConChar:1\n\ttypeConStr:2 \
+    //            \n\ttypeVar:3\n\ttypeVarInt:4\n\ttypeVarChar:5\n\ttypeVarStr:6 \
+    //            \n\ttypeOpr:7\n");
+    if (p->type == typeConInt){
+        printf("constant int in the node: %d\n", p->con.value);
+    }else if(p->type == typeConStr){
+        printf("constant str in the node: %s\n", p->con.str);
+    }else if(p->type == typeConChar){
+        printf("constant char in the node: %c\n", (char)p->con.value);
+    }else if(p->type == typeVar||
+             p->type == typeVarInt ||
+             p->type == typeVarChar||
+             p->type == typeVarStr){
+        printf("the offset of the varible is: %d\n", p->var.offset);
+    }else if(p->type == typeOpr){
+        printf("this is opration node, totally there is %d subNodes\n", p->opr.nops);
+        printf("Here are the subNodes infomation:\n");  
+        int i;        
+        for (i = 0; i < p->opr.nops; i++){
+            checkNode(p->opr.op[i]);
+        }
+        printf("finish the printing for the subNodes of opration node with oprator %c.\n", (char)p->opr.oper);
+    }
+}
+#endif
+#ifdef DEBUG
+
+void checkFunctionList(functionDefNode* node){
+    printf("check the function list\n");
+    if (node == NULL){
+        printf("finish the function check\n");
+        return;
+    }else{
+        checkNode_(node->p);
+        printf("find a node with function name %s\n", node->p->opr.op[0]->var.funcName);
+        checkFunctionList(node->next);
+    }
+}
+#endif
 
 
 int main(int argc, char **argv) {
