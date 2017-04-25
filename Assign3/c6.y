@@ -8,9 +8,9 @@
 // #define CHECK
 // #endif
 
-// #ifndef DEBUG
-// #define DEBUG
-// #endif
+#ifndef DEBUG
+#define DEBUG
+#endif
 
 extern int yylineno;
 extern char* yytext;
@@ -28,6 +28,7 @@ void yyerror(char *s);
 
 
 tableNode* Table = NULL;
+functionDefNode* funcDefList = NULL;
 
 static int varCount = 0;
 %}
@@ -67,7 +68,9 @@ program:
         ;
 
 function:
-          function functiondef stmt         { $$ = opr(FUNC, 2, $1, $3); }
+          function functiondef stmt         { $$ = opr(FUNC, 2, $1, $3); 
+                                              preprocessFuncDef($2);
+                                            }
         | /* NULL */
         ;
 
@@ -132,7 +135,7 @@ expr:
 expr_list:
           expr                  { $$ = $1; }
         | expr_list ',' expr    { $$ = opr(',', 2, $1, $3); }
-        | /* NULL */
+        | /* NULL */            { $$ = NULL; }
         ;
 var :
           VARIABLE              { $$ = var($1, 0);}
@@ -142,7 +145,7 @@ var :
 var_list:
           var                   { $$ = $1; }
         | var_list ',' var      { $$ = opr(',', 2, $1, $3); }
-        | /* NULL */
+        | /* NULL */            { $$ = NULL; }
         ;
 
 %%
@@ -212,6 +215,7 @@ nodeType *var(char* varName, int isFunc) {
         }else{
             p->var.offset = offset;
         }
+        p->var.funcName = NULL;
         #ifdef DEBUG
             printf("set offset for %s as %d\n", varName, p->var.offset);
         #endif
@@ -221,8 +225,11 @@ nodeType *var(char* varName, int isFunc) {
             printf("create a node for function %s\n", varName);
         #endif
         strcpy(p->var.funcName, varName);
+        p->var.offset = -1;
+         #ifdef DEBUG
+            printf("finish node for function %s\n", varName);
+        #endif
     }
-
     
     return p;
 }
@@ -310,6 +317,24 @@ void updateTable(char* varName, int offset, tableNode** root){
             updateTable(varName, offset, &((*root)->rightNode));
         }
     }
+}
+
+void registerFunc(nodeType* p, functionDefNode** node){
+    if(*node == NULL){
+        functionDefNode* newOne = (functionDefNode*)malloc(sizeof(functionDefNode));
+        newOne->p = p;
+        newOne->next = NULL;
+        *node = newOne;
+    }else{
+        registerFunc(p, &((*node)->next));
+    }
+}
+void preprocessFuncDef(nodeType* p){
+    #ifdef DEBUG
+        printf("current varCount: %s\n", varCount);
+    #endif
+    // register to the final function def table
+    registerFunc(p, &funcDefList);
 }
 
 

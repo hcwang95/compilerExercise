@@ -14,7 +14,7 @@ typedef struct YYLTYPE
   int last_column;
 } YYLTYPE;
 
-#define DEBUG
+// #define DEBUG
 
 /* handle locations */
 int yycolumn = 1;

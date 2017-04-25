@@ -95,6 +95,11 @@ void reportMisMatched(){
     exit(typeMisMatched);
 }
 
+void reportUnused(char* funcName){
+    fprintf(stderr, "function: %s has been defined but not used\n", funcName);
+    exit(funcUnused);
+}
+
 int getTypeFromTable(int offset, tableNode* root){
     if (root==NULL){
         return -1;
@@ -210,6 +215,47 @@ void checkUndefiedAndMatching(nodeType *p, int typeCon){
     }
 }
 
+// function of counting parameter for a function call
+int countParam(nodeType * p){
+    if (p == NULL){
+        return 0;
+    }else if(p->type != typeOpr){
+        return 1;
+    }else{
+        // case of oprator = ','
+        return countParam(p->opr.op[0]) + countParam(p->opr.op[1]);
+    }
+}
+
+int findLabel(char* funcName, int paramCnt, functionNode* root){
+    if (root == NULL){
+        return -1;
+    }else{
+        int flag = strcmp(root->funcName, funcName);
+        if (flag == 0 && root->paramCount == paramCnt){
+            return root->label;
+        }else{
+            return (flag<0)?findLabel(funcName, paramCnt, root->leftNode):
+                            findLabel(funcName, paramCnt, root->rightNode);
+        }
+    }
+}
+
+void updateFuncTable(char* funcName, int label, int paramCnt, functionNode** root){
+    if (*root == NULL){
+        functionNode * newOne = (functionNode*)malloc(sizeof(functionNode));
+        strcpy(newOne->funcName, funcName);
+        newOne->label = label;
+        newOne->paramCount = paramCnt;
+        newOne->leftNode = NULL;
+        newOne->rightNode = NULL;
+        *root = newOne;
+    }else{
+        int flag = strcmp((*root)->funcName, funcName);
+        (flag<0)?updateFuncTable(funcName, label, paramCnt, &((*root)->leftNode)):
+                 updateFuncTable(funcName, label, paramCnt, &((*root)->rightNode));
+    }
+}
 void localMemAlloc(int size){
     printf("\tpush\tsp\n");
     printf("\tpush\t%d\n", size);
@@ -287,7 +333,8 @@ int ex(nodeType *p){
 }
 
 int ex_(nodeType *p, int lcont, int lbrk) {
-    int lblx, lbly, lblz, lbl1, lbl2, itr, index, type;
+    int lblx, lbly, lblz, lbl1, lbl2, itr, index, type,\
+        paraCnt, label;
     if (!p) return 0;
     switch(p->type) {
       case typeConInt:       
@@ -526,26 +573,55 @@ int ex_(nodeType *p, int lcont, int lbrk) {
                 ex_(p->opr.op[0], lcont, lbrk);
                 printf("\tneg\n");
                 break;
-
+            // for arugment pushing return the value of parameter count
+            case ',':
+                ex_(p->opr.op[0], lcont, lbrk);
+                ex_(p->opr.op[1], lcont, lbrk);
+                break;
             // for function
             case FUNCCALL:
                 #ifdef DEBUG
                     printf("find a function call node\n");
                 #endif
+                // find the arugment use first
+                paraCnt = countParam(p->opr.op[1]);
+
                 // try to get the function
-                int label = findLabel(p->opr.op[0]->var.funcName,functionTable);
+                label = findLabel(p->opr.op[0]->var.funcName, paraCnt, functionTable);
                 if (label == -1){
                     // set for new
                     label = lbl++;
-                    updateFuncTable(p->opr.op[0]->var.funcName, label, functionTable);
+                    // if first call, update for the table by creating node
+                    updateFuncTable(p->opr.op[0]->var.funcName, label, paraCnt, &functionTable);
                 }else{
                     #ifdef DEBUG
                         printf("this function has been called first time\n");
                     #endif
                 }
-                // push all argument
+                // push all argument (expresssion)
                 ex_(p->opr.op[1], lcont, lbrk);
-                
+                // print call cmd
+                printf("\tcall\tL%03d, %d\n", label, paraCnt);
+
+                break;
+            case FUNCDEF:
+                // this will happen when main function has been compiled
+                // and all varible offset are rearranged well.
+                // check if there is usage first
+                paraCnt = countParam(p->opr.op[1]);
+                label = findLabel(p->opr.op[0]->var.funcName, paraCnt, functionTable);
+                if (label == -1){
+                    // no usage give warning and discard those code snippets
+                    reportUnused(p->opr.op[0]->var.funcName);
+                    return 0;
+                }else{
+                    // there is at least one call
+                    printf("L%03d\n", label);
+                    ex_(p->opr.op[2], lcont, lbrk);
+                    #ifdef DEBUG
+                        printf("finish compiling for fucntion : %s\n", p->opr.op[0]->var.funcName);
+                    #endif
+                }
                 break;
             default:
                 // here cannot be a break or continue statement
