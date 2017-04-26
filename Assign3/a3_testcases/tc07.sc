@@ -1,5 +1,5 @@
 // function without arguments
-f() {
+function f() {
   puts("OK");
 }
 

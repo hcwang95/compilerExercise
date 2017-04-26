@@ -1,11 +1,11 @@
 // function names
-f() {
+function f() {
   puti(1);
 }
-fabcde() {
+function fabcde() {
   puti(5);
 }
-f1XYZabcdefg() {
+function f1XYZabcdefg() {
   puti(12);
 }
 

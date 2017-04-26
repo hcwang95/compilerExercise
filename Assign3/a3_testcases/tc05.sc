@@ -1,7 +1,7 @@
 // comparision and if-then-else 
 a = 100;
 b = 100;
-c = 200;
+c = 20;
 
 if(a >= b) {
   puts("a>b");

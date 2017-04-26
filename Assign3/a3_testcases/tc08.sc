@@ -1,5 +1,5 @@
 // functions with 1 argument
-f(a) {
+function f(a) {
   puti(a);
 }
 
