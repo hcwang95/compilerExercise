@@ -5,6 +5,7 @@ Basic feature
 More feature:
 	Programming Language Feature Support:
 		function definition anywhere
+		support no declaration
 		basic type checking
 
 

@@ -3,6 +3,12 @@ b = -10;
 c = -10;
 i = 20;
 
+function cde(x){
+	puts("enter function cde");
+	a = 20;
+	c = 15;
+	return x+10;
+}
 
 
 function abc(i, j){
@@ -18,13 +24,9 @@ function abc(i, j){
 		puti(i);
 		puts("i is smaller than 10");
 	}
-	// return cde(i+10);
+	return cde(i+10);
 }
 
-// function cde(x){
-// 	puts("enter function cde");
-// 	return x+10;
-// }
 d= 20;;;
 puti(abc(d,10));
 

@@ -14,9 +14,9 @@
 
 
 
-#ifdef DEBUG
+
 void checkFunctionList(functionDefNode* root);
-#endif
+
 
 
 
@@ -37,6 +37,7 @@ int yylex(void);
 void yyerror(char *s);
 tableNode* Table = NULL;
 functionDefNode* funcDefList = NULL;
+functionDefNode* funcReDefList = NULL;
 static int varCount = 0;
 
 
@@ -371,7 +372,7 @@ void preprocessFuncDef(nodeType* p){
 }
 
 
-#ifdef DEBUG
+
 
 void checkFunctionList(functionDefNode* node){
     printf("check the function list\n");
@@ -384,7 +385,7 @@ void checkFunctionList(functionDefNode* node){
         checkFunctionList(node->next);
     }
 }
-#endif
+
 
 
 int main(int argc, char **argv) {

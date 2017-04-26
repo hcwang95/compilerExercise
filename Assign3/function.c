@@ -45,6 +45,7 @@ void updateFuncTable(char* funcName, int label, int paramCnt, functionNode** roo
         functionNode * newOne = (functionNode*)malloc(sizeof(functionNode));
         strcpy(newOne->funcName, funcName);
         newOne->label = label;
+        newOne->defined = 0; // currently no definition
         newOne->paramCount = paramCnt;
         newOne->leftNode = NULL;
         newOne->rightNode = NULL;
@@ -81,6 +82,9 @@ void updateVarType(nodeType * p, int type){
 }
 
 void construct(char* varName, int offset, tableNode** root){
+    #ifdef DEBUG
+    printf("enter the contruct function\n");
+    #endif
     if (*root == NULL){
         tableNode * newOne = (tableNode*)malloc(sizeof(tableNode));
         strcpy(newOne->varName, varName);
@@ -140,9 +144,57 @@ void traverse(nodeType* p, bool isParam){
 
 // using static varible funcVarTable to construct variable tree
 // for function inner variables
-void constructVarTable(nodeType* p){
+void constructFuncVarTable(nodeType* p){
     // first construct for parameters
     traverse(p->opr.op[1], true);
     funcVarCount = 0;
     traverse(p->opr.op[2], false);
+}
+
+void recordFunctionCall(nodeType* p){
+    if(!p) return;
+    if(p->type == typeOpr && p->opr.oper == FUNCCALL){
+        int paraCnt = countParam(p->opr.op[1]);
+        // try to get the function
+        int label = findLabel(p->opr.op[0]->var.varName, paraCnt, functionTable);
+        if (label == -1){
+            // set for new
+            label = lbl++;
+            // if first call, update for the table by creating node
+            updateFuncTable(p->opr.op[0]->var.varName, label, paraCnt, &functionTable);
+        }else{
+            #ifdef DEBUG
+                printf("this function has been called first time\n");
+            #endif
+        }
+    }else if(p->type == typeOpr){
+        int i;
+        for(i=0; i < p->opr.nops;++i){
+            recordFunctionCall(p->opr.op[i]);
+        }
+    }
+}
+
+
+void destruct(tableNode* root){
+    if(!root){
+        return;
+    }else{
+        destruct(root->leftNode);
+        destruct(root->rightNode);
+    }
+    free(root);
+}
+
+
+void destructFuncVarTable(){
+    #ifdef DEBUG
+        printf("destructFuncVarTable\n");
+    #endif
+    destruct(funcVarTable);
+    funcVarTable = NULL;
+    funcVarCount = 0;
+    #ifdef DEBUG
+        printf("finish destruct funcVarTable\n");
+    #endif
 }

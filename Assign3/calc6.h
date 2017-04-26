@@ -6,7 +6,7 @@ typedef enum { typeConInt, typeConChar, typeConStr, \
 typedef enum { variableUseBeforeDefined=1, typeMisMatched, breakContinueError,\
                syntaxError, funcUnused  } exitCodeEnum;
 
-typedef enum { funcDef=0, funcMain } funcType;
+typedef enum { funcDef=0, funcMain, funcReDef} funcType;
 /* constants */
 typedef struct {
     int value;
@@ -54,6 +54,7 @@ typedef struct functionNode
     char funcName[12];
     int label;
     int paramCount;
+    int defined;
     struct functionNode* leftNode;
     struct functionNode* rightNode;
 }functionNode;

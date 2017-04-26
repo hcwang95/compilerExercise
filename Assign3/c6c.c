@@ -18,7 +18,7 @@ static int currenVarCount;
 tableNode* typeTable;
 tableNode* funcVarTable;
 functionNode * functionTable;
-functionDefNode* funcDefListSecond;
+extern functionDefNode* funcReDefList;
 extern functionDefNode* funcDefList;
 extern tableNode* Table;
 static int funcVarCount = 0;
@@ -30,7 +30,6 @@ static int funcVarCount = 0;
 
 
 
-
 int ex_(nodeType *p, int lcont, int lbrk, int funcType);
 
 // define all functions that are mentioned by the user
@@ -39,19 +38,35 @@ void defineFunc(){
         printf("enter final definition for functions\n");
     #endif
     functionDefNode* temp;
+    functionDefNode* freePtr;
     temp = funcDefList;
-    while(temp!=NULL){
+
+    while(temp){
         int paraCnt = countParam(temp->p->opr.op[1]);
         #ifdef DEBUG
             printf("execute for function:%s, with %d argument(s)\n", \
                     temp->p->opr.op[0]->var.varName, paraCnt);
         #endif
         ex_(temp->p, -1, -1, 0);
-        free(temp);
+        freePtr = temp;
         temp = temp -> next;
+        free(freePtr);
     }
+    funcDefList = NULL;
+    // handle no declare but first use in a function definition
+    temp = funcReDefList;
 
-
+    while(temp){
+        int paraCnt = countParam(temp->p->opr.op[1]);
+        // #ifdef DEBUG
+        //     printf("execute for function:%s, with %d argument(s)\n", \
+        //             temp->p->opr.op[0]->var.varName, paraCnt);
+        // #endif
+        ex_(temp->p, -1, -1, funcReDef);
+        freePtr = temp;
+        temp = temp -> next;
+        free(freePtr);
+    }
 }
 
 
@@ -336,6 +351,9 @@ int ex_(nodeType *p, int lcont, int lbrk, int funcType) {
                     label = lbl++;
                     // if first call, update for the table by creating node
                     updateFuncTable(p->opr.op[0]->var.varName, label, paraCnt, &functionTable);
+                    #ifdef DEBUG
+                        printf("this function %s has been called first time\n", p->opr.op[0]->var.varName);
+                    #endif
                 }else{
                     #ifdef DEBUG
                         printf("this function has been called first time\n");
@@ -352,16 +370,24 @@ int ex_(nodeType *p, int lcont, int lbrk, int funcType) {
                 // check if there is usage first
                 paraCnt = countParam(p->opr.op[1]);
                 label = findLabel(p->opr.op[0]->var.varName, paraCnt, functionTable);
-                if (label == -1){
-                    // no usage give warning and discard those code snippets
-                    reportFuncUnused(p->opr.op[0]->var.varName);
-                    return 0;
+                if (label == -1 ){
+                    if (funcType == funcReDef){
+                        // no usage give warning and discard those code snippets
+                        reportFuncUnused(p->opr.op[0]->var.varName);
+                        return 0;
+                    }else{
+                        // traverse and extract all function call
+                        // then append that one to another list to parse another time
+                        recordFunctionCall(p->opr.op[2]);
+                        registerFunc(p, &funcReDefList);
+                    }
+                    
                 }else{
                     // there is at least one call
                     printf("L%03d:\n", label);
 
                     // construct another table for one function
-                    constructVarTable(p);
+                    constructFuncVarTable(p);
                     int totalVarCount = size(funcVarTable);
                     if (totalVarCount - paraCnt > 0){
                         localMemAlloc(totalVarCount - paraCnt);
@@ -369,13 +395,14 @@ int ex_(nodeType *p, int lcont, int lbrk, int funcType) {
                     #ifdef DEBUG
                     checkNode(p->opr.op[2]);
                     #endif
-                    if (ex_(p->opr.op[2], lcont, lbrk, funcType)) return 1;
-
+                    if (!ex_(p->opr.op[2], lcont, lbrk, funcType)) {
+                        
                     // if user define function does not have return, then return 0 if all have been
                     // done. ==>Feature
-                    printf("\tpush\t0\n");
-                    printf("\tret\n");
-                    
+                        printf("\tpush\t0\n");
+                        printf("\tret\n");
+                    }
+                    destructFuncVarTable();
                     #ifdef DEBUG
                         printf("finish compiling for fucntion : %s\n", p->opr.op[0]->var.varName);
                     #endif
