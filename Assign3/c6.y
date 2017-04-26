@@ -67,7 +67,7 @@ static int varCount = 0;
 %left '*' '/' '%'
 %nonassoc UMINUS
 %nonassoc REF
-%type <nPtr> stmt expr expr_list stmt_list 
+%type <nPtr> stmt stmt_ expr expr_list stmt_list 
 %type <nPtr> var function functiondef var_list
 
 %%
@@ -77,7 +77,7 @@ program:
         ;
 
 function:
-          function functiondef stmt         { $$ = opr(FUNC, 2, $1, $3); 
+          function functiondef stmt_         { $$ = opr(FUNC, 2, $1, $3); 
                                               preprocessFuncDef($2);
                                             }
         | /* NULL */
@@ -88,6 +88,9 @@ functiondef:
         | /* NULL */                                           { $$ = NULL; }
         ;
 
+stmt_:
+          stmt                            { $$ = $1; }
+        | /* NULL */                      { $$ = NULL; }
 
 stmt:
           ';'                             { $$ = opr(';', 2, NULL, NULL); }
@@ -139,6 +142,7 @@ expr:
 	    | expr AND expr		    { $$ = opr(AND, 2, $1, $3); }
 	    | expr OR expr		    { $$ = opr(OR, 2, $1, $3); }
         | '(' expr ')'          { $$ = $2; }
+        | FUNCNAME '(' expr_list ')' { $$ = opr(FUNCCALL, 2, var($1,1), $3); }
         ;
 
 

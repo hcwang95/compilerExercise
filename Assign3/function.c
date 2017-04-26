@@ -18,9 +18,11 @@ int countParam(nodeType * p){
         return 0;
     }else if(p->type != typeOpr){
         return 1;
-    }else{
+    }else if(p->opr.oper == ','){
         // case of oprator = ','
         return countParam(p->opr.op[0]) + countParam(p->opr.op[1]);
+    }else{
+        return 1;
     }
 }
 
@@ -103,7 +105,7 @@ void construct(char* varName, int offset, tableNode** root){
 // if param isParam is true, then traverse
 // right node first
 void traverse(nodeType* p, bool isParam){
-
+    if (!p) return;
     if(isParam){
         // for parameter
         if(p->type >= typeVar && p->type <= typeVarStr){

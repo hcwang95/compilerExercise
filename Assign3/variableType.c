@@ -106,6 +106,10 @@ void checkUndefiedAndMatching(nodeType *p, int typeCon, bool check){
         printf("check the variable finish\n");
         #endif
     }else if (p->type == typeOpr){
+        // do not check for function first
+        if (p->opr.oper == FUNCCALL){
+            return;
+        }
         int i;
         for (i = 0; i < p->opr.nops; i++){
             checkUndefiedAndMatching(p->opr.op[i], typeCon, check);

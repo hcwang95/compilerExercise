@@ -1,14 +1,13 @@
 // this is code collection for node check
 
 
-#ifdef DEBUG
 void checkNode(nodeType* p){
     if (!p) return;
     printf("check the node info: \n");
     printf("node type: %d\n", p->type);
-    printf("node type reference:\n\ttypeConInt:0\n\ttypeConChar:1\n\ttypeConStr:2 \
-               \n\ttypeVar:3\n\ttypeVarInt:4\n\ttypeVarChar:5\n\ttypeVarStr:6 \
-               \n\ttypeOpr:7\n");
+    // printf("node type reference:\n\ttypeConInt:0\n\ttypeConChar:1\n\ttypeConStr:2 \
+    //            \n\ttypeVar:3\n\ttypeVarInt:4\n\ttypeVarChar:5\n\ttypeVarStr:6 \
+    //            \n\ttypeOpr:7\n");
     if (p->type == typeConInt){
         printf("constant int in the node: %d\n", p->con.value);
     }else if(p->type == typeConStr){
@@ -43,4 +42,3 @@ void checkTableNode(tableNode* root){
         printf("finish chekcing subnodes for variable:%s\n", root->varName);
     }
 }
-#endif

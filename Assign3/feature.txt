@@ -3,8 +3,15 @@ Feature List:
 Basic feature
 
 More feature:
-	Programming Language Feature Support
+	Programming Language Feature Support:
+		function definition anywhere
+		basic type checking
+
 
 	User Experience Support:
 		syntax error location suggestion
 		error code return
+
+	machine code optimization support:
+		Do not compile all statments after return
+			multiple return only left first return

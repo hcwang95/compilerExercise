@@ -15,12 +15,12 @@
 
 static int lbl;
 static int currenVarCount;
-static tableNode* typeTable;
-static functionNode * functionTable;
+tableNode* typeTable;
+tableNode* funcVarTable;
+functionNode * functionTable;
 extern functionDefNode* funcDefList;
 extern tableNode* Table;
 static int funcVarCount = 0;
-static tableNode* funcVarTable;
 
 #include "errorReport.c"
 #include "nodeCheck.c"
@@ -359,8 +359,13 @@ int ex_(nodeType *p, int lcont, int lbrk, bool isMain) {
                     if (totalVarCount - paraCnt > 0){
                         localMemAlloc(totalVarCount - paraCnt);
                     }
+                    #ifdef DEBUG
+                    checkNode(p->opr.op[2]);
+                    #endif
                     if (ex_(p->opr.op[2], lcont, lbrk, isMain)) return 1;
-                   
+                    // if user define function does not have return, then return 0 if all have been
+                    // done. ==>Feature
+                    printf("\tpush\t0\n");
                     printf("\tret\n");
                     
                     #ifdef DEBUG
@@ -368,6 +373,10 @@ int ex_(nodeType *p, int lcont, int lbrk, bool isMain) {
                     #endif
                 }
                 return 0;
+            case RETURN:
+                if (ex_(p->opr.op[0], lcont, lbrk, isMain)) return 1;
+                printf("\tret\n");
+                return 1;
             default:
                 // here cannot be a break or continue statement
                 if (ex_(p->opr.op[0], lcont, lbrk, isMain)) return 1;
