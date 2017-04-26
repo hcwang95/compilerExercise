@@ -64,22 +64,6 @@ void localMemAlloc(int size){
 }
 
 
-void updateVarType(nodeType * p, int type){
-    if (type == -1){
-        return;
-    }else{
-        #ifdef DEBUG
-        checkTableNode(typeTable);
-        printf("starting updating type node table for offset: %d\n", p->var.offset);
-        #endif
-
-        updateNodeType(p->var.offset, type, typeTable);
-        #ifdef DEBUG
-        printf("finish updating type node table\n");
-        #endif
-    }
-
-}
 
 void construct(char* varName, int offset, tableNode** root){
     #ifdef DEBUG

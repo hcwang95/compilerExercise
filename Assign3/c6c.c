@@ -71,6 +71,9 @@ void defineFunc(){
 
 
 int ex(nodeType *p){
+    if (!p){
+        return 0;
+    }
     int totalVarCount = size(Table);
     #ifdef DEBUG
     fprintf(stderr, "total varible size : %d\n", totalVarCount);
@@ -78,6 +81,7 @@ int ex(nodeType *p){
     localMemAlloc(totalVarCount);
     ex_(p,-1,-1, true);
     printf("\tend\n");
+    return 0;
 }
 
 int ex_(nodeType *p, int lcont, int lbrk, int funcType) {
@@ -158,23 +162,27 @@ int ex_(nodeType *p, int lcont, int lbrk, int funcType) {
                 }
                 if (ex_(p->opr.op[0], lcont, lbrk, funcType)) return 1;
                 if (p->opr.nops > 2) {
+                    int return1, return2;
                     /* if else */
                     printf("\tj0\tL%03d\n", lbl1 = lbl++);
                     #ifdef DEBUG
                         printf("positive part\n");
                     #endif
-                    if (ex_(p->opr.op[1], lcont, lbrk, funcType)) return 1;
+                    return1 = ex_(p->opr.op[1], lcont, lbrk, funcType);
                     #ifdef DEBUG
                         printf("jump to negative part\n");
                     #endif
                     printf("\tjmp\tL%03d\n", lbl2 = lbl++);
                     printf("L%03d:\n", lbl1);
-                    if (ex_(p->opr.op[2], lcont, lbrk, funcType)) return 1;
+                    return2 = ex_(p->opr.op[2], lcont, lbrk, funcType);
                     printf("L%03d:\n", lbl2);
+                    if (return1 == 1 && return2 == 1){
+                        return 1;
+                    }
                 } else {
                     /* if */
                     printf("\tj0\tL%03d\n", lbl1 = lbl++);
-                    if (ex_(p->opr.op[1], lcont, lbrk, funcType)) return 1;
+                    ex_(p->opr.op[1], lcont, lbrk, funcType);
                     printf("L%03d:\n", lbl1);
                 }
                 return 0;
@@ -316,7 +324,12 @@ int ex_(nodeType *p, int lcont, int lbrk, int funcType) {
                     #ifdef DEBUG
                     printf("starting updating the varible type\n");
                     #endif
-                    updateVarType(p->opr.op[0], getRValueType(p->opr.op[1])+4);
+                    int type_ = getRValueType(p->opr.op[1]);
+                    if (type_ != typeUnknown){
+                        updateVarType(p->opr.op[0], type_+4);
+                    }else{
+                        updateVarType(p->opr.op[0], typeUnknown);
+                    }
                     #ifdef DEBUG
                     printf("finish updating the varible type\n");
                     #endif

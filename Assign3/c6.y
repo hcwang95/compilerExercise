@@ -45,8 +45,8 @@ static int varCount = 0;
 
 %union {
     int iValue;                 /* integer value and char value*/
-    char varName[12];                /* varible name */
-    char funcName[12];
+    char varName[13];                /* varible name */
+    char funcName[13];
     char str[500];                /* string content*/
     nodeType *nPtr;             /* node pointer */
 };
@@ -79,9 +79,11 @@ program:
 
 function:
           function functiondef stmt_         { $$ = opr(FUNC, 2, $1, $3); 
-                                              preprocessFuncDef($2);
-                                            }
-        | /* NULL */
+                                               preprocessFuncDef($2);
+                                             }
+        | /* NULL */                         {
+                                                $$ = NULL;
+                                             }
         ;
 
 functiondef:

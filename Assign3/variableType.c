@@ -95,12 +95,14 @@ void checkUndefiedAndMatching(nodeType *p, int typeCon, int funcType){
         #ifdef DEBUG
         printf("find the type of varible\n");
         #endif
-        int typeVar = checkDefined(p);
-        if (typeVar - typeCon !=4){
+        int type_ = checkDefined(p);
+        if (type_ - typeCon !=4){
             #ifdef CHECK
-            printf("typeVar: %d, typeCon: %d\n", typeVar, typeCon);
+            printf("typeVar: %d, typeCon: %d\n", type_, typeCon);
             #endif
-            reportMisMatched();
+            if (type_ != typeUnknown){
+                reportMisMatched();
+            }
         }
         #ifdef DEBUG
         printf("check the variable finish\n");
@@ -125,6 +127,24 @@ void checkUndefiedAndMatching(nodeType *p, int typeCon, int funcType){
 }
 
 
+void updateVarType(nodeType * p, int type){
+    if (type == -1){
+        return;
+    }else{
+        #ifdef DEBUG
+        checkTableNode(typeTable);
+        printf("starting updating type node table for offset: %d\n", p->var.offset);
+        #endif
+
+        updateNodeType(p->var.offset, type, typeTable);
+        #ifdef DEBUG
+        printf("update to %d\n", type);
+        printf("finish updating type node table\n");
+        #endif
+    }
+
+}
+
 // this function have two responsibilties:
 // 1. check if the expression is consistent in terms of type
 // 2. if consistent, return the consistent type.
@@ -133,9 +153,13 @@ int getRValueType(nodeType* p){
     if (p->type == typeVar) {
         return checkDefined(p) - 4;
     }
-    if (p->type == typeConInt) return typeConInt;
-    if (p->type == typeConChar) return typeConChar;
-    if (p->type == typeConStr) return typeConStr;
+    if (p->type >= typeConInt && 
+        p->type <= typeConStr) {
+        return p->type;
+    }
+    if (p->type == typeOpr && p->opr.oper == FUNCCALL){
+        return typeUnknown;
+    }
     if (p->type == typeOpr){
         if (p->opr.nops == 1){
             return getRValueType(p->opr.op[0]); // deal with UMINUS
@@ -157,8 +181,13 @@ int getRValueType(nodeType* p){
                     accType = typeList[i];
                 }else{
                     if (accType != typeList[i]){
-                        reportMisMatched();
-                        return -1;
+                        if (accType ==typeUnknown || typeList[i] == typeUnknown){
+                            return typeUnknown;
+                        }else{
+                            reportMisMatched();
+                            return -1;  
+                        }
+                       
                     }
                 }
             }

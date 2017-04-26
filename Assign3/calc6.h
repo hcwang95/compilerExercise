@@ -1,6 +1,6 @@
 typedef enum { typeConInt, typeConChar, typeConStr, \
                typeVar, typeVarInt, typeVarChar, typeVarStr, \
-               typeOpr, typeVarFunc } nodeEnum;
+               typeOpr, typeVarFunc, typeUnknown } nodeEnum;
 
 
 typedef enum { variableUseBeforeDefined=1, typeMisMatched, breakContinueError,\
@@ -18,7 +18,7 @@ typedef struct {
 typedef struct {
     int varType;                    /* type of the varible */
     int offset;                     /* offset of frame pointer in order to hold the value */
-    char varName[12];             
+    char varName[13];             
 } varibleNodeType;
 
 /* operators */
@@ -41,7 +41,7 @@ typedef struct nodeTypeTag {
 } nodeType;
 
 typedef struct tableNode{
-    char varName[12];
+    char varName[13];
     int varType;
     int offset;
     int lineNo;
@@ -51,7 +51,7 @@ typedef struct tableNode{
 
 typedef struct functionNode
 {
-    char funcName[12];
+    char funcName[13];
     int label;
     int paramCount;
     int defined;
