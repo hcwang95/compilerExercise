@@ -219,8 +219,10 @@ nodeType *var(char* varName, int isFunc) {
 
     /* copy information */
     strcpy(p->var.varName, varName);
+    #ifdef DEBUG
+    printf("store the varible :%s \n", p->var.varName);
+    #endif
     if (!isFunc){
-
         p->type = typeVar;
         // set the offset
         int offset = getOffsetFromTable(varName, Table);
@@ -231,7 +233,6 @@ nodeType *var(char* varName, int isFunc) {
         }else{
             p->var.offset = offset;
         }
-        strcpy(p->var.varName, " ");
         #ifdef DEBUG
             printf("set offset for %s as %d\n", varName, p->var.offset);
         #endif

@@ -87,8 +87,8 @@ int checkDefined(nodeType *p){
 }
 
 
-void checkUndefiedAndMatching(nodeType *p, int typeCon, bool check){
-    if (!check){
+void checkUndefiedAndMatching(nodeType *p, int typeCon, int funcType){
+    if (funcType != funcMain){
         return;
     }
     if (p->type == typeVar){
@@ -112,7 +112,7 @@ void checkUndefiedAndMatching(nodeType *p, int typeCon, bool check){
         }
         int i;
         for (i = 0; i < p->opr.nops; i++){
-            checkUndefiedAndMatching(p->opr.op[i], typeCon, check);
+            checkUndefiedAndMatching(p->opr.op[i], typeCon, funcType);
         }
     }else{
         #ifdef DEBUG

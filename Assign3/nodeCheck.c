@@ -19,6 +19,7 @@ void checkNode(nodeType* p){
              p->type == typeVarChar||
              p->type == typeVarStr){
         printf("the offset of the varible is: %d\n", p->var.offset);
+        printf("the name of the varible is: %s\n", p->var.varName);
     }else if(p->type == typeOpr){
         printf("this is opration node, totally there is %d subNodes\n", p->opr.nops);
         printf("Here are the subNodes infomation:\n");  
@@ -26,7 +27,7 @@ void checkNode(nodeType* p){
         for (i = 0; i < p->opr.nops; i++){
             checkNode(p->opr.op[i]);
         }
-        printf("finish the printing for the subNodes of opration node with oprator %c.\n", (char)p->opr.oper);
+        printf("finish the printing for the subNodes of opration node with oprator '%c'.\n", (char)p->opr.oper);
     }
 }
 

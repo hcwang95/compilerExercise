@@ -109,6 +109,9 @@ void traverse(nodeType* p, bool isParam){
     if(isParam){
         // for parameter
         if(p->type >= typeVar && p->type <= typeVarStr){
+            #ifdef DEBUG
+            printf("construct for var:%s\n", p->var.varName);
+            #endif
             construct(p->var.varName, -4-funcVarCount++, &funcVarTable);
         }
         else if(p->type == typeOpr){
@@ -121,6 +124,9 @@ void traverse(nodeType* p, bool isParam){
         if(p->type >= typeVar && p->type <= typeVarStr){
             int offset = getOffsetFromTable(p->var.varName, funcVarTable);
             if (offset == -1){
+                #ifdef DEBUG
+                printf("construct for var:%s\n", p->var.varName);
+                #endif
                 construct(p->var.varName, funcVarCount++, &funcVarTable);
             }
         }else if(p->type == typeOpr){
@@ -136,7 +142,6 @@ void traverse(nodeType* p, bool isParam){
 // for function inner variables
 void constructVarTable(nodeType* p){
     // first construct for parameters
-
     traverse(p->opr.op[1], true);
     funcVarCount = 0;
     traverse(p->opr.op[2], false);

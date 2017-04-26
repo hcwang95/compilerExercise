@@ -5,6 +5,8 @@ typedef enum { typeConInt, typeConChar, typeConStr, \
 
 typedef enum { variableUseBeforeDefined=1, typeMisMatched, breakContinueError,\
                syntaxError, funcUnused  } exitCodeEnum;
+
+typedef enum { funcDef=0, funcMain } funcType;
 /* constants */
 typedef struct {
     int value;
