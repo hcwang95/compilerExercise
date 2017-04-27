@@ -70,6 +70,18 @@ void defineFunc(){
 }
 
 
+
+void checkUndefinedFunc(){
+    int flag = checkFuncFromTable(functionTable);
+    #ifdef DEBUG
+        printf("flag : %d\n", flag);
+    #endif
+    if (flag){
+        exit(funcUndefined);
+    }
+}
+
+
 int ex(nodeType *p){
     if (!p){
         return 0;
@@ -416,6 +428,7 @@ int ex_(nodeType *p, int lcont, int lbrk, int funcType) {
                         printf("\tret\n");
                     }
                     destructFuncVarTable();
+                    recordDef(p->opr.op[0]->var.varName, paraCnt,functionTable);
                     #ifdef DEBUG
                         printf("finish compiling for fucntion : %s\n", p->opr.op[0]->var.varName);
                     #endif

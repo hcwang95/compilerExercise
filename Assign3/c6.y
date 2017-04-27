@@ -14,12 +14,6 @@
 
 
 
-
-void checkFunctionList(functionDefNode* root);
-
-
-
-
 extern int yylineno;
 extern char* yytext;
 extern char* line;
@@ -35,6 +29,7 @@ void preprocessFuncDef(nodeType* p);
 int ex(nodeType *p);
 int yylex(void);
 void yyerror(char *s);
+void checkFunctionList(functionDefNode* root);
 tableNode* Table = NULL;
 functionDefNode* funcDefList = NULL;
 functionDefNode* funcReDefList = NULL;
@@ -74,7 +69,11 @@ static int varCount = 0;
 %%
 
 program:
-          function                { ex($1); defineFunc(); freeNode($1); exit(0); }
+          function                { ex($1); 
+                                    defineFunc(); 
+                                    checkUndefinedFunc();
+                                    freeNode($1); 
+                                    exit(0); }
         ;
 
 function:

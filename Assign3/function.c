@@ -34,8 +34,14 @@ int findLabel(char* funcName, int paramCnt, functionNode* root){
         if (flag == 0 && root->paramCount == paramCnt){
             return root->label;
         }else{
-            return (flag<0)?findLabel(funcName, paramCnt, root->leftNode):
-                            findLabel(funcName, paramCnt, root->rightNode);
+            // support function overloading 
+            if (flag == 0){
+                return (paramCnt < root->paramCount)?findLabel(funcName, paramCnt, root->leftNode):
+                                                   findLabel(funcName, paramCnt, root->rightNode);
+            }else{
+                return (flag<0)?findLabel(funcName, paramCnt, root->leftNode):
+                                findLabel(funcName, paramCnt, root->rightNode);
+            }
         }
     }
 }
@@ -52,8 +58,38 @@ void updateFuncTable(char* funcName, int label, int paramCnt, functionNode** roo
         *root = newOne;
     }else{
         int flag = strcmp((*root)->funcName, funcName);
-        (flag<0)?updateFuncTable(funcName, label, paramCnt, &((*root)->leftNode)):
-                 updateFuncTable(funcName, label, paramCnt, &((*root)->rightNode));
+        if (flag == 0){
+            // support function overloading 
+            (paramCnt < (*root)->paramCount)?updateFuncTable(funcName, label, paramCnt, &((*root)->leftNode)):
+                                        updateFuncTable(funcName, label, paramCnt, &((*root)->rightNode));
+        }else{
+            (flag<0)?updateFuncTable(funcName, label, paramCnt, &((*root)->leftNode)):
+                     updateFuncTable(funcName, label, paramCnt, &((*root)->rightNode));
+        }
+        
+    }
+}
+
+void recordDef(char* funcName, int paraCnt, functionNode* root){
+    if (root==NULL){
+        // this cannot happen
+        return;
+    }else{
+        int flag = strcmp(root->funcName, funcName);
+        if (flag == 0 && paraCnt == root->paramCount){
+            #ifdef DEBUG
+                printf("mark one of the function as defined\n");
+            #endif
+            root->defined = 1;
+        }else{
+            if (flag == 0){
+                paraCnt < root->paramCount?recordDef(funcName, paraCnt, root->leftNode):
+                                           recordDef(funcName, paraCnt, root->rightNode);
+            }else{
+                (flag<0)?recordDef(funcName, paraCnt, root->leftNode):
+                         recordDef(funcName, paraCnt, root->rightNode);
+            }
+        }
     }
 }
 void localMemAlloc(int size){
@@ -181,4 +217,24 @@ void destructFuncVarTable(){
     #ifdef DEBUG
         printf("finish destruct funcVarTable\n");
     #endif
+}
+
+// this is used by checking function used but not defined error
+
+int checkFuncFromTable(functionNode* root){
+    if (!root){
+        return 0;
+    }else{
+        int return1 = checkFuncFromTable(root->leftNode);
+        int return2 = checkFuncFromTable(root->rightNode);
+        int return3;
+        if (!root->defined){
+            fprintf(stderr, "function %s with %d argument(s) is used but undefined!!\n",
+                    root->funcName, root->paramCount);
+            return3 = 1;
+        }else {
+            return3 = 0;
+        }
+        return (return1 || return2 || return3);
+    }
 }
