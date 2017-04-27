@@ -6,13 +6,23 @@ More feature:
 	Programming Language Feature Support:
 		function definition anywhere
 		support no declaration
-		basic type checking
+		basic type checking and type inference
+
+	Error checking support:
+		determined type violation
+		function redefinition error
+		function used but not defined error
+		break continue usage error
+		variable used before define error
+
 
 
 	User Experience Support:
-		syntax error location suggestion
-		error code return
+		syntax error location suggestion (line No. and line content
+											with indication)
+		error code return (in calc6.h there is a enumation table)
 
 	machine code optimization support:
 		Do not compile all statments after return
 			multiple return only left first return
+		Do not compile function defined but not used

@@ -26,3 +26,8 @@ void reportFuncUnused(char* funcName){
     fprintf(stderr, "function: %s has been defined but not used\n", funcName);
     exit(funcUnused);
 }
+
+void reportFuncRedefined(char* funcName, int paraCnt){
+    fprintf(stderr, "function: %s with %d parameter(s) has been redefined\n", funcName, paraCnt);
+    exit(functionRedefined);
+}

@@ -90,7 +90,10 @@ YYLTYPE yylloc;
 "function"      return FUNCTION;
 "return"        return RETURN;
 
-
+"@"[[:alpha:]]([[:alnum:]]){0,11}      {
+                                        strcpy(yylval.varName, yytext);
+                                        return GLOBALVARIABLE;
+                                       }
 
 [[:alpha:]]([[:alnum:]]){0,11}         {
                                         strcpy(yylval.varName, yytext);

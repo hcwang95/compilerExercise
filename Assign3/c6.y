@@ -48,7 +48,7 @@ static int varCount = 0;
 
 %token <iValue> INTEGER
 %token <str> STRING CHAR
-%token <varName> VARIABLE
+%token <varName> VARIABLE GLOBALVARIABLE
 %token <funcName> FUNCNAME
 %token FOR WHILE IF PUTI PUTI_ PUTC PUTC_ PUTS PUTS_
 %token GETI GETC GETS BREAK CONTINUE FUNC FUNCCALL FUNCDEF
@@ -154,8 +154,9 @@ expr_list:
         | /* NULL */            { $$ = NULL; }
         ;
 var :
-          VARIABLE              { $$ = var($1, 0);}
-        | VARIABLE '[' expr ']' { $$ = opr(REF, 2, var($1, 0), $3); }
+          VARIABLE              { $$ = var($1, typeVar);}
+          GLOBALVARIABLE        { $$ = var($1, typeGlobalVar); }
+        | VARIABLE '[' expr ']' { $$ = opr(REF, 2, var($1, typeVar), $3); }
         ;
 
 var_list:
@@ -207,7 +208,7 @@ nodeType *con(int value, char* str, int ConType) {
     return p;
 }
 
-nodeType *var(char* varName, int isFunc) {
+nodeType *var(char* varName, int variableType) {
     #ifdef DEBUG
         printf("create Node for %s\n", varName);
     #endif
@@ -224,8 +225,9 @@ nodeType *var(char* varName, int isFunc) {
     #ifdef DEBUG
     printf("store the varible :%s \n", p->var.varName);
     #endif
-    if (!isFunc){
-        p->type = typeVar;
+    if (variableType == typeVar || 
+        variableType == typeGlobalVar){
+        p->type = variableType;
         // set the offset
         int offset = getOffsetFromTable(varName, Table);
 
@@ -238,7 +240,7 @@ nodeType *var(char* varName, int isFunc) {
         #ifdef DEBUG
             printf("set offset for %s as %d\n", varName, p->var.offset);
         #endif
-    }else{
+    }else if(variableType == typeVarFunc){
         p->type = typeVarFunc;
         #ifdef DEBUG
             printf("create a node for function %s\n", varName);

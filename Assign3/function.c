@@ -80,7 +80,11 @@ void recordDef(char* funcName, int paraCnt, functionNode* root){
             #ifdef DEBUG
                 printf("mark one of the function as defined\n");
             #endif
-            root->defined = 1;
+            if (root->defined == 0){
+                root->defined = 1;
+            }else{
+                reportFuncRedefined(funcName, paraCnt);
+            }
         }else{
             if (flag == 0){
                 paraCnt < root->paramCount?recordDef(funcName, paraCnt, root->leftNode):
@@ -164,10 +168,12 @@ void traverse(nodeType* p, bool isParam){
 
 // using static varible funcVarTable to construct variable tree
 // for function inner variables
-void constructFuncVarTable(nodeType* p){
+void constructFuncVarTable(nodeType* p, int typeFunc){
+    if(typeFunc == type)
     // first construct for parameters
     traverse(p->opr.op[1], true);
     funcVarCount = 0;
+    // then construct for variables in statements
     traverse(p->opr.op[2], false);
 }
 

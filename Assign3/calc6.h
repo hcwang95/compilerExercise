@@ -1,10 +1,10 @@
 typedef enum { typeConInt, typeConChar, typeConStr, \
                typeVar, typeVarInt, typeVarChar, typeVarStr, \
-               typeOpr, typeVarFunc, typeUnknown } nodeEnum;
+               typeOpr, typeVarFunc, typeGlobalVar, typeUnknown } nodeEnum;
 
 
 typedef enum { variableUseBeforeDefined=1, typeMisMatched, breakContinueError,\
-               syntaxError, funcUnused, funcUndefined  } exitCodeEnum;
+               syntaxError, funcUnused, funcUndefined, functionRedefined  } exitCodeEnum;
 
 typedef enum { funcDef=0, funcMain, funcReDef} funcType;
 /* constants */
