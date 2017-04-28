@@ -1,15 +1,18 @@
 // this is code collection for varible table and type checking
 
-int getTypeFromTable(int offset, tableNode* root){
+int getTypeFromTable(char* varName, tableNode* root){
     if (root==NULL){
         return -1;
     }else{
-        if (root->offset == offset){
+        int flag = strcmp(root->varName, varName);
+        if (flag == 0){
+            #ifdef DEBUG
+            printf("%s has type : %d\n", varName, root->varType);
+            #endif
             return root->varType;
         }else{
-            return getTypeFromTable(offset, root->leftNode)!=-1?
-                    getTypeFromTable(offset, root->leftNode):
-                    getTypeFromTable(offset, root->rightNode);
+            flag<0?getTypeFromTable(varName, root->leftNode):
+                   getTypeFromTable(varName, root->rightNode);
         }
     }
 }
@@ -34,32 +37,35 @@ void createTypeNode(tableNode* src, tableNode** root){
     }
 }
 
-void updateNodeType(int offset, int type, tableNode* root){
+void updateNodeType(char* varName, int type, tableNode* root){
     #ifdef DEBUG
     printf("starting update inside fucntion updateNodeType\n");
     #endif
     if (root==NULL){
         return;
     }else{
-        if(root->offset == offset){
+        int flag = strcmp(root->varName, varName);
+        if(flag == 0){
             root->varType = type;
             #ifdef DEBUG
-            printf("update the varType in some node\n");
+            printf("update the varType for %s to %d\n",root->varName, type);
             #endif
         }else{
             #ifdef DEBUG
             printf("update the varType in subnode\n");
             #endif
-            updateNodeType(offset, type, root->leftNode);
-            updateNodeType(offset, type, root->rightNode);
+            flag<0?updateNodeType(varName, type, root->leftNode):
+                   updateNodeType(varName, type, root->rightNode);
         }
     }
 }
-void updateCurrentVarCountAndTypeTable(int offset){
+void updateCurrentVarCountAndTypeTable(char* varName){
     currenVarCount++;
     // create a node and add in typetable
-    
-    tableNode* node = getNodeFromTable(offset, Table);
+    #ifdef DEBUG
+    printf("starting finding node for the varible: %s\n", varName);
+    #endif
+    tableNode* node = getNodeFromTable(varName, Table);
     #ifdef DEBUG
     printf("starting creating node for the varible: %s\n", node->varName);
     #endif
@@ -71,22 +77,23 @@ void updateCurrentVarCountAndTypeTable(int offset){
 
 }
 
-
+// current type checking is only for main function
 int checkDefined(nodeType *p){
     #ifdef DEBUG
     printf("check varible definition\n");
     #endif
-    if (p->var.offset >= currenVarCount){
+    int offset = getOffsetFromTable(p->var.varName, mainVarTable);
+    if (offset >= currenVarCount){
         #ifdef DEBUG
-        printf("offset:%d > currenVarCount:%d\n", p->var.offset,currenVarCount);
+        printf("offset:%d > currenVarCount:%d\n", offset,currenVarCount);
         #endif
-        reportUndefined(p->var.offset);
+        reportUndefined(offset);
         return -1;
     }
-    return getTypeFromTable(p->var.offset, typeTable);
+    return getTypeFromTable(p->var.varName, typeTable);
 }
 
-
+// current type checking is only for main function
 void checkUndefiedAndMatching(nodeType *p, int typeCon, int funcType){
     if (funcType != funcMain){
         return;
@@ -126,17 +133,16 @@ void checkUndefiedAndMatching(nodeType *p, int typeCon, int funcType){
     }
 }
 
-
+// current type checking is only for main function
 void updateVarType(nodeType * p, int type){
     if (type == -1){
         return;
     }else{
         #ifdef DEBUG
         checkTableNode(typeTable);
-        printf("starting updating type node table for offset: %d\n", p->var.offset);
+        printf("starting updating type node table for %s\n", p->var.varName);
         #endif
-
-        updateNodeType(p->var.offset, type, typeTable);
+        updateNodeType(p->var.varName, type, typeTable);
         #ifdef DEBUG
         printf("update to %d\n", type);
         printf("finish updating type node table\n");
@@ -171,6 +177,7 @@ int getRValueType(nodeType* p){
                 typeList[i] = getRValueType(p->opr.op[i]);
                 // if there is one variable undefined
                 if (typeList[i] == -1){
+                    printf("\n\n-1\n\n");
                     return -1;
                 }
             }

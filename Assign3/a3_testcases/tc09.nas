@@ -1,5 +1,5 @@
 	push	sp
-	push	7
+	push	3
 	add
 	pop	sp
 	push	10

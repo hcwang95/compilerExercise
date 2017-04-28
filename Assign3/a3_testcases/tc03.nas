@@ -6,7 +6,7 @@
 	pop	fp[0]
 	push	fp[0]
 	pop	fp[1]
-	push	"te\nst!"
+	push	"test!"
 	pop	fp[2]
 	push	fp[1]
 	puts_

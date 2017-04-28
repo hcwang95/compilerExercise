@@ -12,7 +12,9 @@
 // #define DEBUG
 // #endif
 
-
+// #ifndef CHECK1
+// #define CHECK1
+// #endif
 
 extern int yylineno;
 extern char* yytext;
@@ -22,7 +24,7 @@ extern char* line;
 
 /* prototypes */
 nodeType *opr(int oper, int nops, ...);
-nodeType *var(char* varName, int isFunc);
+nodeType *var(char* varName, int variableType);
 nodeType *con(int value, char* str, int ConType);
 void freeNode(nodeType *p);
 void preprocessFuncDef(nodeType* p);
@@ -86,7 +88,7 @@ function:
         ;
 
 functiondef:
-          FUNCTION FUNCNAME '(' var_list ')' '{' stmt_list '}' { $$ = opr(FUNCDEF, 3, var($2, 1), $4, $7); }
+          FUNCTION FUNCNAME '(' var_list ')' '{' stmt_list '}' { $$ = opr(FUNCDEF, 3, var($2, typeVarFunc), $4, $7); }
         | /* NULL */                                           { $$ = NULL; }
         ;
 
@@ -115,7 +117,7 @@ stmt:
         | IF '(' expr ')' stmt %prec IFX  { $$ = opr(IF, 2, $3, $5); }
         | IF '(' expr ')' stmt ELSE stmt  { $$ = opr(IF, 3, $3, $5, $7); }
         | '{' stmt_list '}'               { $$ = $2; }
-        | FUNCNAME  '(' expr_list ')' ';' { $$ = opr(FUNCCALL, 2, var($1,1), $3); }
+        | FUNCNAME  '(' expr_list ')' ';' { $$ = opr(FUNCCALL, 2, var($1,typeVarFunc), $3); }
         | RETURN expr                     { $$ = opr(RETURN, 1, $2); }
         ;
 
@@ -144,7 +146,7 @@ expr:
 	    | expr AND expr		    { $$ = opr(AND, 2, $1, $3); }
 	    | expr OR expr		    { $$ = opr(OR, 2, $1, $3); }
         | '(' expr ')'          { $$ = $2; }
-        | FUNCNAME '(' expr_list ')' { $$ = opr(FUNCCALL, 2, var($1,1), $3); }
+        | FUNCNAME '(' expr_list ')' { $$ = opr(FUNCCALL, 2, var($1,typeVarFunc), $3); }
         ;
 
 
@@ -155,7 +157,7 @@ expr_list:
         ;
 var :
           VARIABLE              { $$ = var($1, typeVar);}
-          GLOBALVARIABLE        { $$ = var($1, typeGlobalVar); }
+        | GLOBALVARIABLE        { $$ = var($1, typeGlobalVar); }
         | VARIABLE '[' expr ']' { $$ = opr(REF, 2, var($1, typeVar), $3); }
         ;
 
@@ -229,24 +231,16 @@ nodeType *var(char* varName, int variableType) {
         variableType == typeGlobalVar){
         p->type = variableType;
         // set the offset
-        int offset = getOffsetFromTable(varName, Table);
+        if (!isInTable(varName, Table)){
+            #ifdef CHECK1
+            printf("find a new var\n");
+            #endif
+            updateTable(varName, &Table);
 
-        if (offset == -1){
-            p->var.offset = varCount++;
-            updateTable(varName, p->var.offset, &Table);
-        }else{
-            p->var.offset = offset;
         }
-        #ifdef DEBUG
-            printf("set offset for %s as %d\n", varName, p->var.offset);
-        #endif
     }else if(variableType == typeVarFunc){
         p->type = typeVarFunc;
         #ifdef DEBUG
-            printf("create a node for function %s\n", varName);
-        #endif
-        p->var.offset = -1;
-         #ifdef DEBUG
             printf("finish node for function %s\n", varName);
         #endif
     }
@@ -287,6 +281,21 @@ void freeNode(nodeType *p) {
     free (p);
 }
 
+int isInTable(char* varName, tableNode* root){
+     if (root == NULL){
+        return 0;
+    }else{
+        int flag = strcmp(root->varName, varName);
+        if (flag == 0){
+            return 1;
+        }
+        else if(flag < 0){
+            return isInTable(varName, root->leftNode);
+        }else{
+            return isInTable(varName, root->rightNode);
+        }
+    }
+}
 
 int getOffsetFromTable(char* varName, tableNode* root){
     if (root == NULL){
@@ -305,36 +314,36 @@ int getOffsetFromTable(char* varName, tableNode* root){
     }
 }
 
-tableNode* getNodeFromTable(int offset, tableNode* root){
+tableNode* getNodeFromTable(char* varName, tableNode* root){
     if (root == NULL){
         return NULL;
     }else{
-        if (root->offset == offset){
+        int flag = strcmp(root->varName, varName);
+        if (flag == 0){
             return root;
+        }else if(flag < 0){
+            return getNodeFromTable(varName, root->leftNode);
         }else{
-            return getNodeFromTable(offset, root->leftNode) != NULL?\
-                    getNodeFromTable(offset, root->leftNode):
-                    getNodeFromTable(offset, root->rightNode);
+            return getNodeFromTable(varName, root->rightNode);
         }
     }
 }
 
-void updateTable(char* varName, int offset, tableNode** root){
+void updateTable(char* varName, tableNode** root){
     if (*root == NULL){
         tableNode * newOne = (tableNode*)malloc(sizeof(tableNode));
         strcpy(newOne->varName, varName);
         newOne->varType = typeVar;
         newOne->lineNo = yylineno;
-        newOne->offset = offset;
         newOne->leftNode = NULL;
         newOne->rightNode = NULL;
         *root = newOne;
     }else{
         int flag = strcmp((*root)->varName, varName);
         if(flag < 0){
-            updateTable(varName, offset, &((*root)->leftNode));
+            updateTable(varName, &((*root)->leftNode));
         }else{
-            updateTable(varName, offset, &((*root)->rightNode));
+            updateTable(varName, &((*root)->rightNode));
         }
     }
 }

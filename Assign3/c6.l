@@ -24,7 +24,7 @@ YYLTYPE yylloc;
     yylloc.first_column = yycolumn; yylloc.last_column = yycolumn+yyleng-1; \
     yycolumn += yyleng;
 %}
-%option yylineno 
+%option yylineno caseless
 
 %x string varfunc
 
@@ -91,7 +91,7 @@ YYLTYPE yylloc;
 "return"        return RETURN;
 
 "@"[[:alpha:]]([[:alnum:]]){0,11}      {
-                                        strcpy(yylval.varName, yytext);
+                                        strcpy(yylval.varName, yytext+1);
                                         return GLOBALVARIABLE;
                                        }
 

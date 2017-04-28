@@ -1,10 +1,10 @@
 	push	sp
-	push	8
+	push	1
 	add
 	pop	sp
 	push	20
-	pop	fp[6]
-	push	fp[6]
+	pop	fp[0]
+	push	fp[0]
 	push	10
 	call	L000, 2
 	puti
@@ -51,8 +51,18 @@ L001:
 	puts
 	push	fp[-4]
 	ret
-L001:
-	push	"this is function redefinition"
+L004:
+	push	sp
+	push	2
+	add
+	pop	sp
+	push	"enter function cde"
 	puts
+	push	20
+	pop	fp[0]
+	push	15
+	pop	fp[1]
 	push	fp[-4]
+	push	10
+	add
 	ret

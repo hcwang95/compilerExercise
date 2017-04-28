@@ -4,7 +4,8 @@ typedef enum { typeConInt, typeConChar, typeConStr, \
 
 
 typedef enum { variableUseBeforeDefined=1, typeMisMatched, breakContinueError,\
-               syntaxError, funcUnused, funcUndefined, functionRedefined  } exitCodeEnum;
+               syntaxError, funcUnused, funcUndefined, functionRedefined,\
+               invalidReturn  } exitCodeEnum;
 
 typedef enum { funcDef=0, funcMain, funcReDef} funcType;
 /* constants */
@@ -17,7 +18,6 @@ typedef struct {
 /* identifiers */
 typedef struct {
     int varType;                    /* type of the varible */
-    int offset;                     /* offset of frame pointer in order to hold the value */
     char varName[13];             
 } varibleNodeType;
 
@@ -48,6 +48,7 @@ typedef struct tableNode{
     struct tableNode * leftNode;
     struct tableNode * rightNode;
 }tableNode;
+
 
 typedef struct functionNode
 {

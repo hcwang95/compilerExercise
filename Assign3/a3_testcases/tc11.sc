@@ -1,10 +1,10 @@
 // function that initialize global variable
 
-finit() {
+function finit() {
   @a = 10;
 }
 
-fout() {
+function fout() {
   puti(@a);
 }
 

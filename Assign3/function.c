@@ -132,7 +132,7 @@ void construct(char* varName, int offset, tableNode** root){
 
 // if param isParam is true, then traverse
 // right node first
-void traverse(nodeType* p, bool isParam){
+void traverse(nodeType* p, bool isParam, bool isMain){
     if (!p) return;
     if(isParam){
         // for parameter
@@ -143,24 +143,24 @@ void traverse(nodeType* p, bool isParam){
             construct(p->var.varName, -4-funcVarCount++, &funcVarTable);
         }
         else if(p->type == typeOpr){
-            traverse(p->opr.op[1], isParam);
-            traverse(p->opr.op[0], isParam);
+            traverse(p->opr.op[1], isParam, isMain);
+            traverse(p->opr.op[0], isParam, isMain);
         }
 
     }else{
         // for normal statements
         if(p->type >= typeVar && p->type <= typeVarStr){
-            int offset = getOffsetFromTable(p->var.varName, funcVarTable);
+            int offset = getOffsetFromTable(p->var.varName, isMain?mainVarTable:funcVarTable);
             if (offset == -1){
                 #ifdef DEBUG
                 printf("construct for var:%s\n", p->var.varName);
                 #endif
-                construct(p->var.varName, funcVarCount++, &funcVarTable);
+                construct(p->var.varName, funcVarCount++, isMain?(&mainVarTable):(&funcVarTable));
             }
         }else if(p->type == typeOpr){
             int i;
             for(i = 0; i < p->opr.nops; ++i){
-                traverse(p->opr.op[i], isParam);
+                traverse(p->opr.op[i], isParam, isMain);
             }
         }
     }
@@ -169,12 +169,20 @@ void traverse(nodeType* p, bool isParam){
 // using static varible funcVarTable to construct variable tree
 // for function inner variables
 void constructFuncVarTable(nodeType* p, int typeFunc){
-    if(typeFunc == type)
-    // first construct for parameters
-    traverse(p->opr.op[1], true);
-    funcVarCount = 0;
-    // then construct for variables in statements
-    traverse(p->opr.op[2], false);
+    if(typeFunc == funcDef ||
+       typeFunc == funcReDef){
+        // first construct for parameters
+        traverse(p->opr.op[1], true, false);
+        funcVarCount = 0;
+        // then construct for variables in statements
+        traverse(p->opr.op[2], false, false);
+    }else if(typeFunc == funcMain){
+        // parse for main function
+        funcVarCount = 0;
+        traverse(p, false, true);
+        funcVarCount = 0;
+    }
+    
 }
 
 void recordFunctionCall(nodeType* p){
@@ -243,4 +251,42 @@ int checkFuncFromTable(functionNode* root){
         }
         return (return1 || return2 || return3);
     }
+}
+
+
+void checkGlobalVarDefFromTable(nodeType* p){
+    if(!p){
+        return;
+    }
+    if(p->type == typeGlobalVar){
+        int offset = getOffsetFromTable(p->var.varName, mainVarTable);
+        if (offset == -1){
+            // record global variable definition
+            #ifdef DEBUG
+            printf("construct for var:%s\n", p->var.varName);
+            #endif
+            construct(p->var.varName, funcVarCount++, &mainVarTable);
+        }
+    }else if(p->type == typeOpr){
+        int i;
+        for(i=0; i < p->opr.nops;++i){
+            checkGlobalVarDefFromTable(p->opr.op[i]);
+        }
+    }
+}
+// check all other function to see
+// if there is any global variable definition
+// if it is the case, add the variable into 
+// main function stack memory allocation
+// if not, do nothing
+void checkGlobalVarDef(int currentCnt){
+    functionDefNode* temp = funcDefList;
+    nodeType* funcDefNode = NULL;
+    funcVarCount = currentCnt;
+    while(temp){
+        funcDefNode = temp->p;
+        checkGlobalVarDefFromTable(funcDefNode);
+        temp = temp->next;
+    }
+    funcVarCount = 0;
 }

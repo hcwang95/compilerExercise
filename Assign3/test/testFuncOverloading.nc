@@ -32,9 +32,3 @@ function abc(k){
 	puts("this is function overloading");
 	return k;
 }
-
-
-function abc(k){
-	puts("this is function redefinition");
-	return k;
-}

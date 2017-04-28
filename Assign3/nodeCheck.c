@@ -18,7 +18,6 @@ void checkNode(nodeType* p){
              p->type == typeVarInt ||
              p->type == typeVarChar||
              p->type == typeVarStr){
-        printf("the offset of the varible is: %d\n", p->var.offset);
         printf("the name of the varible is: %s\n", p->var.varName);
     }else if(p->type == typeOpr){
         printf("this is opration node, totally there is %d subNodes\n", p->opr.nops);
@@ -36,10 +35,10 @@ void checkTableNode(tableNode* root){
         return;
     }else{
         printf("checking Node:\n");
-        printf("\tvarName:%s\n\tvarType:%d\n\toffset:%d\n", root->varName, root->varType, root->offset);
+        printf("\tvarName:%s\n\tvarType:%d\n", root->varName, root->varType);
         printf("checking its subnodes\n");
         checkTableNode(root->leftNode);
-        checkTableNode(root->leftNode);
+        checkTableNode(root->rightNode);
         printf("finish chekcing subnodes for variable:%s\n", root->varName);
     }
 }

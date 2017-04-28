@@ -1,10 +1,10 @@
 	push	sp
-	push	2
+	push	1
 	add
 	pop	sp
 	push	999
-	pop	fp[1]
-	push	fp[1]
+	pop	fp[0]
+	push	fp[0]
 	call	L000, 1
 	end
 L000:

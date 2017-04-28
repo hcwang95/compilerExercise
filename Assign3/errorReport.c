@@ -5,7 +5,7 @@ void reportOutOfLoop(){
     exit(breakContinueError);
 }
 
-void reportInvalid(){
+void reportInvalidBrkCon(){
     fprintf(stderr, "invalid break or continue statement\n");
     exit(breakContinueError);
 }
@@ -30,4 +30,9 @@ void reportFuncUnused(char* funcName){
 void reportFuncRedefined(char* funcName, int paraCnt){
     fprintf(stderr, "function: %s with %d parameter(s) has been redefined\n", funcName, paraCnt);
     exit(functionRedefined);
+}
+
+void reportInvalidReturn(){
+    fprintf(stderr, "invalid return statement in main\n");
+    exit(invalidReturn);
 }
