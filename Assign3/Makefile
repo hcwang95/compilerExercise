@@ -7,3 +7,8 @@ lex.yy.c: c6.l
 
 y.tab.c: c6.y
 	bison -y -d c6.y
+
+clean:
+	rm y.tab.*
+	rm c6c
+	rm lex.yy.c

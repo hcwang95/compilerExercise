@@ -1,11 +1,11 @@
 // test to generate fact.as
 
-print ("Please enter a +ve int < 13: ");
-read x;
-print fact(x);
+puts ("Please enter a +ve int < 13: ");
+geti x;
+puti fact(x);
 
 
-fact(a){
+function fact(a){
 	if(a==1){
 		return 1;
 	}
