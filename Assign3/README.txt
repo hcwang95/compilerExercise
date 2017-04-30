@@ -14,7 +14,9 @@ Execution Instruction:
 Feature List:
 
 Basic feature:
-	variable support (as assignment specification required)]
+	variable support (as assignment specification required)
+	global variable  (allow declare global variable in main, is same as declare and use 
+					  a normal variale in main.)
 	function support (One difference is a identifier 'function' is needed for prefix of
 					  function definition)
 
@@ -22,8 +24,9 @@ More feature:
 	Programming Language Feature Support:
 		function definition ***anywhere, no declaration.
 			support function used before definition.
-		support no declaration
-		basic type checking and type inference
+		function overloading in terms of argument number.
+		support no declaration.
+		basic type checking and type inference.
 
 	Error checking support:
 		determined type violation
@@ -46,6 +49,9 @@ More feature:
 		Do not compile all statments after return
 			multiple return(in a blokc) only compile first return
 		Do not compile function defined but not used
+
+
+
 
 
 (***)anywhere means you can define your function between two statements of main function.

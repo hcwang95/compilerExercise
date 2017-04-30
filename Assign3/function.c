@@ -290,3 +290,24 @@ void checkGlobalVarDef(int currentCnt){
     }
     funcVarCount = 0;
 }
+
+
+int checkVarNameDuplicate(char* funcName, tableNode* root){
+    if(!root){
+        return 0;
+    }else{
+        int flag = strcmp(root->varName, funcName);
+        if (!flag){
+            return 1;
+        }else{
+            return flag<0?checkVarNameDuplicate(funcName, root->leftNode):
+                          checkVarNameDuplicate(funcName, root->rightNode);
+        }
+    }
+}
+
+// function that will go through all nodes
+// to check if there is clash with other variable
+int hasConflict(char* funcName){
+    return checkVarNameDuplicate(funcName, Table);
+}

@@ -4,8 +4,8 @@ typedef enum { typeConInt, typeConChar, typeConStr, \
 
 
 typedef enum { variableUseBeforeDefined=1, typeMisMatched, breakContinueError,\
-               syntaxError, funcUnused, funcUndefined, functionRedefined,\
-               invalidReturn  } exitCodeEnum;
+               syntaxError, funcUndefined, functionRedefined,\
+               invalidReturn, funcVarClash  } exitCodeEnum;
 
 typedef enum { funcDef=0, funcMain, funcReDef} funcType;
 /* constants */

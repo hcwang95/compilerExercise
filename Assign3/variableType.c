@@ -78,7 +78,7 @@ void updateCurrentVarCountAndTypeTable(char* varName){
 }
 
 // current type checking is only for main function
-int checkDefined(nodeType *p){
+int checkDefined(nodeType *p, int funcType){
     #ifdef DEBUG
     printf("check varible definition\n");
     #endif
@@ -87,8 +87,10 @@ int checkDefined(nodeType *p){
         #ifdef DEBUG
         printf("offset:%d > currenVarCount:%d\n", offset,currenVarCount);
         #endif
-        reportUndefined(offset);
-        return -1;
+        tableNode* node = getNodeFromTable(p->var.varName, Table);
+        createTypeNode(node, &typeTable);
+        updateNodeType(p->var.varName, typeUnknown, typeTable);
+        return typeUnknown;
     }
     return getTypeFromTable(p->var.varName, typeTable);
 }
@@ -102,7 +104,7 @@ void checkUndefiedAndMatching(nodeType *p, int typeCon, int funcType){
         #ifdef DEBUG
         printf("find the type of varible\n");
         #endif
-        int type_ = checkDefined(p);
+        int type_ = checkDefined(p, funcType);
         if (type_ - typeCon !=4){
             #ifdef CHECK
             printf("typeVar: %d, typeCon: %d\n", type_, typeCon);
@@ -157,7 +159,9 @@ void updateVarType(nodeType * p, int type){
 // Note that the type are all casted to constant type
 int getRValueType(nodeType* p){
     if (p->type == typeVar) {
-        return checkDefined(p) - 4;
+        // here we first set getRValue only used in main
+        int returnVal = checkDefined(p, funcMain);
+        return returnVal != typeUnknown?(returnVal - 4):typeUnknown;
     }
     if (p->type >= typeConInt && 
         p->type <= typeConStr) {
@@ -177,7 +181,6 @@ int getRValueType(nodeType* p){
                 typeList[i] = getRValueType(p->opr.op[i]);
                 // if there is one variable undefined
                 if (typeList[i] == -1){
-                    printf("\n\n-1\n\n");
                     return -1;
                 }
             }

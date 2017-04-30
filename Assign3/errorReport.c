@@ -10,9 +10,9 @@ void reportInvalidBrkCon(){
     exit(breakContinueError);
 }
 
-void reportUndefined(int offset){
+void reportUndefined(char* varName){
     tableNode* var;
-    var = getNodeFromTable(offset, Table);
+    var = getNodeFromTable(varName, Table);
     fprintf(stderr, "line %d: undefined varible: '%s'\n", var->lineNo, var->varName);
     exit(variableUseBeforeDefined);
 }
@@ -23,16 +23,20 @@ void reportMisMatched(){
 }
 
 void reportFuncUnused(char* funcName){
-    fprintf(stderr, "function: %s has been defined but not used\n", funcName);
-    exit(funcUnused);
+    fprintf(stderr, "Warning: function %s has been defined but not used\n", funcName);
 }
 
 void reportFuncRedefined(char* funcName, int paraCnt){
-    fprintf(stderr, "function: %s with %d parameter(s) has been redefined\n", funcName, paraCnt);
+    fprintf(stderr, "function: %s() with %d parameter(s) has been redefined\n", funcName, paraCnt);
     exit(functionRedefined);
 }
 
 void reportInvalidReturn(){
     fprintf(stderr, "invalid return statement in main\n");
     exit(invalidReturn);
+}
+
+void reportFuncVarClash(char* funcName){
+    fprintf(stderr, "function %s has been conflicted with variable\n", funcName);
+    exit(funcVarClash);
 }

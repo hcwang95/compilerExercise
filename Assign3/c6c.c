@@ -151,11 +151,13 @@ int ex_(nodeType *p, int lcont, int lbrk, int funcType) {
                 #ifdef DEBUG
                 checkNode(p);
                 #endif
+                // allow for(return ***; return ***; return ***;){ ... }
                 if (ex_(p->opr.op[0], lcont, lbrk, funcType)) return 1;
                 printf("L%03d:\n", lblx = lbl++);
                 if (ex_(p->opr.op[1], lcont, lbrk, funcType)) return 1;
                 printf("\tj0\tL%03d\n", lbly = lbl++);
-                if (ex_(p->opr.op[3], lblz = lbl++, lbly, funcType)) return 1;;
+                // for loop is a special case for return
+                ex_(p->opr.op[3], lblz = lbl++, lbly, funcType);
                 printf("\tjmp\tL%03d\n", lblz);
                 printf("L%03d:\n", lblz);
                 if (ex_(p->opr.op[2], lcont, lbrk, funcType)) return 1;
@@ -171,9 +173,11 @@ int ex_(nodeType *p, int lcont, int lbrk, int funcType) {
                   }
                 }
                 printf("L%03d:\n", lbl1 = lbl++);
+                // allow while(return ***)
                 if (ex_(p->opr.op[0], lcont, lbrk, funcType)) return 1;
                 printf("\tj0\tL%03d\n", lbl2 = lbl++);
-                if (ex_(p->opr.op[1], lbl1, lbl2, funcType)) return 1;
+                // while loop return is special case
+                if (ex_(p->opr.op[1], lbl1, lbl2, funcType)) return 0;
                 printf("\tjmp\tL%03d\n", lbl1);
                 printf("L%03d:\n", lbl2);
                 return 0;
@@ -185,6 +189,7 @@ int ex_(nodeType *p, int lcont, int lbrk, int funcType) {
                       reportInvalidBrkCon();
                   }
                 }
+                // allow if(return ***)
                 if (ex_(p->opr.op[0], lcont, lbrk, funcType)) return 1;
                 if (p->opr.nops > 2) {
                     int return1, return2;
@@ -201,7 +206,7 @@ int ex_(nodeType *p, int lcont, int lbrk, int funcType) {
                     printf("L%03d:\n", lbl1);
                     return2 = ex_(p->opr.op[2], lcont, lbrk, funcType);
                     printf("L%03d:\n", lbl2);
-                    if (return1 == 1 && return2 == 1){
+                    if (return1 && return2){
                         return 1;
                     }
                 } else {
@@ -448,7 +453,11 @@ int ex_(nodeType *p, int lcont, int lbrk, int funcType) {
             case FUNCDEF:
                 // this will happen when main function has been compiled
                 // and all varible offset are rearranged well.
-                // check if there is usage first
+                // check if there is clash with other variable
+                if (hasConflict(p->opr.op[0]->var.varName)){
+                    reportFuncVarClash(p->opr.op[0]->var.varName);
+                }
+                // check if there is usage then.
                 paraCnt = countParam(p->opr.op[1]);
                 label = findLabel(p->opr.op[0]->var.varName, paraCnt, functionTable);
                 if (label == -1 ){
@@ -494,7 +503,11 @@ int ex_(nodeType *p, int lcont, int lbrk, int funcType) {
                 if (funcType == funcMain){
                     reportInvalidReturn();
                 }
-                if (ex_(p->opr.op[0], lcont, lbrk, funcType)) return 1;
+                if(!p->opr.op[0]){
+                    printf("\tpush\t0\n");
+                }else{
+                    if (ex_(p->opr.op[0], lcont, lbrk, funcType)) return 1;
+                }
                 printf("\tret\n");
                 return 1;
             default:

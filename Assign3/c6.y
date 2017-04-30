@@ -35,6 +35,7 @@ void checkFunctionList(functionDefNode* root);
 tableNode* Table = NULL;
 functionDefNode* funcDefList = NULL;
 functionDefNode* funcReDefList = NULL;
+void strToLower(char* varName);
 static int varCount = 0;
 
 
@@ -119,6 +120,7 @@ stmt:
         | '{' stmt_list '}'               { $$ = $2; }
         | FUNCNAME  '(' expr_list ')' ';' { $$ = opr(FUNCCALL, 2, var($1,typeVarFunc), $3); }
         | RETURN expr                     { $$ = opr(RETURN, 1, $2); }
+        | RETURN ';'                      { $$ = opr(RETURN, 1, NULL);}
         ;
 
 stmt_list:
@@ -211,6 +213,7 @@ nodeType *con(int value, char* str, int ConType) {
 }
 
 nodeType *var(char* varName, int variableType) {
+    strToLower(varName);
     #ifdef DEBUG
         printf("create Node for %s\n", varName);
     #endif
@@ -227,9 +230,9 @@ nodeType *var(char* varName, int variableType) {
     #ifdef DEBUG
     printf("store the varible :%s \n", p->var.varName);
     #endif
+    p->type = variableType;
     if (variableType == typeVar || 
         variableType == typeGlobalVar){
-        p->type = variableType;
         // set the offset
         if (!isInTable(varName, Table)){
             #ifdef CHECK1
@@ -239,7 +242,6 @@ nodeType *var(char* varName, int variableType) {
 
         }
     }else if(variableType == typeVarFunc){
-        p->type = typeVarFunc;
         #ifdef DEBUG
             printf("finish node for function %s\n", varName);
         #endif
@@ -399,6 +401,12 @@ void checkFunctionList(functionDefNode* node){
 }
 
 
+void strToLower(char* varName){
+    int i = 0;
+    for (i;varName[i];++i){
+        varName[i] = tolower(varName[i]);
+    }
+}
 
 int main(int argc, char **argv) {
 extern FILE* yyin;
