@@ -144,8 +144,10 @@ void yyerror(char *s, ...) {
     }
     fprintf(stderr, "line:%d error: %s at this line:\n%s\n%s\n", yylloc.first_line, s, \
         line,mark);
+    free(mark);
+
   }
-   
+  
   fprintf(stderr, "\n");
   exit(syntaxError);
 
