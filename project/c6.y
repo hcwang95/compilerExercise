@@ -19,7 +19,7 @@
 extern int yylineno;
 extern char* yytext;
 extern char* line;
-
+extern tableNode* mainVarTable;
 
 
 /* prototypes */
@@ -75,7 +75,7 @@ program:
           function                { ex($1); 
                                     defineFunc(); 
                                     checkUndefinedFunc();
-                                    freeNode($1); 
+                                    cleanUp($1);
                                     exit(0); }
         ;
 
@@ -273,15 +273,6 @@ nodeType *opr(int oper, int nops, ...) {
     return p;
 }
 
-void freeNode(nodeType *p) {
-    int i;
-    if (!p) return;
-    if (p->type == typeOpr) {
-        for (i = 0; i < p->opr.nops; i++)
-            freeNode(p->opr.op[i]);
-    }
-    free (p);
-}
 
 int isInTable(char* varName, tableNode* root){
      if (root == NULL){
@@ -406,6 +397,36 @@ void strToLower(char* varName){
     for (i;varName[i];++i){
         varName[i] = tolower(varName[i]);
     }
+}
+
+
+void freeNode(nodeType *p) {
+    int i;
+    if (!p) return;
+    if (p->type == typeOpr) {
+        for (i = 0; i < p->opr.nops; i++)
+            freeNode(p->opr.op[i]);
+    }
+    free (p);
+}
+
+
+void freeTable(tableNode* p){
+    if(!p) return;
+    // free subnode first
+    freeTable(p->leftNode);
+    freeTable(p->rightNode);
+    // free it self
+    free(p);
+}
+
+void cleanUp(nodeType* p){
+    // clean parsing nodes
+    freeNode(p); 
+    // clean parsing info table
+    freeTable(Table);
+    // free main variable table
+    
 }
 
 int main(int argc, char **argv) {

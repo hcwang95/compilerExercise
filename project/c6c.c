@@ -69,6 +69,9 @@ void defineFunc(){
         temp = temp -> next;
         free(freePtr);
     }
+    // finish all function definition and free main variable list.
+    freeTable(mainVarTable);
+    freeTable(typeTable);
 }
 
 
