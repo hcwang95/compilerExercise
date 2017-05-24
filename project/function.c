@@ -105,14 +105,14 @@ void localMemAlloc(int size){
 
 
 
-void construct(char* varName, int offset, tableNode** root){
+void construct(char* varName, int type_, int offset, tableNode** root){
     #ifdef DEBUG
     printf("enter the contruct function\n");
     #endif
     if (*root == NULL){
         tableNode * newOne = (tableNode*)malloc(sizeof(tableNode));
         strcpy(newOne->varName, varName);
-        newOne->varType = typeVar;
+        newOne->varType = type_;
         newOne->lineNo = -1;
         newOne->offset = offset;
         newOne->leftNode = NULL;
@@ -121,9 +121,9 @@ void construct(char* varName, int offset, tableNode** root){
     }else{
         int flag = strcmp((*root)->varName, varName);
         if(flag < 0){
-            construct(varName, offset, &((*root)->leftNode));
+            construct(varName, type_, offset, &((*root)->leftNode));
         }else{
-            construct(varName, offset, &((*root)->rightNode));
+            construct(varName, type_, offset, &((*root)->rightNode));
         }
     }
 }
@@ -135,12 +135,12 @@ void construct(char* varName, int offset, tableNode** root){
 void traverse(nodeType* p, bool isParam, bool isMain){
     if (!p) return;
     if(isParam){
-        // for parameter
+        // for parameter of local functions
         if(p->type >= typeVar && p->type <= typeVarStr){
             #ifdef DEBUG
             printf("construct for var:%s\n", p->var.varName);
             #endif
-            construct(p->var.varName, -4-funcVarCount++, &funcVarTable);
+            construct(p->var.varName, p->var.varType, -4-funcVarCount++, &funcVarTable);
         }
         else if(p->type == typeOpr){
             traverse(p->opr.op[1], isParam, isMain);
@@ -149,15 +149,23 @@ void traverse(nodeType* p, bool isParam, bool isMain){
 
     }else{
         // for normal statements
-        if(p->type >= typeVar && p->type <= typeVarStr){
-            int offset = getOffsetFromTable(p->var.varName, isMain?mainVarTable:funcVarTable);
-            if (offset == -1){
+        if(p->type >= typeVarInt && p->type <= typeVarStr){
+            tableNode* nodePtr = getNodeFromTable(p->var.varName, isMain?mainVarTable:funcVarTable);
+            if (!nodePtr){
                 #ifdef DEBUG
                 printf("construct for var:%s\n", p->var.varName);
                 #endif
-                construct(p->var.varName, funcVarCount++, isMain?(&mainVarTable):(&funcVarTable));
+                construct(p->var.varName, p->var.varType, funcVarCount++, isMain?(&mainVarTable):(&funcVarTable));
+            }else{
+                reportDuplicatedDeclaration(p->var.varName);
             }
-        }else if(p->type == typeOpr){
+        }else if (p->type == typeVar){
+            tableNode* nodePtr = getNodeFromTable(p->var.varName, isMain?mainVarTable:funcVarTable);
+            if (!nodePtr){
+                reportUndeclared(p->var.varName);
+            }
+        }
+        else if(p->type == typeOpr){
             int i;
             for(i = 0; i < p->opr.nops; ++i){
                 traverse(p->opr.op[i], isParam, isMain);
@@ -258,15 +266,21 @@ void checkGlobalVarDefFromTable(nodeType* p){
     if(!p){
         return;
     }
-    if(p->type == typeGlobalVar){
-        int offset = getOffsetFromTable(p->var.varName, mainVarTable);
-        if (offset == -1){
+    if(p->type >= typeGlobalVar && p->type <= typeGlobalVarStr){
+        tableNode* nodePtr = getNodeFromTable(p->var.varName, mainVarTable);
+        if (!nodePtr){
             // record global variable definition
             #ifdef DEBUG
             printf("construct for var:%s\n", p->var.varName);
             #endif
-            construct(p->var.varName, funcVarCount++, &mainVarTable);
+            construct(p->var.varName, p->var.varType, funcVarCount++, &mainVarTable);
+        }else{
+            reportDuplicatedDeclaration(p->var.varName);
         }
+    }else if (p->type == typeGlobalVar){
+        // a double checker needed
+
+
     }else if(p->type == typeOpr){
         int i;
         for(i=0; i < p->opr.nops;++i){

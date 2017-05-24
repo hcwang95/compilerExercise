@@ -32,10 +32,13 @@ int ex(nodeType *p);
 int yylex(void);
 void yyerror(char *s);
 void checkFunctionList(functionDefNode* root);
+void strToLower(char* varName);
+tableNode* getNodeFromTable(char* varName, tableNode* root);
+
+
 tableNode* Table = NULL;
 functionDefNode* funcDefList = NULL;
 functionDefNode* funcReDefList = NULL;
-void strToLower(char* varName);
 static int varCount = 0;
 
 
@@ -56,6 +59,7 @@ static int varCount = 0;
 %token FOR WHILE IF PUTI PUTI_ PUTC PUTC_ PUTS PUTS_
 %token GETI GETC GETS BREAK CONTINUE FUNC FUNCCALL FUNCDEF
 %token FUNCTION RETURN
+%token TYPE_INT TYPE_CHAR TYPE_STRING
 %nonassoc IFX
 %nonassoc ELSE
 
@@ -158,8 +162,14 @@ expr_list:
         | /* NULL */            { $$ = NULL; }
         ;
 var :
-          VARIABLE              { $$ = var($1, typeVar);}
+          VARIABLE              { $$ = var($1, typeVar); }
+        | TYPE_INT VARIABLE     { $$ = var($2, typeVarInt); }
+        | TYPE_CHAR VARIABLE    { $$ = var($2, typeVarChar); }
+        | TYPE_STRING VARIABLE  { $$ = var($2, typeVarStr); }
         | GLOBALVARIABLE        { $$ = var($1, typeGlobalVar); }
+        | TYPE_INT GLOBALVARIABLE     { $$ = var($2, typeGlobalVarInt); }
+        | TYPE_CHAR GLOBALVARIABLE    { $$ = var($2, typeGlobalVarChar); }
+        | TYPE_STRING GLOBALVARIABLE  { $$ = var($2, typeGlobalVarStr); }
         | VARIABLE '[' expr ']' { $$ = opr(REF, 2, var($1, typeVar), $3); }
         ;
 
@@ -227,21 +237,38 @@ nodeType *var(char* varName, int variableType) {
 
     /* copy information */
     strcpy(p->var.varName, varName);
+    p->type = variableType;
     #ifdef DEBUG
     printf("store the varible :%s \n", p->var.varName);
     #endif
-    p->type = variableType;
-    if (variableType == typeVar || 
+    if (variableType == typeVar ||
         variableType == typeGlobalVar){
-        // set the offset
-        if (!isInTable(varName, Table)){
+        // we just update the type there
+        // TODO: store all variable line No.
+
+        // ..............
+
+
+    }else if (variableType >= typeVarInt && 
+        variableType <= typeVarStr){
+        // if the variable is the declaration
+        tableNode * temp = getNodeFromTable(varName, Table);
+        if (!temp){
+            updateTable(varName, variableType, &Table);
+
+        }
+    }else if (variableType >= typeGlobalVarInt && 
+                variableType <+ typeGlobalVarStr){
+        // if the variable is the declaration
+        tableNode * temp = getNodeFromTable(varName, Table);
+        if (!temp){
             #ifdef CHECK1
             printf("find a new var\n");
             #endif
-            updateTable(varName, &Table);
-
+            updateTable(varName, variableType, &Table);
         }
-    }else if(variableType == typeVarFunc){
+    }
+    else if(variableType == typeVarFunc){
         #ifdef DEBUG
             printf("finish node for function %s\n", varName);
         #endif
@@ -273,39 +300,46 @@ nodeType *opr(int oper, int nops, ...) {
     return p;
 }
 
+// // function to check if the variable name is alread
+// // in the tableNode tree
 
-int isInTable(char* varName, tableNode* root){
-     if (root == NULL){
-        return 0;
-    }else{
-        int flag = strcmp(root->varName, varName);
-        if (flag == 0){
-            return 1;
-        }
-        else if(flag < 0){
-            return isInTable(varName, root->leftNode);
-        }else{
-            return isInTable(varName, root->rightNode);
-        }
-    }
-}
+// int isInTable(char* varName, tableNode* root){
+//      if (root == NULL){
+//         return 0;
+//     }else{
+//         int flag = strcmp(root->varName, varName);
+//         if (flag == 0){
+//             return 1;
+//         }
+//         else if(flag < 0){
+//             return isInTable(varName, root->leftNode);
+//         }else{
+//             return isInTable(varName, root->rightNode);
+//         }
+//     }
+// }
 
-int getOffsetFromTable(char* varName, tableNode* root){
-    if (root == NULL){
-        return -1;
-    }else{
 
-        int flag = strcmp(root->varName, varName);
-        if (flag == 0){
-            return root->offset;
-        }
-        else if(flag < 0){
-            return getOffsetFromTable(varName, root->leftNode);
-        }else{
-            return getOffsetFromTable(varName, root->rightNode);
-        }
-    }
-}
+// depricated code
+
+
+
+// int getOffsetFromTable(char* varName, tableNode* root){
+//     if (root == NULL){
+//         return -1;
+//     }else{
+
+//         int flag = strcmp(root->varName, varName);
+//         if (flag == 0){
+//             return root->offset;
+//         }
+//         else if(flag < 0){
+//             return getOffsetFromTable(varName, root->leftNode);
+//         }else{
+//             return getOffsetFromTable(varName, root->rightNode);
+//         }
+//     }
+// }
 
 tableNode* getNodeFromTable(char* varName, tableNode* root){
     if (root == NULL){
@@ -322,11 +356,14 @@ tableNode* getNodeFromTable(char* varName, tableNode* root){
     }
 }
 
-void updateTable(char* varName, tableNode** root){
+
+// function for storing info to the variable table
+
+void updateTable(char* varName, int varType, tableNode** root){
     if (*root == NULL){
         tableNode * newOne = (tableNode*)malloc(sizeof(tableNode));
         strcpy(newOne->varName, varName);
-        newOne->varType = typeVar;
+        newOne->varType = varType;
         newOne->lineNo = yylineno;
         newOne->leftNode = NULL;
         newOne->rightNode = NULL;
@@ -334,9 +371,9 @@ void updateTable(char* varName, tableNode** root){
     }else{
         int flag = strcmp((*root)->varName, varName);
         if(flag < 0){
-            updateTable(varName, &((*root)->leftNode));
+            updateTable(varName, varType, &((*root)->leftNode));
         }else{
-            updateTable(varName, &((*root)->rightNode));
+            updateTable(varName, varType, &((*root)->rightNode));
         }
     }
 }
@@ -428,6 +465,8 @@ void cleanUp(nodeType* p){
     // free main variable table
     
 }
+
+
 
 int main(int argc, char **argv) {
 extern FILE* yyin;

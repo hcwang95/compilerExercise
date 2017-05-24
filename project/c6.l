@@ -3,6 +3,8 @@
 #include "calc6.h"
 #include "y.tab.h"
 #include <stdarg.h>
+
+  
 void yyerror(char *, ...);
 char line[500];
 char text[500];
@@ -89,6 +91,9 @@ YYLTYPE yylloc;
 "gets"          return GETS;
 "function"      return FUNCTION;
 "return"        return RETURN;
+"int"           return TYPE_INT;
+"char"          return TYPE_CHAR;
+"string"         return TYPE_STRING;
 
 "@"[[:alpha:]]([[:alnum:]]){0,11}      {
                                         strcpy(yylval.varName, yytext+1);

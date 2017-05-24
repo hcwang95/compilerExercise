@@ -1,11 +1,14 @@
 typedef enum { typeConInt, typeConChar, typeConStr, \
                typeVar, typeVarInt, typeVarChar, typeVarStr, \
-               typeOpr, typeVarFunc, typeGlobalVar, typeUnknown } nodeEnum;
+               typeOpr, typeVarFunc, typeGlobalVar, \
+               typeGlobalVarInt, typeGlobalVarChar, typeGlobalVarStr, \
+               typeUnknown } nodeEnum;
 
 
 typedef enum { variableUseBeforeDefined=1, typeMisMatched, breakContinueError,\
                syntaxError, funcUndefined, functionRedefined,\
-               invalidReturn, funcVarClash  } exitCodeEnum;
+               invalidReturn, funcVarClash, variableUndeclared, variableDuplicatedDeclaration\
+             } exitCodeEnum;
 
 typedef enum { funcDef=0, funcMain, funcReDef} funcType;
 /* constants */
@@ -48,6 +51,7 @@ typedef struct tableNode{
     struct tableNode * leftNode;
     struct tableNode * rightNode;
 }tableNode;
+// for all variable tables
 
 
 typedef struct functionNode
@@ -59,9 +63,11 @@ typedef struct functionNode
     struct functionNode* leftNode;
     struct functionNode* rightNode;
 }functionNode;
+// for all functions tables
 
 typedef struct functionDefNode
 {
     nodeType* p;
     struct functionDefNode* next;
 }functionDefNode;
+// Node for function code generation

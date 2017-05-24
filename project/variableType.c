@@ -82,8 +82,8 @@ int checkDefined(nodeType *p, int funcType){
     #ifdef DEBUG
     printf("check varible definition\n");
     #endif
-    int offset = getOffsetFromTable(p->var.varName, mainVarTable);
-    if (offset >= currenVarCount){
+    tableNode* nodePtr = getNodeFromTable(p->var.varName, mainVarTable);
+    if (nodePtr->offset >= currenVarCount){
         #ifdef DEBUG
         printf("offset:%d > currenVarCount:%d\n", offset,currenVarCount);
         #endif

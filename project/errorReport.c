@@ -40,3 +40,13 @@ void reportFuncVarClash(char* funcName){
     fprintf(stderr, "function %s has been conflicted with variable\n", funcName);
     exit(funcVarClash);
 }
+
+void reportUndeclared(char* varName){
+    fprintf(stderr, "variable %s undeclared\n", varName);
+    exit(variableUndeclared);
+}
+
+void reportDuplicatedDeclaration(char* varName){
+    fprintf(stderr, "variable %s has duplicated declaration\n", varName);
+    exit(variableDuplicatedDeclaration);
+}

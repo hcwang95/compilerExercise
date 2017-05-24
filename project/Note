@@ -1,0 +1,5 @@
+Note:
+	dispatch the chekcing duplication of declaration to the syntax chekcer
+	need to solve the two declaration in local functions problem
+
+	change parse tree to determine the variable based on both name and line No.
