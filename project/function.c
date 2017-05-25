@@ -150,8 +150,8 @@ void traverse(nodeType* p, bool isParam, bool isMain){
     }else{
         // for normal statements
         if(p->type >= typeVar && p->type <= typeVarStr){
-            int offset = getOffsetFromTable(p->var.varName, isMain?mainVarTable:funcVarTable);
-            if (offset == -1){
+            tableNode* nodePtr = getNodeFromTable(p->var.varName, isMain?mainVarTable:funcVarTable);
+            if (!nodePtr){
                 #ifdef DEBUG
                 printf("construct for var:%s\n", p->var.varName);
                 #endif
@@ -259,8 +259,8 @@ void checkGlobalVarDefFromTable(nodeType* p){
         return;
     }
     if(p->type == typeGlobalVar){
-        int offset = getOffsetFromTable(p->var.varName, mainVarTable);
-        if (offset == -1){
+        tableNode* nodePtr = getNodeFromTable(p->var.varName, mainVarTable);
+        if (!nodePtr){
             // record global variable definition
             #ifdef DEBUG
             printf("construct for var:%s\n", p->var.varName);

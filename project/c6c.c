@@ -17,7 +17,7 @@ static int lbl;
 static int currenVarCount;
 
 extern tableNode* Table;
-tableNode* typeTable;
+// tableNode* typeTable;
 tableNode* mainVarTable;
 tableNode* funcVarTable;
 
@@ -28,7 +28,7 @@ extern functionDefNode* funcDefList;
 #include "errorReport.c"
 #include "nodeCheck.c"
 #include "function.c"
-#include "variableType.c"
+// #include "variableType.c" deprecated
 
 
 
@@ -71,7 +71,7 @@ void defineFunc(){
     }
     // finish all function definition and free main variable list.
     freeTable(mainVarTable);
-    freeTable(typeTable);
+    // freeTable(typeTable);
 }
 
 
@@ -111,6 +111,7 @@ int ex(nodeType *p){
 int ex_(nodeType *p, int lcont, int lbrk, int funcType) {
     int lblx, lbly, lblz, lbl1, lbl2, itr, index, type,\
         paraCnt, label, offset;
+    tableNode* nodePtr;
     if (!p) return 0;
     switch(p->type) {
       case typeConInt:       
@@ -127,15 +128,15 @@ int ex_(nodeType *p, int lcont, int lbrk, int funcType) {
           return 0;
       case typeVar:   
           if (funcType == funcMain){
-              offset = getOffsetFromTable(p->var.varName, mainVarTable);
+              nodePtr = getNodeFromTable(p->var.varName, mainVarTable);
           }else{
-              offset = getOffsetFromTable(p->var.varName, funcVarTable);
+              nodePtr = getNodeFromTable(p->var.varName, funcVarTable);
           }  
-          printf("\tpush\tfp[%d]\n", offset); 
+          printf("\tpush\tfp[%d]\n", nodePtr->offset); 
           return 0;
       case typeGlobalVar:
-          offset = getOffsetFromTable(p->var.varName, mainVarTable);
-          printf("\tpush\tsb[%d]\n", offset); 
+          nodePtr = getNodeFromTable(p->var.varName, mainVarTable);
+          printf("\tpush\tsb[%d]\n", nodePtr->offset); 
           return 0;
       case typeOpr:
           switch(p->opr.oper) {
@@ -240,75 +241,75 @@ int ex_(nodeType *p, int lcont, int lbrk, int funcType) {
             case GETI:
                 printf("\tgeti\n");
                 if(funcType == funcMain){
-                    offset = getOffsetFromTable(p->opr.op[0]->var.varName, mainVarTable);
-                    if (offset == currenVarCount){
-                        updateCurrentVarCountAndTypeTable(p->opr.op[0]->var.varName);
-                    }
-                    printf("\tpop\tfp[%d]\n", offset);
-                    #ifdef DEBUG
-                    printf("starting updating the varible type\n");
-                    #endif
-                    updateVarType(p->opr.op[0], typeVarInt);
-                    #ifdef DEBUG
-                    printf("finish updating the varible type\n");
-                    #endif
+                    nodePtr = getNodeFromTable(p->opr.op[0]->var.varName, mainVarTable);
+                    // if (offset == currenVarCount){
+                    //     updateCurrentVarCountAndTypeTable(p->opr.op[0]->var.varName);
+                    // }
+                    printf("\tpop\tfp[%d]\n", nodePtr->offset);
+                    // #ifdef DEBUG
+                    // printf("starting updating the varible type\n");
+                    // #endif
+                    // updateVarType(p->opr.op[0], typeVarInt);
+                    // #ifdef DEBUG
+                    // printf("finish updating the varible type\n");
+                    // #endif
                 }else{
                     if(p->opr.op[0]->type == typeGlobalVar){
-                        offset = getOffsetFromTable(p->opr.op[0]->var.varName, mainVarTable);
-                        printf("\tpop\tsb[%d]\n", offset);
+                        nodePtr = getNodeFromTable(p->opr.op[0]->var.varName, mainVarTable);
+                        printf("\tpop\tsb[%d]\n", nodePtr->offset);
                     }else{
-                        offset = getOffsetFromTable(p->opr.op[0]->var.varName, funcVarTable);
-                        printf("\tpop\tfp[%d]\n", offset); 
+                        nodePtr = getNodeFromTable(p->opr.op[0]->var.varName, funcVarTable);
+                        printf("\tpop\tfp[%d]\n", nodePtr->offset); 
                     }
                 }
                 return 0;
             case GETC:
                 printf("\tgetc\n");
                 if(funcType == funcMain){
-                    offset = getOffsetFromTable(p->opr.op[0]->var.varName, mainVarTable);
-                    if (offset == currenVarCount){
-                        updateCurrentVarCountAndTypeTable(p->opr.op[0]->var.varName);
-                    }
-                    printf("\tpop\tfp[%d]\n", offset);
-                    #ifdef DEBUG
-                    printf("starting updating the varible type\n");
-                    #endif
-                    updateVarType(p->opr.op[0], typeVarChar);
-                    #ifdef DEBUG
-                    printf("finish updating the varible type\n");
-                    #endif
+                    nodePtr = getNodeFromTable(p->opr.op[0]->var.varName, mainVarTable);
+                    // if (offset == currenVarCount){
+                    //     updateCurrentVarCountAndTypeTable(p->opr.op[0]->var.varName);
+                    // }
+                    printf("\tpop\tfp[%d]\n", nodePtr->offset);
+                    // #ifdef DEBUG
+                    // printf("starting updating the varible type\n");
+                    // #endif
+                    // updateVarType(p->opr.op[0], typeVarChar);
+                    // #ifdef DEBUG
+                    // printf("finish updating the varible type\n");
+                    // #endif
                 }else{
                     if(p->opr.op[0]->type == typeGlobalVar){
-                        offset = getOffsetFromTable(p->opr.op[0]->var.varName, mainVarTable);
-                        printf("\tpop\tsb[%d]\n", offset);
+                        nodePtr = getNodeFromTable(p->opr.op[0]->var.varName, mainVarTable);
+                        printf("\tpop\tsb[%d]\n", nodePtr->offset);
                     }else{
-                        offset = getOffsetFromTable(p->opr.op[0]->var.varName, funcVarTable);
-                        printf("\tpop\tfp[%d]\n", offset); 
+                        nodePtr = getNodeFromTable(p->opr.op[0]->var.varName, funcVarTable);
+                        printf("\tpop\tfp[%d]\n", nodePtr->offset); 
                     }
                 }
                 return 0;
             case GETS:
                 printf("\tgets\n");
                 if(funcType == funcMain){
-                    offset = getOffsetFromTable(p->opr.op[0]->var.varName, mainVarTable);
-                    if (offset == currenVarCount){
-                        updateCurrentVarCountAndTypeTable(p->opr.op[0]->var.varName);
-                    }
-                    printf("\tpop\tfp[%d]\n", offset);
-                    #ifdef DEBUG
-                    printf("starting updating the varible type\n");
-                    #endif
-                    updateVarType(p->opr.op[0], typeVarStr);
-                    #ifdef DEBUG
-                    printf("finish updating the varible type\n");
-                    #endif
+                    nodePtr = getNodeFromTable(p->opr.op[0]->var.varName, mainVarTable);
+                    // if (offset == currenVarCount){
+                    //     updateCurrentVarCountAndTypeTable(p->opr.op[0]->var.varName);
+                    // }
+                    printf("\tpop\tfp[%d]\n", nodePtr->offset);
+                    // #ifdef DEBUG
+                    // printf("starting updating the varible type\n");
+                    // #endif
+                    // updateVarType(p->opr.op[0], typeVarStr);
+                    // #ifdef DEBUG
+                    // printf("finish updating the varible type\n");
+                    // #endif
                 }else{
                     if(p->opr.op[0]->type == typeGlobalVar){
-                        offset = getOffsetFromTable(p->opr.op[0]->var.varName, mainVarTable);
-                        printf("\tpop\tsb[%d]\n", offset);
+                        nodePtr = getNodeFromTable(p->opr.op[0]->var.varName, mainVarTable);
+                        printf("\tpop\tsb[%d]\n", nodePtr->offset);
                     }else{
-                        offset = getOffsetFromTable(p->opr.op[0]->var.varName, funcVarTable);
-                        printf("\tpop\tfp[%d]\n", offset); 
+                        nodePtr = getNodeFromTable(p->opr.op[0]->var.varName, funcVarTable);
+                        printf("\tpop\tfp[%d]\n", nodePtr->offset); 
                     }
                 }
                 return 0;
@@ -317,10 +318,10 @@ int ex_(nodeType *p, int lcont, int lbrk, int funcType) {
                     printf("check the node we want PUTI\n");
                     checkNode(p->opr.op[0]);
                 #endif
-                // check for varible type or constant type
-                if(funcType == funcMain){
-                    checkUndefiedAndMatching(p->opr.op[0], typeConInt, funcType);
-                }
+                // // check for varible type or constant type
+                // if(funcType == funcMain){
+                //     checkUndefiedAndMatching(p->opr.op[0], typeConInt, funcType);
+                // }
                 if (ex_(p->opr.op[0], lcont, lbrk, funcType)) return 1;
                 printf("\tputi\n");
                 return 0;
@@ -329,26 +330,26 @@ int ex_(nodeType *p, int lcont, int lbrk, int funcType) {
                     printf("check the node we want PUTI_\n");
                     checkNode(p->opr.op[0]);
                 #endif
-                // check for varible type or constant type
-                if(funcType == funcMain){
-                    checkUndefiedAndMatching(p->opr.op[0], typeConInt, funcType);
-                }
+                // // check for varible type or constant type
+                // if(funcType == funcMain){
+                //     checkUndefiedAndMatching(p->opr.op[0], typeConInt, funcType);
+                // }
                 if (ex_(p->opr.op[0], lcont, lbrk, funcType)) return 1;
                 printf("\tputi_\n");
                 return 0;
             case PUTC:
-                // check for varible type or constant type
-                if(funcType == funcMain){
-                    checkUndefiedAndMatching(p->opr.op[0], typeConChar, funcType);
-                }
+                // // check for varible type or constant type
+                // if(funcType == funcMain){
+                //     checkUndefiedAndMatching(p->opr.op[0], typeConChar, funcType);
+                // }
                 if (ex_(p->opr.op[0], lcont, lbrk, funcType)) return 1;
                 printf("\tputc\n");
                 return 0;
             case PUTC_:
-                // check for varible type or constant type
-                if(funcType == funcMain){
-                    checkUndefiedAndMatching(p->opr.op[0], typeConChar, funcType);
-                }
+                // // check for varible type or constant type
+                // if(funcType == funcMain){
+                //     checkUndefiedAndMatching(p->opr.op[0], typeConChar, funcType);
+                // }
                 if (ex_(p->opr.op[0], lcont, lbrk, funcType)) return 1;
                 printf("\tputc_\n");
                 return 0;
@@ -357,10 +358,10 @@ int ex_(nodeType *p, int lcont, int lbrk, int funcType) {
                     printf("check the node we want PUTS\n");
                     checkNode(p->opr.op[0]);
                 #endif
-                // check for varible type or constant type
-                if(funcType == funcMain){
-                    checkUndefiedAndMatching(p->opr.op[0], typeConStr, funcType);
-                }
+                // // check for varible type or constant type
+                // if(funcType == funcMain){
+                //     checkUndefiedAndMatching(p->opr.op[0], typeConStr, funcType);
+                // }
                 #ifdef DEBUG
                 printf("after checking\n");
                 #endif
@@ -372,10 +373,10 @@ int ex_(nodeType *p, int lcont, int lbrk, int funcType) {
                     printf("check the node we want PUTS_\n");
                     checkNode(p->opr.op[0]);
                 #endif
-                // check for varible type or constant type
-                if(funcType == funcMain){
-                    checkUndefiedAndMatching(p->opr.op[0], typeConStr, funcType);
-                }
+                // // check for varible type or constant type
+                // if(funcType == funcMain){
+                //     checkUndefiedAndMatching(p->opr.op[0], typeConStr, funcType);
+                // }
                 if (ex_(p->opr.op[0], lcont, lbrk, funcType)) return 1;
                 printf("\tputs_\n");
                 return 0;
@@ -384,33 +385,33 @@ int ex_(nodeType *p, int lcont, int lbrk, int funcType) {
                 // here cannot be a break or continue statement
                 if (ex_(p->opr.op[1], lcont, lbrk, funcType)) return 1;
                 if (funcType == funcMain){
-                    offset = getOffsetFromTable(p->opr.op[0]->var.varName, mainVarTable);
-                    if (offset == currenVarCount){
-                        updateCurrentVarCountAndTypeTable(p->opr.op[0]->var.varName);
-                        #ifdef DEBUG
-                            printf("find a new varible\n");
-                        #endif
-                    }
-                    printf("\tpop\tfp[%d]\n", offset);
-                    #ifdef DEBUG
-                    printf("starting updating the varible type\n");
-                    #endif
-                    int type_ = getRValueType(p->opr.op[1]);
-                    if (type_ != typeUnknown){
-                        updateVarType(p->opr.op[0], type_+4);
-                    }else{
-                        updateVarType(p->opr.op[0], typeUnknown);
-                    }
-                    #ifdef DEBUG
-                    printf("finish updating the varible type\n");
-                    #endif
+                    nodePtr = getNodeFromTable(p->opr.op[0]->var.varName, mainVarTable);
+                    // if (offset == currenVarCount){
+                    //     updateCurrentVarCountAndTypeTable(p->opr.op[0]->var.varName);
+                    //     #ifdef DEBUG
+                    //         printf("find a new varible\n");
+                    //     #endif
+                    // }
+                    printf("\tpop\tfp[%d]\n", nodePtr->offset);
+                    // #ifdef DEBUG
+                    // printf("starting updating the varible type\n");
+                    // #endif
+                    // int type_ = getRValueType(p->opr.op[1]);
+                    // if (type_ != typeUnknown){
+                    //     updateVarType(p->opr.op[0], type_+4);
+                    // }else{
+                    //     updateVarType(p->opr.op[0], typeUnknown);
+                    // }
+                    // #ifdef DEBUG
+                    // printf("finish updating the varible type\n");
+                    // #endif
                 }else{
                     if(p->opr.op[0]->type == typeGlobalVar){
-                        offset = getOffsetFromTable(p->opr.op[0]->var.varName, mainVarTable);
-                        printf("\tpop\tsb[%d]\n", offset);
+                        nodePtr = getNodeFromTable(p->opr.op[0]->var.varName, mainVarTable);
+                        printf("\tpop\tsb[%d]\n", nodePtr->offset);
                     }else{
-                        offset = getOffsetFromTable(p->opr.op[0]->var.varName, funcVarTable);
-                        printf("\tpop\tfp[%d]\n", offset); 
+                        nodePtr = getNodeFromTable(p->opr.op[0]->var.varName, funcVarTable);
+                        printf("\tpop\tfp[%d]\n", nodePtr->offset); 
                     }
                 }
                 

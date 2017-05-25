@@ -290,22 +290,22 @@ int isInTable(char* varName, tableNode* root){
     }
 }
 
-int getOffsetFromTable(char* varName, tableNode* root){
-    if (root == NULL){
-        return -1;
-    }else{
+// int getOffsetFromTable(char* varName, tableNode* root){
+//     if (root == NULL){
+//         return -1;
+//     }else{
 
-        int flag = strcmp(root->varName, varName);
-        if (flag == 0){
-            return root->offset;
-        }
-        else if(flag < 0){
-            return getOffsetFromTable(varName, root->leftNode);
-        }else{
-            return getOffsetFromTable(varName, root->rightNode);
-        }
-    }
-}
+//         int flag = strcmp(root->varName, varName);
+//         if (flag == 0){
+//             return root->offset;
+//         }
+//         else if(flag < 0){
+//             return getOffsetFromTable(varName, root->leftNode);
+//         }else{
+//             return getOffsetFromTable(varName, root->rightNode);
+//         }
+//     }
+// }
 
 tableNode* getNodeFromTable(char* varName, tableNode* root){
     if (root == NULL){
