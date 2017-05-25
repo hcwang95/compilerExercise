@@ -24,7 +24,7 @@ extern tableNode* mainVarTable;
 
 /* prototypes */
 nodeType *opr(int oper, int nops, ...);
-nodeType *var(char* varName, int variableType);
+nodeType *var(char* varName, int variableType, nodeType* arrayIndexNode);
 nodeType *con(int value, char* str, int ConType);
 void freeNode(nodeType *p);
 void preprocessFuncDef(nodeType* p);
@@ -36,6 +36,7 @@ tableNode* Table = NULL;
 functionDefNode* funcDefList = NULL;
 functionDefNode* funcReDefList = NULL;
 void strToLower(char* varName);
+int* findDim(nodeType* nodePtr);
 static int varCount = 0;
 
 
@@ -55,7 +56,7 @@ static int varCount = 0;
 %token <funcName> FUNCNAME
 %token FOR WHILE IF PUTI PUTI_ PUTC PUTC_ PUTS PUTS_
 %token GETI GETC GETS BREAK CONTINUE FUNC FUNCCALL FUNCDEF
-%token FUNCTION RETURN
+%token FUNCTION RETURN ARRAYDECLARLIST ARRAYDECLAR ARRAY
 %nonassoc IFX
 %nonassoc ELSE
 
@@ -65,9 +66,10 @@ static int varCount = 0;
 %left '+' '-'
 %left '*' '/' '%'
 %nonassoc UMINUS
-%nonassoc REF
+%nonassoc REF INDEX ARRAYINIT
 %type <nPtr> stmt stmt_ expr expr_list stmt_list 
-%type <nPtr> var function functiondef var_list
+%type <nPtr> var function functiondef var_list 
+%type <nPtr> array_declare declaration_list index_list
 
 %%
 
@@ -89,7 +91,7 @@ function:
         ;
 
 functiondef:
-          FUNCTION FUNCNAME '(' var_list ')' '{' stmt_list '}' { $$ = opr(FUNCDEF, 3, var($2, typeVarFunc), $4, $7); }
+          FUNCTION FUNCNAME '(' var_list ')' '{' stmt_list '}' { $$ = opr(FUNCDEF, 3, var($2, typeVarFunc, NULL), $4, $7); }
         | /* NULL */                                           { $$ = NULL; }
         ;
 
@@ -118,9 +120,22 @@ stmt:
         | IF '(' expr ')' stmt %prec IFX  { $$ = opr(IF, 2, $3, $5); }
         | IF '(' expr ')' stmt ELSE stmt  { $$ = opr(IF, 3, $3, $5, $7); }
         | '{' stmt_list '}'               { $$ = $2; }
-        | FUNCNAME  '(' expr_list ')' ';' { $$ = opr(FUNCCALL, 2, var($1,typeVarFunc), $3); }
+        | FUNCNAME  '(' expr_list ')' ';' { $$ = opr(FUNCCALL, 2, var($1,typeVarFunc, NULL), $3); }
         | RETURN expr                     { $$ = opr(RETURN, 1, $2); }
-        | RETURN ';'                      { $$ = opr(RETURN, 1, NULL);}
+        | RETURN ';'                      { $$ = opr(RETURN, 1, NULL); }
+        | ARRAY declaration_list ';'      { $$ = opr(ARRAYDECLARLIST, 1, $2);}
+        ;
+
+declaration_list:
+          declaration_list ',' array_declare { $$ = opr(',', 2 , $1, $3); }
+        | array_declare                      { $$ = opr(ARRAYDECLAR, 1, $1); }
+        ;
+
+array_declare:
+          VARIABLE index_list                   { $$ = var($1, typeArray, $2); }
+        | GLOBALVARIABLE index_list             { $$ = var($1, typeGlobalArray, $2); }
+        | VARIABLE index_list '=' expr          { $$ = opr(ARRAYINIT, 2, var($1, typeArray, $2), $4); }
+        | GLOBALVARIABLE index_list '=' expr    { $$ = opr(ARRAYINIT, 2, var($1, typeGlobalArray, $2), $4); }
         ;
 
 stmt_list:
@@ -148,7 +163,7 @@ expr:
 	    | expr AND expr		    { $$ = opr(AND, 2, $1, $3); }
 	    | expr OR expr		    { $$ = opr(OR, 2, $1, $3); }
         | '(' expr ')'          { $$ = $2; }
-        | FUNCNAME '(' expr_list ')' { $$ = opr(FUNCCALL, 2, var($1,typeVarFunc), $3); }
+        | FUNCNAME '(' expr_list ')' { $$ = opr(FUNCCALL, 2, var($1,typeVarFunc, NULL), $3); }
         ;
 
 
@@ -157,10 +172,12 @@ expr_list:
         | expr_list ',' expr    { $$ = opr(',', 2, $1, $3); }
         | /* NULL */            { $$ = NULL; }
         ;
+
 var :
-          VARIABLE              { $$ = var($1, typeVar);}
-        | GLOBALVARIABLE        { $$ = var($1, typeGlobalVar); }
-        | VARIABLE '[' expr ']' { $$ = opr(REF, 2, var($1, typeVar), $3); }
+          VARIABLE              { $$ = var($1, typeVar, NULL); }
+        | GLOBALVARIABLE        { $$ = var($1, typeGlobalVar, NULL); }
+        | VARIABLE index_list   { $$ = opr(REF, 2, var($1, typeArray, NULL), $2); } // normal useage
+        | GLOBALVARIABLE index_list { $$ = opr(REF, 2, var($1, typeGlobalArray, NULL), $2); } // normal useage
         ;
 
 var_list:
@@ -169,6 +186,10 @@ var_list:
         | /* NULL */            { $$ = NULL; }
         ;
 
+index_list:
+          index_list '[' expr ']' { $$ = opr(INDEX, 2, $1, $3);}
+        | '[' expr ']'            { $$ = $2; }
+        ;
 %%
 
 #define SIZEOF_NODETYPE ((char *)&p->con - (char *)p)
@@ -212,7 +233,7 @@ nodeType *con(int value, char* str, int ConType) {
     return p;
 }
 
-nodeType *var(char* varName, int variableType) {
+nodeType *var(char* varName, int variableType, nodeType* arrayIndexNode) {
     strToLower(varName);
     #ifdef DEBUG
         printf("create Node for %s\n", varName);
@@ -231,6 +252,7 @@ nodeType *var(char* varName, int variableType) {
     printf("store the varible :%s \n", p->var.varName);
     #endif
     p->type = variableType;
+    p->var.arrayDim = NULL;
     if (variableType == typeVar || 
         variableType == typeGlobalVar){
         // set the offset
@@ -245,6 +267,12 @@ nodeType *var(char* varName, int variableType) {
         #ifdef DEBUG
             printf("finish node for function %s\n", varName);
         #endif
+    }else if(variableType == typeArray || variableType == typeGlobalArray){
+        // if it's the declaration, field arrayIndexNode is not NULL
+        if (arrayIndexNode){
+            // printf("array declaration\n");
+            p->var.arrayDim = findDim(arrayIndexNode);
+        }
     }
     
     return p;
@@ -434,4 +462,50 @@ extern FILE* yyin;
     yyin = fopen(argv[1], "r");
     yyparse();
     return 0;
+}
+
+int* findDim(nodeType* nodePtr){
+    int size = findLeaves(nodePtr);
+    int* dimPtr = (int *)malloc(sizeof(int) * (size+1));
+    dimPtr[0] = size;
+    printf("size: %d\n", size);
+    preorderRecord(nodePtr, dimPtr, 1);
+
+    int i = 1;
+    for (i; i<=dimPtr[0]; i++){
+        printf("%d\n", dimPtr[i]);
+    }
+    return dimPtr;
+}
+
+int findLeaves(nodeType* root){
+    if (!root){
+        return 0;
+    }else{
+        if(root->type == typeOpr && root->opr.oper == INDEX){
+            return findLeaves(root->opr.op[0]) + findLeaves(root->opr.op[1]);
+        }else{
+            printf("find a leave\n");
+            return 1; // 
+        }
+    }
+}
+
+int preorderRecord(nodeType* root, int * dimPtr, int target){
+    if (!root){
+        return target;
+    }else{
+        if(root->type == typeOpr && root->opr.oper == INDEX){
+            target = preorderRecord(root->opr.op[0], dimPtr, target);
+            target = preorderRecord(root->opr.op[1], dimPtr, target);
+            return target;
+        }else{
+            if (root->type != typeConInt){
+                reportInvalidIndex();
+            }else{
+                dimPtr[target] = root->con.value;
+                return ++target;
+            }
+        }
+    }
 }

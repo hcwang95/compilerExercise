@@ -1,11 +1,11 @@
 typedef enum { typeConInt, typeConChar, typeConStr, \
-               typeVar, typeVarInt, typeVarChar, typeVarStr, \
+               typeVar, typeVarInt, typeVarChar, typeVarStr, typeArray, typeGlobalArray, \
                typeOpr, typeVarFunc, typeGlobalVar, typeUnknown } nodeEnum;
 
 
 typedef enum { variableUseBeforeDefined=1, typeMisMatched, breakContinueError,\
                syntaxError, funcUndefined, functionRedefined,\
-               invalidReturn, funcVarClash  } exitCodeEnum;
+               invalidReturn, funcVarClash, invalidIndex } exitCodeEnum;
 
 typedef enum { funcDef=0, funcMain, funcReDef} funcType;
 /* constants */
@@ -18,7 +18,8 @@ typedef struct {
 /* identifiers */
 typedef struct {
     int varType;                    /* type of the varible */
-    char varName[13];             
+    char varName[13]; 
+    int * arrayDim;                 /* dimention list for array*/            
 } varibleNodeType;
 
 /* operators */

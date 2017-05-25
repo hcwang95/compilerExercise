@@ -89,6 +89,7 @@ YYLTYPE yylloc;
 "gets"          return GETS;
 "function"      return FUNCTION;
 "return"        return RETURN;
+"array"         return ARRAY;
 
 "@"[[:alpha:]]([[:alnum:]]){0,11}      {
                                         strcpy(yylval.varName, yytext+1);

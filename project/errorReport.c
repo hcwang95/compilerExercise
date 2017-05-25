@@ -40,3 +40,8 @@ void reportFuncVarClash(char* funcName){
     fprintf(stderr, "function %s has been conflicted with variable\n", funcName);
     exit(funcVarClash);
 }
+
+void reportInvalidIndex(){
+    fprintf(stderr, "invalid array index of declaration\n" );
+    exit(invalidIndex);
+}
