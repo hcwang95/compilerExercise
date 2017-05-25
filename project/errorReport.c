@@ -45,3 +45,8 @@ void reportInvalidIndex(){
     fprintf(stderr, "invalid array index of declaration\n" );
     exit(invalidIndex);
 }
+
+void reportArrayUndeclared(char* varName){
+    fprintf(stderr, "array: %s is undeclared\n" , varName);
+    exit(arrayUndeclared);
+}

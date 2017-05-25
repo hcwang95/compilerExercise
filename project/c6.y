@@ -503,6 +503,9 @@ int preorderRecord(nodeType* root, int * dimPtr, int target){
             if (root->type != typeConInt){
                 reportInvalidIndex();
             }else{
+                if (!root->con.value){
+                    reportInvalidIndex();
+                }
                 dimPtr[target] = root->con.value;
                 return ++target;
             }

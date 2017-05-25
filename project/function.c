@@ -105,25 +105,26 @@ void localMemAlloc(int size){
 
 
 
-void construct(char* varName, int offset, tableNode** root){
+void construct(nodeType* nodePtr, int offset, tableNode** root){
     #ifdef DEBUG
     printf("enter the contruct function\n");
     #endif
     if (*root == NULL){
         tableNode * newOne = (tableNode*)malloc(sizeof(tableNode));
-        strcpy(newOne->varName, varName);
-        newOne->varType = typeVar;
+        strcpy(newOne->varName, nodePtr->var.varName);
+        newOne->varType = nodePtr->type;
         newOne->lineNo = -1;
         newOne->offset = offset;
+        newOne->arrayDim = nodePtr->var.arrayDim;
         newOne->leftNode = NULL;
         newOne->rightNode = NULL;
         *root = newOne;
     }else{
-        int flag = strcmp((*root)->varName, varName);
+        int flag = strcmp((*root)->varName, nodePtr->var.varName);
         if(flag < 0){
-            construct(varName, offset, &((*root)->leftNode));
+            construct(nodePtr, offset, &((*root)->leftNode));
         }else{
-            construct(varName, offset, &((*root)->rightNode));
+            construct(nodePtr, offset, &((*root)->rightNode));
         }
     }
 }
@@ -140,7 +141,13 @@ void traverse(nodeType* p, bool isParam, bool isMain){
             #ifdef DEBUG
             printf("construct for var:%s\n", p->var.varName);
             #endif
-            construct(p->var.varName, -4-funcVarCount++, &funcVarTable);
+            construct(p, -4-funcVarCount++, &funcVarTable);
+        }else if (p->type == typeArray || p->type == typeGlobalArray){
+            //TODO: how to elimate the referece???
+
+
+
+            //................
         }
         else if(p->type == typeOpr){
             traverse(p->opr.op[1], isParam, isMain);
@@ -155,8 +162,26 @@ void traverse(nodeType* p, bool isParam, bool isMain){
                 #ifdef DEBUG
                 printf("construct for var:%s\n", p->var.varName);
                 #endif
-                construct(p->var.varName, funcVarCount++, isMain?(&mainVarTable):(&funcVarTable));
+                construct(p, funcVarCount++, isMain?(&mainVarTable):(&funcVarTable));
             }
+        }else if(p->type == typeArray || p->type == typeGlobalArray){
+            tableNode* nodePtr = getNodeFromTable(p->var.varName, (isMain || p->type == typeGlobalArray)?
+                                                                    mainVarTable:funcVarTable);
+            if (!nodePtr){
+                if(!p->var.arrayDim){
+                    reportArrayUndeclared(p->var.varName);
+                }
+                construct(p, funcVarCount, isMain?(&mainVarTable):(&funcVarTable));
+                int dim = p->var.arrayDim[0];
+                int i = 1, acc = 1;
+                for (i; i<= dim; ++i){
+                    acc *= p->var.arrayDim[i];
+                }
+                funcVarCount += acc;
+
+            }
+            
+
         }else if(p->type == typeOpr){
             int i;
             for(i = 0; i < p->opr.nops; ++i){

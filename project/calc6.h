@@ -5,7 +5,8 @@ typedef enum { typeConInt, typeConChar, typeConStr, \
 
 typedef enum { variableUseBeforeDefined=1, typeMisMatched, breakContinueError,\
                syntaxError, funcUndefined, functionRedefined,\
-               invalidReturn, funcVarClash, invalidIndex } exitCodeEnum;
+               invalidReturn, funcVarClash, invalidIndex, \
+               arrayUndeclared } exitCodeEnum;
 
 typedef enum { funcDef=0, funcMain, funcReDef} funcType;
 /* constants */
@@ -46,6 +47,7 @@ typedef struct tableNode{
     int varType;
     int offset;
     int lineNo;
+    int * arrayDim;
     struct tableNode * leftNode;
     struct tableNode * rightNode;
 }tableNode;
