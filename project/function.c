@@ -7,7 +7,24 @@ int size(tableNode* root){
         return 0;
     }
     else{
-        return size(root->leftNode) + size(root->rightNode) + 1;
+        int size_ = 1;
+        if (root->varType == typeArray || root->varType == typeGlobalArray){
+            size_ = calculateArraySize(root->arrayDim);
+        }
+        return size(root->leftNode) + size(root->rightNode) + size_;
+    }
+}
+
+int calculateArraySize(int* arrayDim){
+    if (!arrayDim){
+        reportInvalidIndex();
+    }else{
+        int dim = arrayDim[0];
+        int i = 1, acc = 1;
+        for (i; i <= dim; ++i){
+            acc *= arrayDim[i];
+        }
+        return acc;
     }
 }
 
@@ -172,13 +189,15 @@ void traverse(nodeType* p, bool isParam, bool isMain){
                     reportArrayUndeclared(p->var.varName);
                 }
                 construct(p, funcVarCount, isMain?(&mainVarTable):(&funcVarTable));
-                int dim = p->var.arrayDim[0];
-                int i = 1, acc = 1;
-                for (i; i<= dim; ++i){
-                    acc *= p->var.arrayDim[i];
-                }
-                funcVarCount += acc;
+                funcVarCount += calculateArraySize(p->var.arrayDim);
 
+            }else{
+                if (p->var.arrayDim && !nodePtr->arrayDim){
+                    nodePtr->arrayDim = p->var.arrayDim;
+                }
+                if (p->var.arrayDim && nodePtr->arrayDim){
+                    reportArrayDuplicatedDeclaration(p->var.varName);
+                }
             }
             
 
@@ -284,6 +303,9 @@ void checkGlobalVarDefFromTable(nodeType* p){
         return;
     }
     if(p->type == typeGlobalVar){
+        #ifdef DEBUG
+            printf("find a global variable %s\n", p->var.varName);
+        #endif
         tableNode* nodePtr = getNodeFromTable(p->var.varName, mainVarTable);
         if (!nodePtr){
             // record global variable definition
@@ -292,7 +314,24 @@ void checkGlobalVarDefFromTable(nodeType* p){
             #endif
             construct(p->var.varName, funcVarCount++, &mainVarTable);
         }
-    }else if(p->type == typeOpr){
+    }else if(p->type == typeGlobalArray){
+        tableNode* nodePtr = getNodeFromTable(p->var.varName, mainVarTable);
+        // if first declared in the function
+        if(!nodePtr){
+            #ifdef DEBUG
+            printf("construct for var:%s\n", p->var.varName);
+            #endif
+            construct(p->var.varName, funcVarCount, &mainVarTable);
+            funcVarCount += calculateArraySize(p->var.arrayDim);
+        }else{
+            if (nodePtr->arrayDim && p->var.arrayDim){
+                reportArrayDuplicatedDeclaration(nodePtr->varName);
+            }
+        }
+
+    }
+
+    else if(p->type == typeOpr){
         int i;
         for(i=0; i < p->opr.nops;++i){
             checkGlobalVarDefFromTable(p->opr.op[i]);
@@ -308,7 +347,12 @@ void checkGlobalVarDef(int currentCnt){
     functionDefNode* temp = funcDefList;
     nodeType* funcDefNode = NULL;
     funcVarCount = currentCnt;
+    
     while(temp){
+        #ifdef DEBUG
+            printf("check global variable definition once\n");
+            checkNode(temp->p);
+        #endif
         funcDefNode = temp->p;
         checkGlobalVarDefFromTable(funcDefNode);
         temp = temp->next;

@@ -4,17 +4,7 @@
 #include <stdarg.h>
 #include "calc6.h"
 
-// #ifndef CHECK
-// #define CHECK
-// #endif
 
-// #ifndef DEBUG
-// #define DEBUG
-// #endif
-
-// #ifndef CHECK1
-// #define CHECK1
-// #endif
 
 extern int yylineno;
 extern char* yytext;
@@ -56,7 +46,7 @@ static int varCount = 0;
 %token <funcName> FUNCNAME
 %token FOR WHILE IF PUTI PUTI_ PUTC PUTC_ PUTS PUTS_
 %token GETI GETC GETS BREAK CONTINUE FUNC FUNCCALL FUNCDEF
-%token FUNCTION RETURN ARRAYDECLARLIST ARRAYDECLAR ARRAY
+%token FUNCTION RETURN ARRAY
 %nonassoc IFX
 %nonassoc ELSE
 
@@ -66,7 +56,7 @@ static int varCount = 0;
 %left '+' '-'
 %left '*' '/' '%'
 %nonassoc UMINUS
-%nonassoc REF INDEX ARRAYINIT
+%nonassoc REF ARRAYINIT ARRAYDECLARLIST
 %type <nPtr> stmt stmt_ expr expr_list stmt_list 
 %type <nPtr> var function functiondef var_list 
 %type <nPtr> array_declare declaration_list index_list
@@ -128,7 +118,7 @@ stmt:
 
 declaration_list:
           declaration_list ',' array_declare { $$ = opr(',', 2 , $1, $3); }
-        | array_declare                      { $$ = opr(ARRAYDECLAR, 1, $1); }
+        | array_declare                      { $$ = $1; }
         ;
 
 array_declare:
@@ -187,7 +177,7 @@ var_list:
         ;
 
 index_list:
-          index_list '[' expr ']' { $$ = opr(INDEX, 2, $1, $3);}
+          index_list '[' expr ']' { $$ = opr(',', 2, $1, $3);}
         | '[' expr ']'            { $$ = $2; }
         ;
 %%
@@ -468,13 +458,14 @@ int* findDim(nodeType* nodePtr){
     int size = findLeaves(nodePtr);
     int* dimPtr = (int *)malloc(sizeof(int) * (size+1));
     dimPtr[0] = size;
-    printf("size: %d\n", size);
     preorderRecord(nodePtr, dimPtr, 1);
-
-    int i = 1;
-    for (i; i<=dimPtr[0]; i++){
-        printf("%d\n", dimPtr[i]);
-    }
+    #ifdef DEBUG
+        printf("size: %d\n", size);
+        int i = 1;
+        for (i; i<=dimPtr[0]; i++){
+            printf("%d\n", dimPtr[i]);
+        }
+    #endif
     return dimPtr;
 }
 
@@ -482,10 +473,12 @@ int findLeaves(nodeType* root){
     if (!root){
         return 0;
     }else{
-        if(root->type == typeOpr && root->opr.oper == INDEX){
+        if(root->type == typeOpr && root->opr.oper == ','){
             return findLeaves(root->opr.op[0]) + findLeaves(root->opr.op[1]);
         }else{
-            printf("find a leave\n");
+            #ifdef DEBUG
+                printf("find a leave\n");
+            #endif
             return 1; // 
         }
     }
@@ -495,7 +488,7 @@ int preorderRecord(nodeType* root, int * dimPtr, int target){
     if (!root){
         return target;
     }else{
-        if(root->type == typeOpr && root->opr.oper == INDEX){
+        if(root->type == typeOpr && root->opr.oper == ','){
             target = preorderRecord(root->opr.op[0], dimPtr, target);
             target = preorderRecord(root->opr.op[1], dimPtr, target);
             return target;

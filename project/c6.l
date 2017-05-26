@@ -14,7 +14,6 @@ typedef struct YYLTYPE
   int last_column;
 } YYLTYPE;
 
-// #define DEBUG
 
 /* handle locations */
 int yycolumn = 1;
@@ -93,6 +92,9 @@ YYLTYPE yylloc;
 
 "@"[[:alpha:]]([[:alnum:]]){0,11}      {
                                         strcpy(yylval.varName, yytext+1);
+                                        #ifdef DEBUG
+                                          printf("find a global variable\n");
+                                        #endif
                                         return GLOBALVARIABLE;
                                        }
 

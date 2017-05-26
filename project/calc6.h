@@ -6,7 +6,7 @@ typedef enum { typeConInt, typeConChar, typeConStr, \
 typedef enum { variableUseBeforeDefined=1, typeMisMatched, breakContinueError,\
                syntaxError, funcUndefined, functionRedefined,\
                invalidReturn, funcVarClash, invalidIndex, \
-               arrayUndeclared } exitCodeEnum;
+               arrayUndeclared, arrayDuplicatedDeclared } exitCodeEnum;
 
 typedef enum { funcDef=0, funcMain, funcReDef} funcType;
 /* constants */
@@ -68,3 +68,10 @@ typedef struct functionDefNode
     nodeType* p;
     struct functionDefNode* next;
 }functionDefNode;
+
+// debug definition
+
+// #define CHECK
+// #define CHKCK1
+// #define DEBUG
+// // 

@@ -50,3 +50,8 @@ void reportArrayUndeclared(char* varName){
     fprintf(stderr, "array: %s is undeclared\n" , varName);
     exit(arrayUndeclared);
 }
+
+void reportArrayDuplicatedDeclaration(char* varName){
+    fprintf(stderr, "array: %s duplicated declaration\n" , varName);
+    exit(arrayDuplicatedDeclared);
+}
