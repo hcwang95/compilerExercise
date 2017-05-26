@@ -56,7 +56,7 @@ static int varCount = 0;
 %left '+' '-'
 %left '*' '/' '%'
 %nonassoc UMINUS
-%nonassoc REF ARRAYINIT ARRAYDECLARLIST
+%nonassoc REF LREF ARRAYINIT ARRAYDECLARLIST
 %type <nPtr> stmt stmt_ expr expr_list stmt_list 
 %type <nPtr> var function functiondef var_list 
 %type <nPtr> array_declare declaration_list index_list
