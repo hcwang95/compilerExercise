@@ -6,7 +6,6 @@
 static int funcVarCount = 0;
 static int lbl;
 static int currenVarCount;
-static int isSb = -1;
 extern tableNode* Table;
 // tableNode* typeTable;
 tableNode* mainVarTable;
@@ -77,6 +76,10 @@ void checkUndefinedFunc(){
     }
 }
 
+void zeroAC(){
+    printf("\tpush\t0\n");
+    printf("\tpop\tac\n");
+}
 
 int ex(nodeType *p){
     if (!p){
@@ -234,21 +237,10 @@ int ex_(nodeType *p, int lcont, int lbrk, int funcType) {
                 printf("\tgeti\n");
                 if (p->opr.op[0]->type == typeOpr && p->opr.op[0]->opr.oper == REF){
                     bool_val = (funcType==funcMain || p->opr.op[0]->opr.op[0]->type == typeGlobalArray)?1:0;
-                    printf("\tpush\t%s\n", (bool_val)?"sb":"fp");
-                    printf("\tpush\t0\n");
-                    printf("\tpop\t%s\n", (bool_val)?"sb":"fp");
-                    isSb = bool_val; // set
-                    p->opr.op[0]->opr.oper = REF;
+                    p->opr.op[0]->opr.oper = LREF;
                     ex_(p->opr.op[0], lcont, lbrk, funcType);
-                    isSb = -1; // reset
-
-                    printf("\tpop\t%s\n", (bool_val)?"sb":"fp");
-                    if (bool_val){
-                        printf("\tpop\tfp[sb]\n");
-                    }else{
-                        printf("\tpop\tsb[fp]\n");
-                    }
-                    printf("\tpop\t%s\n", (bool_val)?"sb":"fp");
+                    printf("\tpop\tac\n" );
+                    printf("\tpop\t%s[ac]\n", (bool_val)?"fp":"sb");
                 }else{
                     if(funcType == funcMain){
                         nodePtr = getNodeFromTable(p->opr.op[0]->var.varName, mainVarTable);
@@ -278,21 +270,10 @@ int ex_(nodeType *p, int lcont, int lbrk, int funcType) {
                 printf("\tgetc\n");
                 if (p->opr.op[0]->type == typeOpr && p->opr.op[0]->opr.oper == REF){
                     bool_val = (funcType==funcMain || p->opr.op[0]->opr.op[0]->type == typeGlobalArray)?1:0;
-                    printf("\tpush\t%s\n", (bool_val)?"sb":"fp");
-                    printf("\tpush\t0\n");
-                    printf("\tpop\t%s\n", (bool_val)?"sb":"fp");
-                    isSb = bool_val; // set
-                    p->opr.op[0]->opr.oper = REF;
+                    p->opr.op[0]->opr.oper = LREF;
                     ex_(p->opr.op[0], lcont, lbrk, funcType);
-                    isSb = -1; // reset
-
-                    printf("\tpop\t%s\n", (bool_val)?"sb":"fp");
-                    if (bool_val){
-                        printf("\tpop\tfp[sb]\n");
-                    }else{
-                        printf("\tpop\tsb[fp]\n");
-                    }
-                    printf("\tpop\t%s\n", (bool_val)?"sb":"fp");
+                    printf("\tpop\tac\n" );
+                    printf("\tpop\t%s[ac]\n", (bool_val)?"fp":"sb");
                 }else{
                     if(funcType == funcMain){
                         nodePtr = getNodeFromTable(p->opr.op[0]->var.varName, mainVarTable);
@@ -323,21 +304,10 @@ int ex_(nodeType *p, int lcont, int lbrk, int funcType) {
                 printf("\tgets\n");
                 if (p->opr.op[0]->type == typeOpr && p->opr.op[0]->opr.oper == REF){
                     bool_val = (funcType==funcMain || p->opr.op[0]->opr.op[0]->type == typeGlobalArray)?1:0;
-                    printf("\tpush\t%s\n", (bool_val)?"sb":"fp");
-                    printf("\tpush\t0\n");
-                    printf("\tpop\t%s\n", (bool_val)?"sb":"fp");
-                    isSb = bool_val; // set
-                    p->opr.op[0]->opr.oper = REF;
+                    p->opr.op[0]->opr.oper = LREF;
                     ex_(p->opr.op[0], lcont, lbrk, funcType);
-                    isSb = -1; // reset
-
-                    printf("\tpop\t%s\n", (bool_val)?"sb":"fp");
-                    if (bool_val){
-                        printf("\tpop\tfp[sb]\n");
-                    }else{
-                        printf("\tpop\tsb[fp]\n");
-                    }
-                    printf("\tpop\t%s\n", (bool_val)?"sb":"fp");
+                    printf("\tpop\tac\n" );
+                    printf("\tpop\t%s[ac]\n", (bool_val)?"fp":"sb");
                 }else{
                      if(funcType == funcMain){
                         nodePtr = getNodeFromTable(p->opr.op[0]->var.varName, mainVarTable);
@@ -436,25 +406,12 @@ int ex_(nodeType *p, int lcont, int lbrk, int funcType) {
                 if (p->opr.op[0]->type == typeOpr && p->opr.op[0]->opr.oper == REF){
                     bool_val = (funcType==funcMain || 
                         p->opr.op[0]->opr.op[0]->type == typeGlobalArray)?1:0;
-                    printf("\tpush\t%s\n", (bool_val)?"sb":"fp");
-                    printf("\tpush\t0\n");
-                    printf("\tpop\t%s\n", (bool_val)?"sb":"fp");
                     if (ex_(p->opr.op[1], lcont, lbrk, funcType)) return 1;
-                    isSb = bool_val; // set
-                    p->opr.op[0]->opr.oper = REF;
+                    p->opr.op[0]->opr.oper = LREF;
                     ex_(p->opr.op[0], lcont, lbrk, funcType);
-                    isSb = -1; // reset
-
-                    printf("\tpop\t%s\n", (bool_val)?"sb":"fp");
-                    if (bool_val){
-                        printf("\tpop\tfp[sb]\n");
-                    }else{
-                        printf("\tpop\tsb[fp]\n");
-                    }
-                    printf("\tpop\t%s\n", (bool_val)?"sb":"fp");
-                        
+                    printf("\tpop\tac\n");
+                    printf("\tpop\t%s[ac]\n", (bool_val)?"fp":"sb");
                 }else{
-
                     if (ex_(p->opr.op[1], lcont, lbrk, funcType)) return 1;
                     if (funcType == funcMain){
                         nodePtr = getNodeFromTable(p->opr.op[0]->var.varName, mainVarTable);
@@ -579,14 +536,10 @@ int ex_(nodeType *p, int lcont, int lbrk, int funcType) {
                 // first push all index onto the buffer
                 index = 0;
                 for (index; index < p->opr.op[1]->opr.nops; ++index){
+                    printf("adfasdfas\n");
                     ex_(p->opr.op[1]->opr.op[index], lcont, lbrk, funcType);
                 }
                 // then calculate them together
-                // check isSb
-                printf("aaaaa\n");
-                if (isSb == -1){
-                   printf("error of calcuating index\n");
-                }
                 nodePtr = getNodeFromTable(p->opr.op[0]->var.varName, (funcType == funcMain ||
                                             p->opr.op[0]->type == typeGlobalArray)?mainVarTable:funcVarTable);
                 if(!nodePtr->arrayDim){
@@ -602,14 +555,15 @@ int ex_(nodeType *p, int lcont, int lbrk, int funcType) {
                     accList[index-2] = acc;
                 }
                 index = dim;
+                zeroAC();
                 for (index; index > 0; --index){
                     printf("\tpush\t%d\n", accList[index-1]);
                     printf("\tmul\n");
-                    printf("\tpush\t%s\n", isSb?"sb":"fp");
+                    printf("\tpush\tac\n");
                     printf("\tadd\n");
-                    printf("\tpop\t%s\n", isSb?"sb":"fp");
+                    printf("\tpop\tac\n");
                 }
-                printf("\tpush\t%s\n", isSb?"sb":"fp");
+                printf("\tpush\tac\n");
                 nodePtr = getNodeFromTable(p->opr.op[0]->var.varName, mainVarTable);
                 printf("\tpush\t%d\n", nodePtr->offset);
                 printf("\tadd\n");
@@ -617,16 +571,12 @@ int ex_(nodeType *p, int lcont, int lbrk, int funcType) {
             case REF:
                 // first push all index onto the buffer
                 index = 0;
+                bool_val = (funcType == funcMain ||p->opr.op[0]->type == typeGlobalArray)?1:0;
                 for (index; index < p->opr.op[1]->opr.nops; ++index){
                     ex_(p->opr.op[1]->opr.op[index], lcont, lbrk, funcType);
                 }
                 // then calculate them together
-                // check isSb
-                if (isSb == -1){
-                   printf("error of calcuating index\n");
-                }
-                nodePtr = getNodeFromTable(p->opr.op[0]->var.varName, (funcType == funcMain ||
-                                            p->opr.op[0]->type == typeGlobalArray)?mainVarTable:funcVarTable);
+                nodePtr = getNodeFromTable(p->opr.op[0]->var.varName, (bool_val)?mainVarTable:funcVarTable);
                 if(!nodePtr->arrayDim){
                     printf("error on the index of array\n");
                 }
@@ -640,18 +590,20 @@ int ex_(nodeType *p, int lcont, int lbrk, int funcType) {
                     accList[index-2] = acc;
                 }
                 index = dim;
+                zeroAC();
                 for (index; index > 0; --index){
                     printf("\tpush\t%d\n", accList[index-1]);
                     printf("\tmul\n");
-                    printf("\tpush\t%s\n", isSb?"fp":"sb");
+                    printf("\tpush\tac\n");
                     printf("\tadd\n");
-                    printf("\tpop\t%s\n", isSb?"fp":"sb");
+                    printf("\tpop\tac\n");
                 }
-                printf("\tpush\t%s\n", isSb?"fp":"sb");
+                printf("\tpush\tac\n");
                 nodePtr = getNodeFromTable(p->opr.op[0]->var.varName, mainVarTable);
                 printf("\tpush\t%d\n", nodePtr->offset);
                 printf("\tadd\n");
-                printf("\tpop\t%s\n", isSb?"fp":"sb");
+                printf("\tpop\tac\n");
+                printf("\tpush\t%s[ac]\n", (bool_val)?"fp":"sb");
                 return 0;
             default:
                 // here cannot be a break or continue statement
