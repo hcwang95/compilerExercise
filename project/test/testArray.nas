@@ -3,9 +3,7 @@
 	add
 	pop	sp
 	push	10
-adfasdfas
 	push	1
-adfasdfas
 	push	2
 	push	0
 	pop	ac
@@ -25,10 +23,8 @@ adfasdfas
 	pop	ac
 	pop	fp[ac]
 	push	10000000
-adfasdfas
 	push	2
 	push	3
-adfasdfas
 	push	4
 	push	0
 	pop	ac
@@ -53,6 +49,7 @@ adfasdfas
 	pop	ac
 	pop	fp[ac]
 	push	1111
+	push	2
 	push	0
 	pop	ac
 	push	1
@@ -62,6 +59,46 @@ adfasdfas
 	pop	ac
 	push	ac
 	push	1201
+	add
+	pop	ac
+	pop	fp[ac]
+	geti
+	push	2
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	1201
+	add
+	pop	ac
+	pop	fp[ac]
+	geti
+	push	2
+	push	3
+	push	4
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	10
+	mul
+	push	ac
+	add
+	pop	ac
+	push	100
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	201
 	add
 	pop	ac
 	pop	fp[ac]
@@ -111,6 +148,7 @@ adfasdfas
 	pop	ac
 	push	fp[ac]
 	puti
+	push	2
 	push	0
 	pop	ac
 	push	1

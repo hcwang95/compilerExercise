@@ -180,6 +180,10 @@ void traverse(nodeType* p, bool isParam, bool isMain){
                 printf("construct for var:%s\n", p->var.varName);
                 #endif
                 construct(p, funcVarCount++, isMain?(&mainVarTable):(&funcVarTable));
+            }else{
+                if(nodePtr->varType == typeArray || nodePtr->varType == typeGlobalArray){
+                    p->type = nodePtr->varType;
+                }
             }
         }else if(p->type == typeArray || p->type == typeGlobalArray){
             tableNode* nodePtr = getNodeFromTable(p->var.varName, (isMain || p->type == typeGlobalArray)?

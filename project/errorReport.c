@@ -55,3 +55,8 @@ void reportArrayDuplicatedDeclaration(char* varName){
     fprintf(stderr, "array: %s duplicated declaration\n" , varName);
     exit(arrayDuplicatedDeclared);
 }
+
+void reportInvalidArrayUsage(char* varName){
+    fprintf(stderr, "array: %s invalid useage\n" , varName);
+    exit(arrayInvalidUsage);
+}

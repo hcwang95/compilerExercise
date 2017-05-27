@@ -235,6 +235,9 @@ int ex_(nodeType *p, int lcont, int lbrk, int funcType) {
                 return 0;
             case GETI:
                 printf("\tgeti\n");
+                if (p->opr.op[0]->type == typeArray || p->opr.op[0]->type == typeGlobalArray){
+                    reportInvalidArrayUsage(p->opr.op[0]->var.varName);
+                }
                 if (p->opr.op[0]->type == typeOpr && p->opr.op[0]->opr.oper == REF){
                     bool_val = (funcType==funcMain || p->opr.op[0]->opr.op[0]->type == typeGlobalArray)?1:0;
                     p->opr.op[0]->opr.oper = LREF;
@@ -268,6 +271,9 @@ int ex_(nodeType *p, int lcont, int lbrk, int funcType) {
                 return 0;
             case GETC:
                 printf("\tgetc\n");
+                if (p->opr.op[0]->type == typeArray || p->opr.op[0]->type == typeGlobalArray){
+                    reportInvalidArrayUsage(p->opr.op[0]->var.varName);
+                }
                 if (p->opr.op[0]->type == typeOpr && p->opr.op[0]->opr.oper == REF){
                     bool_val = (funcType==funcMain || p->opr.op[0]->opr.op[0]->type == typeGlobalArray)?1:0;
                     p->opr.op[0]->opr.oper = LREF;
@@ -302,6 +308,9 @@ int ex_(nodeType *p, int lcont, int lbrk, int funcType) {
                 return 0;
             case GETS:
                 printf("\tgets\n");
+                if (p->opr.op[0]->type == typeArray || p->opr.op[0]->type == typeGlobalArray){
+                    reportInvalidArrayUsage(p->opr.op[0]->var.varName);
+                }
                 if (p->opr.op[0]->type == typeOpr && p->opr.op[0]->opr.oper == REF){
                     bool_val = (funcType==funcMain || p->opr.op[0]->opr.op[0]->type == typeGlobalArray)?1:0;
                     p->opr.op[0]->opr.oper = LREF;
@@ -342,6 +351,9 @@ int ex_(nodeType *p, int lcont, int lbrk, int funcType) {
                 // if(funcType == funcMain){
                 //     checkUndefiedAndMatching(p->opr.op[0], typeConInt, funcType);
                 // }
+                if (p->opr.op[0]->type == typeArray || p->opr.op[0]->type == typeGlobalArray){
+                    reportInvalidArrayUsage(p->opr.op[0]->var.varName);
+                }
                 if (ex_(p->opr.op[0], lcont, lbrk, funcType)) return 1;
                 printf("\tputi\n");
                 return 0;
@@ -350,26 +362,24 @@ int ex_(nodeType *p, int lcont, int lbrk, int funcType) {
                     printf("check the node we want PUTI_\n");
                     checkNode(p->opr.op[0]);
                 #endif
-                // // check for varible type or constant type
-                // if(funcType == funcMain){
-                //     checkUndefiedAndMatching(p->opr.op[0], typeConInt, funcType);
-                // }
+                
+                if (p->opr.op[0]->type == typeArray || p->opr.op[0]->type == typeGlobalArray){
+                    reportInvalidArrayUsage(p->opr.op[0]->var.varName);
+                }
                 if (ex_(p->opr.op[0], lcont, lbrk, funcType)) return 1;
                 printf("\tputi_\n");
                 return 0;
             case PUTC:
-                // // check for varible type or constant type
-                // if(funcType == funcMain){
-                //     checkUndefiedAndMatching(p->opr.op[0], typeConChar, funcType);
-                // }
+                if (p->opr.op[0]->type == typeArray || p->opr.op[0]->type == typeGlobalArray){
+                    reportInvalidArrayUsage(p->opr.op[0]->var.varName);
+                }
                 if (ex_(p->opr.op[0], lcont, lbrk, funcType)) return 1;
                 printf("\tputc\n");
                 return 0;
             case PUTC_:
-                // // check for varible type or constant type
-                // if(funcType == funcMain){
-                //     checkUndefiedAndMatching(p->opr.op[0], typeConChar, funcType);
-                // }
+                if (p->opr.op[0]->type == typeArray || p->opr.op[0]->type == typeGlobalArray){
+                    reportInvalidArrayUsage(p->opr.op[0]->var.varName);
+                }
                 if (ex_(p->opr.op[0], lcont, lbrk, funcType)) return 1;
                 printf("\tputc_\n");
                 return 0;
@@ -378,13 +388,9 @@ int ex_(nodeType *p, int lcont, int lbrk, int funcType) {
                     printf("check the node we want PUTS\n");
                     checkNode(p->opr.op[0]);
                 #endif
-                // // check for varible type or constant type
-                // if(funcType == funcMain){
-                //     checkUndefiedAndMatching(p->opr.op[0], typeConStr, funcType);
-                // }
-                #ifdef DEBUG
-                printf("after checking\n");
-                #endif
+                if (p->opr.op[0]->type == typeArray || p->opr.op[0]->type == typeGlobalArray){
+                    reportInvalidArrayUsage(p->opr.op[0]->var.varName);
+                }
                 if (ex_(p->opr.op[0], lcont, lbrk, funcType)) return 1;
                 printf("\tputs\n");
                 return 0;
@@ -393,16 +399,21 @@ int ex_(nodeType *p, int lcont, int lbrk, int funcType) {
                     printf("check the node we want PUTS_\n");
                     checkNode(p->opr.op[0]);
                 #endif
-                // // check for varible type or constant type
-                // if(funcType == funcMain){
-                //     checkUndefiedAndMatching(p->opr.op[0], typeConStr, funcType);
-                // }
+                if (p->opr.op[0]->type == typeArray || p->opr.op[0]->type == typeGlobalArray){
+                    reportInvalidArrayUsage(p->opr.op[0]->var.varName);
+                }
                 if (ex_(p->opr.op[0], lcont, lbrk, funcType)) return 1;
                 printf("\tputs_\n");
                 return 0;
 
             case '=':       
                 // here cannot be a break or continue statement
+                if (p->opr.op[0]->type == typeArray || p->opr.op[0]->type == typeGlobalArray){
+                    reportInvalidArrayUsage(p->opr.op[0]->var.varName);
+                }
+                if (p->opr.op[1]->type == typeArray || p->opr.op[1]->type == typeGlobalArray){
+                    reportInvalidArrayUsage(p->opr.op[1]->var.varName);
+                }
                 if (p->opr.op[0]->type == typeOpr && p->opr.op[0]->opr.oper == REF){
                     bool_val = (funcType==funcMain || 
                         p->opr.op[0]->opr.op[0]->type == typeGlobalArray)?1:0;
@@ -534,11 +545,7 @@ int ex_(nodeType *p, int lcont, int lbrk, int funcType) {
                 return 0;
             case LREF:
                 // first push all index onto the buffer
-                index = 0;
-                for (index; index < p->opr.op[1]->opr.nops; ++index){
-                    printf("adfasdfas\n");
-                    ex_(p->opr.op[1]->opr.op[index], lcont, lbrk, funcType);
-                }
+                ex_(p->opr.op[1], lcont, lbrk, funcType);
                 // then calculate them together
                 nodePtr = getNodeFromTable(p->opr.op[0]->var.varName, (funcType == funcMain ||
                                             p->opr.op[0]->type == typeGlobalArray)?mainVarTable:funcVarTable);
@@ -570,11 +577,8 @@ int ex_(nodeType *p, int lcont, int lbrk, int funcType) {
                 return 0;
             case REF:
                 // first push all index onto the buffer
-                index = 0;
                 bool_val = (funcType == funcMain ||p->opr.op[0]->type == typeGlobalArray)?1:0;
-                for (index; index < p->opr.op[1]->opr.nops; ++index){
-                    ex_(p->opr.op[1]->opr.op[index], lcont, lbrk, funcType);
-                }
+                ex_(p->opr.op[1], lcont, lbrk, funcType);
                 // then calculate them together
                 nodePtr = getNodeFromTable(p->opr.op[0]->var.varName, (bool_val)?mainVarTable:funcVarTable);
                 if(!nodePtr->arrayDim){
@@ -609,6 +613,13 @@ int ex_(nodeType *p, int lcont, int lbrk, int funcType) {
                 // here cannot be a break or continue statement
                 if (ex_(p->opr.op[0], lcont, lbrk, funcType)) return 1;
                 if (ex_(p->opr.op[1], lcont, lbrk, funcType)) return 1;
+
+                if (p->opr.op[0]->type == typeArray || p->opr.op[0]->type == typeGlobalArray){
+                    reportInvalidArrayUsage(p->opr.op[0]->var.varName);
+                }
+                if (p->opr.op[1]->type == typeArray || p->opr.op[1]->type == typeGlobalArray){
+                    reportInvalidArrayUsage(p->opr.op[1]->var.varName);
+                }
                 switch(p->opr.oper) {
                     case '+':   printf("\tadd\n"); return 0;
                     case '-':   printf("\tsub\n"); return 0;
