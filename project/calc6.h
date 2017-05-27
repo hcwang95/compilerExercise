@@ -59,6 +59,8 @@ typedef struct functionNode
     int label;
     int paramCount;
     int defined;
+    int arrayCount;
+    int** arrayDimList;
     struct functionNode* leftNode;
     struct functionNode* rightNode;
 }functionNode;
@@ -74,4 +76,4 @@ typedef struct functionDefNode
 // #define CHECK
 // #define CHKCK1
 // #define DEBUG
-// // 
+// 

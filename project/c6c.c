@@ -41,7 +41,7 @@ void defineFunc(){
             printf("execute for function:%s, with %d argument(s)\n", \
                     temp->p->opr.op[0]->var.varName, paraCnt);
         #endif
-        ex_(temp->p, -1, -1, 0);
+        ex_(temp->p, -1, -1, funcDef);
         freePtr = temp;
         temp = temp -> next;
         free(freePtr);
@@ -450,7 +450,19 @@ int ex_(nodeType *p, int lcont, int lbrk, int funcType) {
                     // set for new
                     label = lbl++;
                     // if first call, update for the table by creating node
-                    updateFuncTable(p->opr.op[0]->var.varName, label, paraCnt, &functionTable);
+                    int arrayCnt = countArrayParam(p->opr.op[1], funcType);
+                    int** arrayDimList = (int**)malloc(sizeof(int*)*arrayCnt);
+                    recordArrayDim(p->opr.op[1], arrayDimList, funcType);
+                    #ifdef DEBUG
+                        int j,k;
+                        for (j=0;j<arrayCnt;++j){
+                            for (k=1; k<=arrayDimList[j][0];++k){
+                                printf("%d\n", arrayDimList[j][k]);
+                            }
+                        }
+                    #endif
+                    arrayDimCounter = 0;
+                    updateFuncTable(p->opr.op[0]->var.varName, label, paraCnt, arrayCnt, arrayDimList, &functionTable);
                     #ifdef DEBUG
                         printf("this function %s has been called first time\n", p->opr.op[0]->var.varName);
                     #endif
@@ -507,7 +519,7 @@ int ex_(nodeType *p, int lcont, int lbrk, int funcType) {
                         printf("\tret\n");
                     }
                     destructFuncVarTable();
-                    recordDef(p->opr.op[0]->var.varName, paraCnt,functionTable);
+                    recordDef(p->opr.op[0]->var.varName, paraCnt, functionTable);
                     #ifdef DEBUG
                         printf("finish compiling for fucntion : %s\n", p->opr.op[0]->var.varName);
                     #endif

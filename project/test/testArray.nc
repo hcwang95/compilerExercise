@@ -13,19 +13,19 @@ puti(foo[1][2]);
 puti(y[2][3][4]);
 puti(ss[2]);
 // puti(z[36]);
-test();
+test(foo, y, ss);
 
 
-function test(){
-	array x[3];
-	x[0] = 1;
-	x[1] = 'c';
-	x[2] = "tset";
-	puti(x[0]);
-	putc(x[1]);
-	puts(x[2]);
-	test1(x, @ss[2]);
-}
+// function test(){
+// 	array x[3];
+// 	x[0] = 1;
+// 	x[1] = 'c';
+// 	x[2] = "tset";
+// 	puti(x[0]);
+// 	putc(x[1]);
+// 	puts(x[2]);
+// 	test1(x, @ss[2]);
+// }
 
 
 // function test1(x, b){

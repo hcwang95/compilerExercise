@@ -61,13 +61,35 @@ int findLabel(char* funcName, int paramCnt, functionNode* root){
     }
 }
 
-void updateFuncTable(char* funcName, int label, int paramCnt, functionNode** root){
+
+functionNode* findFuncNode(char* funcName, int paraCnt, functionNode* root){
+    if (!root){
+        return NULL;
+    }else{
+        int flag = strcmp(root->funcName, funcName);
+        if (flag == 0 && root->paramCount == paramCnt){
+            return root;
+        }else{
+            // support function overloading 
+            if (flag == 0){
+                return (paramCnt < root->paramCount)?findLabel(funcName, paramCnt, root->leftNode):
+                                                   findLabel(funcName, paramCnt, root->rightNode);
+            }else{
+                return (flag<0)?findLabel(funcName, paramCnt, root->leftNode):
+                                findLabel(funcName, paramCnt, root->rightNode);
+            }
+        }
+    }
+}
+void updateFuncTable(char* funcName, int label, int paramCnt, int arrayCnt, int** arrayDimList, functionNode** root){
     if (!(*root)){
         functionNode * newOne = (functionNode*)malloc(sizeof(functionNode));
         strcpy(newOne->funcName, funcName);
         newOne->label = label;
         newOne->defined = 0; // currently no definition
         newOne->paramCount = paramCnt;
+        newOne->arrayCount = arrayCnt;
+        newOne->arrayDimList = arrayDimList;
         newOne->leftNode = NULL;
         newOne->rightNode = NULL;
         *root = newOne;
@@ -75,11 +97,11 @@ void updateFuncTable(char* funcName, int label, int paramCnt, functionNode** roo
         int flag = strcmp((*root)->funcName, funcName);
         if (flag == 0){
             // support function overloading 
-            (paramCnt < (*root)->paramCount)?updateFuncTable(funcName, label, paramCnt, &((*root)->leftNode)):
-                                        updateFuncTable(funcName, label, paramCnt, &((*root)->rightNode));
+            (paramCnt < (*root)->paramCount)?updateFuncTable(funcName, label, paramCnt, arrayCnt, arrayDimList, &((*root)->leftNode)):
+                                        updateFuncTable(funcName, label, paramCnt, arrayCnt, arrayDimList, &((*root)->rightNode));
         }else{
-            (flag<0)?updateFuncTable(funcName, label, paramCnt, &((*root)->leftNode)):
-                     updateFuncTable(funcName, label, paramCnt, &((*root)->rightNode));
+            (flag<0)?updateFuncTable(funcName, label, paramCnt, arrayCnt, arrayDimList, &((*root)->leftNode)):
+                     updateFuncTable(funcName, label, paramCnt, arrayCnt, arrayDimList, &((*root)->rightNode));
         }
         
     }
@@ -148,6 +170,8 @@ void construct(nodeType* nodePtr, int offset, tableNode** root){
 
 // if param isParam is true, then traverse
 // right node first
+static functionNode* temp = NULL;
+static counter = 0;
 void traverse(nodeType* p, bool isParam, bool isMain){
     if (!p) return;
     if(isParam){
@@ -158,12 +182,14 @@ void traverse(nodeType* p, bool isParam, bool isMain){
             #endif
             construct(p, -4-funcVarCount++, &funcVarTable);
         }else if (p->type == typeArray || p->type == typeGlobalArray){
-            //TODO: how to elimate the referece???
-
-
-
-            //................
-        }
+            // now no variable has type of this array
+            // we would traverse the whole function to confirm 
+            // that the variable is typeArray or typeGlobalArray
+            // then second time traverse will tell us to record arrayDim
+            tableNode* nodePtr = getNodeFromTable(p->var.varName, (isMain || p->type == typeGlobalArray)?
+                                                                    mainVarTable:funcVarTable);
+            nodePtr->arrayDim = temp->arrayDimList[counter];
+            counter++;
         else if(p->type == typeOpr){
             traverse(p->opr.op[1], isParam, isMain);
             traverse(p->opr.op[0], isParam, isMain);
@@ -187,18 +213,29 @@ void traverse(nodeType* p, bool isParam, bool isMain){
             tableNode* nodePtr = getNodeFromTable(p->var.varName, (isMain || p->type == typeGlobalArray)?
                                                                     mainVarTable:funcVarTable);
             if (!nodePtr){
+                // find corresponding variable with same name
+                // assume that array must be declared first
+                // no matter where the declaration is
                 if(!p->var.arrayDim){
                     reportArrayUndeclared(p->var.varName);
                 }
                 construct(p, funcVarCount, isMain?(&mainVarTable):(&funcVarTable));
                 funcVarCount += calculateArraySize(p->var.arrayDim);
-
             }else{
                 if (p->var.arrayDim && !nodePtr->arrayDim){
+                    // In the function, we will find the array that are actually used in array form
+                    // then we overwrite all the type of the variables with the same name to be array
                     nodePtr->arrayDim = p->var.arrayDim;
+                    nodePtr->varType = p->type;
                 }
                 if (p->var.arrayDim && nodePtr->arrayDim){
                     reportArrayDuplicatedDeclaration(p->var.varName);
+                }
+                if (nodePtr->varType == typeVar || nodePtr->varType == typeGlobalVar){
+                    nodePtr->varType = p->type;
+                    #ifdef DEBUG
+                        printf("update the variable: %s to type %d\n", p->var.varName, p->type);
+                    #endif
                 }
             }
             
@@ -222,6 +259,15 @@ void constructFuncVarTable(nodeType* p, int typeFunc){
         funcVarCount = 0;
         // then construct for variables in statements
         traverse(p->opr.op[2], false, false);
+        int paraCnt = countParam(p->opr.op[1]);
+        functionNode* nodePtr = findFuncNode(p->opr.op[0]->var.varName, paraCnt, functionTable);
+        if (nodePtr->arrayCount > 0){
+            // traverse parameters second time and then add arrayDim field
+            temp = nodePtr;
+            traverse(p->opr.op[1], true, false);
+            temp = NULL;
+            counter = 0;
+        }
     }else if(typeFunc == funcMain){
         // parse for main function
         funcVarCount = 0;
@@ -241,7 +287,10 @@ void recordFunctionCall(nodeType* p){
             // set for new
             label = lbl++;
             // if first call, update for the table by creating node
-            updateFuncTable(p->opr.op[0]->var.varName, label, paraCnt, &functionTable);
+            int arrayCnt = countArrayParam(p->opr.op[1], funcDef);
+            int** arrayDimList = (int**)malloc(sizeof(int*)*arrayCnt);
+            recordArrayDim(p->opr.op[1], funcDef);
+            updateFuncTable(p->opr.op[0]->var.varName, label, paraCnt, arrayCnt, arrayDimList, &functionTable);
         }else{
             #ifdef DEBUG
                 printf("this function has been called first time\n");
@@ -381,4 +430,45 @@ int checkVarNameDuplicate(char* funcName, tableNode* root){
 // to check if there is clash with other variable
 int hasConflict(char* funcName){
     return checkVarNameDuplicate(funcName, Table);
+}
+
+//function to count the array parameter
+int countArrayParam(nodeType* p, int funcType){
+    if (p){
+        if (p->type == typeOpr && p->opr.oper == ','){
+            // case of oprator = ','
+            return countArrayParam(p->opr.op[0], funcType) + countArrayParam(p->opr.op[1], funcType);
+        }else if (p->type == typeVar || p->type == typeGlobalVar){
+            tableNode* nodePtr = getNodeFromTable(p->var.varName, (funcType == funcMain || p->type == typeGlobalVar)?mainVarTable:funcVarTable);
+            if (nodePtr->varType == typeArray || nodePtr->varType == typeGlobalArray){
+                return 1;
+            }
+        }else if (p->type == typeArray || p->type == typeGlobalArray){
+            return 1;
+        }
+    }
+    return 0;
+}
+
+// function to record all array dimention in sequence
+static int arrayDimCounter = 0;
+void recordArrayDim(nodeType* p, int** arrayDimList, int funcType){
+    if (p){
+        if (p->type == typeOpr && p->opr.oper == ','){
+            // case of oprator = ','
+            recordArrayDim(p->opr.op[0], arrayDimList, funcType);
+            recordArrayDim(p->opr.op[1], arrayDimList, funcType);
+        }else if (p->type == typeVar || p->type == typeGlobalVar){
+            tableNode* nodePtr = getNodeFromTable(p->var.varName, (funcType == funcMain || p->type == typeGlobalVar)?mainVarTable:funcVarTable);
+            if (nodePtr->varType == typeArray || nodePtr->varType == typeGlobalArray){
+                arrayDimList[arrayDimCounter] = nodePtr->arrayDim;
+                arrayDimCounter++;
+            }
+        }else if (p->type == typeArray || p->type == typeGlobalArray){
+            tableNode* nodePtr = getNodeFromTable(p->var.varName, (funcType == funcMain || p->type == typeGlobalVar)?mainVarTable:funcVarTable);
+            arrayDimList[arrayDimCounter] = nodePtr->arrayDim;
+            arrayDimCounter++;
+        }
+    }
+    return 0;
 }
