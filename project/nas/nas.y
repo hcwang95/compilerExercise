@@ -244,7 +244,8 @@ int main(int argc, char *argv[]) {
 	i++;
 	break;
       case GETC:
-	st[SP] = getchar(); ISP; i++; break;
+	st[SP] = getchar();
+	getchar(); ISP; i++; break;
       case PUTI:
 	printf("%ld\n", st[--SP]); i++; break;
       case PUTIS:

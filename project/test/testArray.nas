@@ -1,5 +1,5 @@
 	push	sp
-	push	1305
+	push	1308
 	add
 	pop	sp
 	push	10
@@ -74,7 +74,7 @@
 	push	1201
 	add
 	pop	ac
-	push	fp[ac]
+	push	sb[ac]
 	pop	ac
 	push	ac
 	pop	sb[1205]
@@ -276,46 +276,6 @@
 	pop	sb[1303]
 	push	ac
 	pop	sb[1304]
-	geti
-	push	2
-	push	0
-	pop	ac
-	push	1
-	mul
-	push	ac
-	add
-	pop	ac
-	push	ac
-	push	1201
-	add
-	pop	ac
-	pop	sb[ac]
-	geti
-	push	2
-	push	3
-	push	4
-	push	0
-	pop	ac
-	push	1
-	mul
-	push	ac
-	add
-	pop	ac
-	push	10
-	mul
-	push	ac
-	add
-	pop	ac
-	push	100
-	mul
-	push	ac
-	add
-	pop	ac
-	push	ac
-	push	201
-	add
-	pop	ac
-	pop	sb[ac]
 	push	1
 	push	2
 	push	0
@@ -334,7 +294,7 @@
 	push	0
 	add
 	pop	ac
-	push	fp[ac]
+	push	sb[ac]
 	puti
 	push	2
 	push	3
@@ -360,7 +320,7 @@
 	push	201
 	add
 	pop	ac
-	push	fp[ac]
+	push	sb[ac]
 	puti
 	push	2
 	push	0
@@ -374,7 +334,7 @@
 	push	1201
 	add
 	pop	ac
-	push	fp[ac]
+	push	sb[ac]
 	puti
 	push	36
 	push	0
@@ -388,6 +348,90 @@
 	push	1205
 	add
 	pop	ac
-	push	fp[ac]
+	push	sb[ac]
 	puti
+	geti
+	push	0
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	1305
+	add
+	pop	ac
+	pop	sb[ac]
+	getc
+	push	1
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	1305
+	add
+	pop	ac
+	pop	sb[ac]
+	push	0
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	1305
+	add
+	pop	ac
+	push	sb[ac]
+	puti
+	push	1
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	1305
+	add
+	pop	ac
+	push	sb[ac]
+	putc
+	gets
+	push	2
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	1305
+	add
+	pop	ac
+	pop	sb[ac]
+	push	2
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	1305
+	add
+	pop	ac
+	push	sb[ac]
+	puts
 	end
