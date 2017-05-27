@@ -1,11 +1,13 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "calc6.h"
 #include "y.tab.h"
 
 
-static int funcVarCount = 0;
+static int funcVarCount;
 static int lbl;
 static int currenVarCount;
+static int isDeclaration;
 extern tableNode* Table;
 // tableNode* typeTable;
 tableNode* mainVarTable;
@@ -132,6 +134,26 @@ int ex_(nodeType *p, int lcont, int lbrk, int funcType) {
       case typeGlobalVar:
           nodePtr = getNodeFromTable(p->var.varName, mainVarTable);
           printf("\tpush\tsb[%d]\n", nodePtr->offset); 
+          return 0;
+      case typeArray:
+          if (!isDeclaration){
+            bool_val = (funcType == funcMain)?1:0;
+            nodePtr = getNodeFromTable(p->var.varName, (bool_val)?mainVarTable:funcVarTable);
+            if (bool_val){
+                // do not need to add fp, directly push the location
+                printf("\tpush\t%d\n", nodePtr->offset);
+            }else{
+                printf("\tpush\tfp\n");
+                printf("\tpush\t%d\n", nodePtr->offset);
+                printf("\tadd\n");
+            }
+          }
+          return 0;
+      case typeGlobalArray:
+          if (!isDeclaration){
+              nodePtr = getNodeFromTable(p->var.varName, mainVarTable);
+              printf("\tpush\t%d\n", nodePtr->offset);
+          }
           return 0;
       case typeOpr:
           switch(p->opr.oper) {
@@ -504,7 +526,9 @@ int ex_(nodeType *p, int lcont, int lbrk, int funcType) {
                 return 1;
 
             case ARRAYDECLARLIST:
+                isDeclaration = 1; // set
                 ex_(p->opr.op[0], lcont, lbrk, funcType);
+                isDeclaration = 0; // reset
                 return 0;
             case ARRAYINIT:
                 bool_val = (funcType == funcMain || p->opr.op[0]->type == typeGlobalArray)?1:0; 
@@ -531,11 +555,11 @@ int ex_(nodeType *p, int lcont, int lbrk, int funcType) {
                 }
                 return 0;
             case LREF:
+                bool_val = (funcType == funcMain || p->opr.op[0]->type == typeGlobalArray)?1:0;
                 // first push all index onto the buffer
                 ex_(p->opr.op[1], lcont, lbrk, funcType);
                 // then calculate them together
-                nodePtr = getNodeFromTable(p->opr.op[0]->var.varName, (funcType == funcMain ||
-                                            p->opr.op[0]->type == typeGlobalArray)?mainVarTable:funcVarTable);
+                nodePtr = getNodeFromTable(p->opr.op[0]->var.varName, (bool_val)?mainVarTable:funcVarTable);
                 if(!nodePtr->arrayDim){
                     printf("error on the index of array\n");
                 }
@@ -558,9 +582,12 @@ int ex_(nodeType *p, int lcont, int lbrk, int funcType) {
                     printf("\tpop\tac\n");
                 }
                 printf("\tpush\tac\n");
-                nodePtr = getNodeFromTable(p->opr.op[0]->var.varName, mainVarTable);
                 printf("\tpush\t%d\n", nodePtr->offset);
                 printf("\tadd\n");
+                if (!bool_val){
+                    printf("\tpush\tfp\n");
+                    printf("\tadd\n");
+                }
                 return 0;
             case REF:
                 // first push all index onto the buffer
@@ -590,9 +617,12 @@ int ex_(nodeType *p, int lcont, int lbrk, int funcType) {
                     printf("\tpop\tac\n");
                 }
                 printf("\tpush\tac\n");
-                nodePtr = getNodeFromTable(p->opr.op[0]->var.varName, mainVarTable);
                 printf("\tpush\t%d\n", nodePtr->offset);
                 printf("\tadd\n");
+                if (!bool_val){
+                    printf("\tpush\tfp\n");
+                    printf("\tadd\n");
+                }
                 printf("\tpop\tac\n");
                 printf("\tpush\t%s[ac]\n", "sb");
                 return 0;

@@ -31,11 +31,9 @@ int calculateArraySize(int* arrayDim){
 
 // function of counting parameter for a function call
 int countParam(nodeType * p){
-    if (p == NULL){
+    if (!p){
         return 0;
-    }else if(p->type != typeOpr){
-        return 1;
-    }else if(p->opr.oper == ','){
+    }else if (p->type == typeOpr && p->opr.oper == ','){
         // case of oprator = ','
         return countParam(p->opr.op[0]) + countParam(p->opr.op[1]);
     }else{
@@ -44,7 +42,7 @@ int countParam(nodeType * p){
 }
 
 int findLabel(char* funcName, int paramCnt, functionNode* root){
-    if (root == NULL){
+    if (!root){
         return -1;
     }else{
         int flag = strcmp(root->funcName, funcName);
@@ -64,7 +62,7 @@ int findLabel(char* funcName, int paramCnt, functionNode* root){
 }
 
 void updateFuncTable(char* funcName, int label, int paramCnt, functionNode** root){
-    if (*root == NULL){
+    if (!(*root)){
         functionNode * newOne = (functionNode*)malloc(sizeof(functionNode));
         strcpy(newOne->funcName, funcName);
         newOne->label = label;
