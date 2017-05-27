@@ -316,7 +316,7 @@ void checkGlobalVarDefFromTable(nodeType* p){
             #ifdef DEBUG
             printf("construct for var:%s\n", p->var.varName);
             #endif
-            construct(p->var.varName, funcVarCount++, &mainVarTable);
+            construct(p, funcVarCount++, &mainVarTable);
         }
     }else if(p->type == typeGlobalArray){
         tableNode* nodePtr = getNodeFromTable(p->var.varName, mainVarTable);
@@ -325,7 +325,7 @@ void checkGlobalVarDefFromTable(nodeType* p){
             #ifdef DEBUG
             printf("construct for var:%s\n", p->var.varName);
             #endif
-            construct(p->var.varName, funcVarCount, &mainVarTable);
+            construct(p, funcVarCount, &mainVarTable);
             funcVarCount += calculateArraySize(p->var.arrayDim);
         }else{
             if (nodePtr->arrayDim && p->var.arrayDim){
