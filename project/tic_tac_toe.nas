@@ -110,94 +110,6 @@ L011:
 	push	1
 	add
 	puti_
-	push	0
-	push	0
-	push	0
-	pop	ac
-	push	1
-	mul
-	push	ac
-	add
-	pop	ac
-	push	2
-	mul
-	push	ac
-	add
-	pop	ac
-	push	ac
-	push	0
-	add
-	push	fp
-	add
-	pop	ac
-	push	sb[ac]
-	puti
-	push	0
-	push	1
-	push	0
-	pop	ac
-	push	1
-	mul
-	push	ac
-	add
-	pop	ac
-	push	2
-	mul
-	push	ac
-	add
-	pop	ac
-	push	ac
-	push	0
-	add
-	push	fp
-	add
-	pop	ac
-	push	sb[ac]
-	puti
-	push	1
-	push	0
-	push	0
-	pop	ac
-	push	1
-	mul
-	push	ac
-	add
-	pop	ac
-	push	2
-	mul
-	push	ac
-	add
-	pop	ac
-	push	ac
-	push	0
-	add
-	push	fp
-	add
-	pop	ac
-	push	sb[ac]
-	puti
-	push	1
-	push	1
-	push	0
-	pop	ac
-	push	1
-	mul
-	push	ac
-	add
-	pop	ac
-	push	2
-	mul
-	push	ac
-	add
-	pop	ac
-	push	ac
-	push	0
-	add
-	push	fp
-	add
-	pop	ac
-	push	sb[ac]
-	puti
 	push	": Give your choice [1-9]"
 	puts
 	push	0
@@ -250,6 +162,8 @@ L016:
 	add
 	push	fp[-4]
 	call	L025, 2
+	push	0
+	pop	sb[4]
 	push	fp[4]
 	push	2
 	sub
@@ -275,6 +189,8 @@ L022:
 	add
 	push	fp[-4]
 	call	L025, 2
+	push	0
+	pop	sb[4]
 	push	fp[4]
 	push	2
 	sub
@@ -787,86 +703,6 @@ L020:
 	push	6
 	add
 	pop	sp
-	push	0
-	push	0
-	push	0
-	pop	ac
-	push	1
-	mul
-	push	ac
-	add
-	pop	ac
-	push	2
-	mul
-	push	ac
-	add
-	pop	ac
-	push	ac
-	push	fp[-4]
-	add
-	pop	ac
-	push	sb[ac]
-	puti
-	push	0
-	push	1
-	push	0
-	pop	ac
-	push	1
-	mul
-	push	ac
-	add
-	pop	ac
-	push	2
-	mul
-	push	ac
-	add
-	pop	ac
-	push	ac
-	push	fp[-4]
-	add
-	pop	ac
-	push	sb[ac]
-	puti
-	push	1
-	push	0
-	push	0
-	pop	ac
-	push	1
-	mul
-	push	ac
-	add
-	pop	ac
-	push	2
-	mul
-	push	ac
-	add
-	pop	ac
-	push	ac
-	push	fp[-4]
-	add
-	pop	ac
-	push	sb[ac]
-	puti
-	push	1
-	push	1
-	push	0
-	pop	ac
-	push	1
-	mul
-	push	ac
-	add
-	pop	ac
-	push	2
-	mul
-	push	ac
-	add
-	pop	ac
-	push	ac
-	push	fp[-4]
-	add
-	pop	ac
-	push	sb[ac]
-	puti
 	push	'X'
 	pop	fp[0]
 	push	fp[-7]
@@ -978,88 +814,6 @@ L044:
 	add
 	pop	ac
 	pop	sb[ac]
-	push	"ggggg"
-	puts
-	push	0
-	push	0
-	push	0
-	pop	ac
-	push	1
-	mul
-	push	ac
-	add
-	pop	ac
-	push	2
-	mul
-	push	ac
-	add
-	pop	ac
-	push	ac
-	push	fp[-4]
-	add
-	pop	ac
-	push	sb[ac]
-	puti
-	push	0
-	push	1
-	push	0
-	pop	ac
-	push	1
-	mul
-	push	ac
-	add
-	pop	ac
-	push	2
-	mul
-	push	ac
-	add
-	pop	ac
-	push	ac
-	push	fp[-4]
-	add
-	pop	ac
-	push	sb[ac]
-	puti
-	push	1
-	push	0
-	push	0
-	pop	ac
-	push	1
-	mul
-	push	ac
-	add
-	pop	ac
-	push	2
-	mul
-	push	ac
-	add
-	pop	ac
-	push	ac
-	push	fp[-4]
-	add
-	pop	ac
-	push	sb[ac]
-	puti
-	push	1
-	push	1
-	push	0
-	pop	ac
-	push	1
-	mul
-	push	ac
-	add
-	pop	ac
-	push	2
-	mul
-	push	ac
-	add
-	pop	ac
-	push	ac
-	push	fp[-4]
-	add
-	pop	ac
-	push	sb[ac]
-	puti
 	jmp	L046
 L045:
 	push	1
@@ -1782,11 +1536,12 @@ L023:
 	push	1
 	add
 	pop	sp
+	call	L014, 0
 	push	"Player "
 	puts_
 	push	fp[-4]
 	puti_
-	push	" Do you want to retract? (y/n): "
+	push	": your opponent wins. Do you want to retract? (y/n): "
 	puts_
 	getc
 	pop	fp[0]
@@ -1863,7 +1618,7 @@ L025:
 	sub
 	pop	fp[0]
 	push	10
-	push	0
+	push	1
 	push	0
 	push	0
 	pop	ac
@@ -1884,7 +1639,7 @@ L025:
 	push	sb[ac]
 	push	3
 	mul
-	push	0
+	push	1
 	push	1
 	push	0
 	pop	ac
@@ -1954,7 +1709,7 @@ L076:
 	push	1
 	add
 	pop	fp[0]
-	push	0
+	push	1
 	push	0
 	push	0
 	pop	ac
@@ -1975,7 +1730,7 @@ L076:
 	push	sb[ac]
 	push	3
 	mul
-	push	0
+	push	1
 	push	1
 	push	0
 	pop	ac
@@ -2058,7 +1813,7 @@ L077:
 	pop	sb[ac]
 	push	fp[1]
 	call	L041, 1
-	push	0
+	push	1
 	push	0
 	push	0
 	pop	ac
@@ -2077,7 +1832,7 @@ L077:
 	add
 	pop	ac
 	push	sb[ac]
-	push	0
+	push	1
 	push	1
 	push	0
 	pop	ac

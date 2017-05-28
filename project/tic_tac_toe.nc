@@ -4,9 +4,9 @@
 // 1. multidimensional array                               ->@Board
 // 2. function                                             ->anywhere
 // 3. global varialbe                                      ->@Board
-// 4. pass array and normal variable as arugments
+// 4. pass array and normal variable as arugments		   ->logic for retract
 // 5. basic control -> loop, branch, continue, break       ->Game Logic
-// 6. function overloading                                 ->resetBoard
+// 6. function overloading                                 ->createBoard
 // 7. function use before definition without declaration   ->Most of the functions
 
 
@@ -53,11 +53,6 @@ function oneGame(reverse){
 		printBoard();
 		puts_("Player ");
 		puti_(i % 2 + 1);
-		puti(retract[0][0]);	
-		puti(retract[0][1]);	
-		puti(retract[1][0]);	
-		puti(retract[1][1]);
-
 		puts(": Give your choice [1-9]");
 		valid = 0;
 		choice = 0;
@@ -77,6 +72,7 @@ function oneGame(reverse){
 			@winner = 1;
 			if (checkRetract(2)){
 				applyRetract(retract, reverse);
+				@winner = 0;
 				i = i-2;
 				continue;
 			}else{
@@ -86,6 +82,7 @@ function oneGame(reverse){
 			@winner = 2;
 			if (checkRetract(1)){
 				applyRetract(retract, reverse);
+				@winner = 0;
 				i = i-2;
 				continue;
 			}else{
@@ -171,10 +168,6 @@ function printOneSlot(content){
 }
 
 function putOnBoard(player, choice, reverse, retract){
-	puti(retract[0][0]);	
-	puti(retract[0][1]);	
-	puti(retract[1][0]);	
-	puti(retract[1][1]);
 	icon = 'X';
 	if (player == 2){
 		icon = 'O';
@@ -188,11 +181,7 @@ function putOnBoard(player, choice, reverse, retract){
 	if (retract[0][0] == -1){
 		retract[0][0] = i;
 		retract[0][1] = j;
-		puts("ggggg");
-		puti(retract[0][0]);	
-	puti(retract[0][1]);	
-	puti(retract[1][0]);	
-	puti(retract[1][1]);
+		
 	}else if (retract[1][0] == -1){
 		retract[1][0] = i;
 		retract[1][1] = j;
@@ -280,9 +269,10 @@ function createBoard(reverse){
 
 // function for retracting 
 function checkRetract(loser){
+	printBoard();
 	puts_("Player ");
 	puti_(loser);
-	puts_(" Do you want to retract? (y/n): ");
+	puts_(": your opponent wins. Do you want to retract? (y/n): ");
 	getc(option);
 	if (option == "Y" || option == 'y'){
 		return 1;
@@ -296,11 +286,11 @@ function applyRetract(retract, reverse){
 	temp2 = 0;
 	if (reverse){
 		temp1 = 10 - (retract[0][0]*3 + retract[0][1] + 1);
-		temp2 = 10 - (retract[0][0]*3 + retract[0][1] + 1);
+		temp2 = 10 - (retract[1][0]*3 + retract[1][1] + 1);
 	}else{
 		temp1 = retract[0][0]*3 + retract[0][1] + 1;
-		temp2 = retract[0][0]*3 + retract[0][1] + 1;
+		temp2 = retract[1][0]*3 + retract[1][1] + 1;
 	}
 	@Board[retract[0][0]][retract[0][1]] = itoa(temp1);
-	@Board[retract[0][0]][retract[0][1]] = itoa(temp2);
+	@Board[retract[1][0]][retract[1][1]] = itoa(temp2);
 }
