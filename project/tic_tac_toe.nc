@@ -18,53 +18,79 @@
 puts_("Starting...\n");
 paramInit();
 puts("Welcome to Tic-Tac-Toe!");
+count = 0;
+
 while(1){
-	count = 0;
 	puts("Are you ready to play it? (y/n)");
 	getc(cmd);
 	gets(line); // chew up the newline char
 	if (cmd == 'n' || cmd == 'N'){
 		break;
 	}
-	oneGame();
 	if (count % 2 == 0){
 		reverse = 1;
-		resetBoard(reverse);
 	}else{
-		resetBoard();
+		reverse = 0;
 	}
+	oneGame(reverse);
+	
 	count = count +1;
 }
 
 puts("Bye!");
 
 
-function oneGame(){
+function oneGame(reverse){
+	array retract[2][2] = -1;
 	puts("Game start!");
+	if (reverse){
+		createBoard(reverse);
+	}else{
+		// function over
+		createBoard();
+	}
 	for (i=0; i<9; i=i+1;){
 		printBoard();
 		puts_("Player ");
 		puti_(i % 2 + 1);
+		puti(retract[0][0]);	
+		puti(retract[0][1]);	
+		puti(retract[1][0]);	
+		puti(retract[1][1]);
+
 		puts(": Give your choice [1-9]");
 		valid = 0;
 		choice = 0;
 		while (1){
 			geti(choice);
-			valid = validate(choice);
+			valid = validate(choice, reverse);
 			if (valid){
 				break;
 			}else{
 				puts("Your choice is invalid, please choose again!");
 			}
 		}
-		putOnBoard(i%2 + 1, choice);
+
+		putOnBoard(i%2 + 1, choice, reverse, retract);
 		icon = checkWinIcon();
 		if (icon == 'X'){
 			@winner = 1;
-			break;
+			if (checkRetract(2)){
+				applyRetract(retract, reverse);
+				i = i-2;
+				continue;
+			}else{
+				break;
+			}
 		}else if (icon == 'O'){
 			@winner = 2;
-			break;
+			if (checkRetract(1)){
+				applyRetract(retract, reverse);
+				i = i-2;
+				continue;
+			}else{
+				break;
+			}
 		}
 
 
@@ -86,7 +112,6 @@ function paramInit(){
 	@player = 0;
 	@winner = 0;
 	array @board[3][3];
-	createBoard();
 }
 
 function createBoard(){
@@ -99,9 +124,6 @@ function createBoard(){
 	}
 }
 
-function resetBoard(){
-	createBoard();
-}
 
 function itoa(i){
 	array x[10];
@@ -148,26 +170,58 @@ function printOneSlot(content){
 	putc_(' ');
 }
 
-function putOnBoard(player, choice){
+function putOnBoard(player, choice, reverse, retract){
+	puti(retract[0][0]);	
+	puti(retract[0][1]);	
+	puti(retract[1][0]);	
+	puti(retract[1][1]);
 	icon = 'X';
 	if (player == 2){
 		icon = 'O';
 	}
+	if (reverse){
+		choice = 10 - choice;
+	}
 	i = (choice - 1) / 3;
 	j = (choice - 1) % 3;
 	@Board[i][j] = icon;
+	if (retract[0][0] == -1){
+		retract[0][0] = i;
+		retract[0][1] = j;
+		puts("ggggg");
+		puti(retract[0][0]);	
+	puti(retract[0][1]);	
+	puti(retract[1][0]);	
+	puti(retract[1][1]);
+	}else if (retract[1][0] == -1){
+		retract[1][0] = i;
+		retract[1][1] = j;
+	}else{
+		retract[0][0] = retract[1][0];
+		retract[0][1] = retract[1][1];
+		retract[1][0] = i;
+		retract[1][1] = j;
+	}
+		
+
+
 }
 
 
 // below are game logic functions
 
-function validate(choice){
+function validate(choice, reverse){
 	// other invalid choices
 	if (choice <1 || choice > 9){
 		return 0;
 	}
-	i = (choice - 1) / 3;
-	j = (choice - 1) % 3;
+	if (reverse == 0){
+		i = (choice - 1) / 3;
+		j = (choice - 1) % 3;
+	}else{
+		i = (10 - choice -1) / 3;
+		j = (10 - choice -1) % 3;
+	}
 	if (@Board[i][j] == itoa(choice)){
 		return 1;
 	}else{
@@ -212,10 +266,7 @@ function checkWinIcon(){
 	return 0;
 }
 
-
-function resetBoard(reverse){
-	createBoard(reverse);
-}
+// function overloading
 
 function createBoard(reverse){
 	i = 0;
@@ -225,4 +276,31 @@ function createBoard(reverse){
 			@board[i][j] = itoa(10 - i*3 - j - 1);
 		}
 	}
+}
+
+// function for retracting 
+function checkRetract(loser){
+	puts_("Player ");
+	puti_(loser);
+	puts_(" Do you want to retract? (y/n): ");
+	getc(option);
+	if (option == "Y" || option == 'y'){
+		return 1;
+	}else{
+		return 0;
+	}
+}
+
+function applyRetract(retract, reverse){
+	temp1 = 0;
+	temp2 = 0;
+	if (reverse){
+		temp1 = 10 - (retract[0][0]*3 + retract[0][1] + 1);
+		temp2 = 10 - (retract[0][0]*3 + retract[0][1] + 1);
+	}else{
+		temp1 = retract[0][0]*3 + retract[0][1] + 1;
+		temp2 = retract[0][0]*3 + retract[0][1] + 1;
+	}
+	@Board[retract[0][0]][retract[0][1]] = itoa(temp1);
+	@Board[retract[0][0]][retract[0][1]] = itoa(temp2);
 }

@@ -618,9 +618,13 @@ int ex_(nodeType *p, int lcont, int lbrk, int funcType) {
                     printf("\tpop\tac\n");
                 }
                 printf("\tpush\tac\n");
-                printf("\tpush\t%d\n", nodePtr->offset);
+                if (nodePtr->lineNo == -1){
+                    printf("\tpush\t%d\n", nodePtr->offset);
+                }else{
+                     printf("\tpush\tfp[%d]\n", nodePtr->offset);
+                }
                 printf("\tadd\n");
-                if (!bool_val){
+                if (!bool_val && nodePtr->lineNo == -1){
                     printf("\tpush\tfp\n");
                     printf("\tadd\n");
                 }

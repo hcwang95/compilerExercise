@@ -458,6 +458,58 @@ L000:
 	pop	ac
 	push	sb[ac]
 	puti
+	push	10
+	push	2
+	push	3
+	push	4
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	10
+	mul
+	push	ac
+	add
+	pop	ac
+	push	100
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	fp[-4]
+	add
+	pop	ac
+	pop	sb[ac]
+	push	2
+	push	3
+	push	4
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	10
+	mul
+	push	ac
+	add
+	pop	ac
+	push	100
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	fp[-4]
+	add
+	pop	ac
+	push	sb[ac]
+	puti
 	push	0
 	push	0
 	pop	ac

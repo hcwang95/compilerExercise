@@ -63,6 +63,6 @@ void reportInvalidArrayUsage(char* varName){
 
 void reportInvalidArrayPara(){
     fprintf(stderr, "array: invalid passing, maybe passing two or more same arrays, or passing \
-        global arrays which can be directly used in the function\n"  );
+        global arrays which can be directly used in the function, or some array argumets are not used int the function\n"  );
     exit(arrayInvalidUsage);
 }

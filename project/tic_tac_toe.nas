@@ -7,11 +7,11 @@
 	call	L000, 0
 	push	"Welcome to Tic-Tac-Toe!"
 	puts
+	push	0
+	pop	fp[0]
 L001:
 	push	1
 	j0	L002
-	push	0
-	pop	fp[0]
 	push	"Are you ready to play it? (y/n)"
 	puts
 	getc
@@ -28,23 +28,21 @@ L001:
 	j0	L003
 	jmp	L002
 L003:
-	push	"Are you ready to play it? (y/n)"
-	puts
-	call	L004, 0
 	push	fp[0]
 	push	2
 	mod
 	push	0
 	compEQ
-	j0	L005
+	j0	L004
 	push	1
 	pop	fp[3]
+	jmp	L005
+L004:
+	push	0
+	pop	fp[3]
+L005:
 	push	fp[3]
 	call	L006, 1
-	jmp	L007
-L005:
-	call	L008, 0
-L007:
 	push	fp[0]
 	push	1
 	add
@@ -54,108 +52,268 @@ L002:
 	push	"Bye!"
 	puts
 	end
-L004:
+L006:
 	push	sp
-	push	4
+	push	8
 	add
 	pop	sp
+	push	1
+	neg
+	pop	ac
+	push	ac
+	push	ac
+	push	ac
+	push	ac
+	push	fp
+	push	0
+	add
+	pop	ac
+	pop	sb[ac]
+	push	fp
+	push	1
+	add
+	pop	ac
+	pop	sb[ac]
+	push	fp
+	push	2
+	add
+	pop	ac
+	pop	sb[ac]
+	push	fp
+	push	3
+	add
+	pop	ac
+	pop	sb[ac]
 	push	"Game start!"
 	puts
-	push	0
-	pop	fp[0]
+	push	fp[-4]
+	j0	L007
+	push	fp[-4]
+	call	L008, 1
+	jmp	L009
+L007:
+	call	L010, 0
 L009:
-	push	fp[0]
+	push	0
+	pop	fp[4]
+L011:
+	push	fp[4]
 	push	9
 	compLT
-	j0	L010
-	call	L012, 0
+	j0	L012
+	call	L014, 0
 	push	"Player "
 	puts_
-	push	fp[0]
+	push	fp[4]
 	push	2
 	mod
 	push	1
 	add
 	puti_
+	push	0
+	push	0
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	2
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	0
+	add
+	push	fp
+	add
+	pop	ac
+	push	sb[ac]
+	puti
+	push	0
+	push	1
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	2
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	0
+	add
+	push	fp
+	add
+	pop	ac
+	push	sb[ac]
+	puti
+	push	1
+	push	0
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	2
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	0
+	add
+	push	fp
+	add
+	pop	ac
+	push	sb[ac]
+	puti
+	push	1
+	push	1
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	2
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	0
+	add
+	push	fp
+	add
+	pop	ac
+	push	sb[ac]
+	puti
 	push	": Give your choice [1-9]"
 	puts
 	push	0
-	pop	fp[1]
+	pop	fp[5]
 	push	0
-	pop	fp[2]
-L013:
+	pop	fp[6]
+L015:
 	push	1
-	j0	L014
-	geti
-	pop	fp[2]
-	push	fp[2]
-	call	L015, 1
-	pop	fp[1]
-	push	fp[1]
 	j0	L016
-	jmp	L014
-	jmp	L017
-L016:
+	geti
+	pop	fp[6]
+	push	fp[6]
+	push	fp[-4]
+	call	L017, 2
+	pop	fp[5]
+	push	fp[5]
+	j0	L018
+	jmp	L016
+	jmp	L019
+L018:
 	push	"Your choice is invalid, please choose again!"
 	puts
-L017:
-	jmp	L013
-L014:
-	push	fp[0]
+L019:
+	jmp	L015
+L016:
+	push	fp[4]
 	push	2
 	mod
 	push	1
 	add
-	push	fp[2]
-	call	L018, 2
-	call	L019, 0
-	pop	fp[3]
-	push	fp[3]
+	push	fp[6]
+	push	fp[-4]
+	push	fp
+	push	0
+	add
+	call	L020, 4
+	call	L021, 0
+	pop	fp[7]
+	push	fp[7]
 	push	'X'
 	compEQ
-	j0	L020
+	j0	L022
 	push	1
 	pop	sb[4]
-	jmp	L010
-	jmp	L021
-L020:
-	push	fp[3]
+	push	2
+	call	L023, 1
+	j0	L024
+	push	fp
+	push	0
+	add
+	push	fp[-4]
+	call	L025, 2
+	push	fp[4]
+	push	2
+	sub
+	pop	fp[4]
+	jmp	L013
+	jmp	L026
+L024:
+	jmp	L012
+L026:
+	jmp	L027
+L022:
+	push	fp[7]
 	push	'O'
 	compEQ
-	j0	L022
+	j0	L028
 	push	2
 	pop	sb[4]
-	jmp	L010
-L022:
-L021:
-	jmp	L011
-L011:
-	push	fp[0]
+	push	1
+	call	L023, 1
+	j0	L029
+	push	fp
+	push	0
+	add
+	push	fp[-4]
+	call	L025, 2
+	push	fp[4]
+	push	2
+	sub
+	pop	fp[4]
+	jmp	L013
+	jmp	L030
+L029:
+	jmp	L012
+L030:
+L028:
+L027:
+	jmp	L013
+L013:
+	push	fp[4]
 	push	1
 	add
-	pop	fp[0]
-	jmp	L009
-L010:
+	pop	fp[4]
+	jmp	L011
+L012:
 	push	sb[4]
 	push	0
 	compEQ
-	j0	L023
+	j0	L031
 	push	"Tie!"
 	puts
-	jmp	L024
-L023:
+	jmp	L032
+L031:
 	push	sb[4]
 	push	1
 	compEQ
-	j0	L025
+	j0	L033
 	push	"Player 1 wins!"
 	puts
-	jmp	L026
-L025:
+	jmp	L034
+L033:
 	push	"Player 2 wins!"
 	puts
-L026:
-L024:
+L034:
+L032:
 	push	0
 	ret
 L000:
@@ -163,10 +321,9 @@ L000:
 	pop	sb[5]
 	push	0
 	pop	sb[4]
-	call	L027, 0
 	push	0
 	ret
-L027:
+L010:
 	push	sp
 	push	2
 	add
@@ -174,19 +331,19 @@ L027:
 	push	0
 	pop	fp[0]
 	push	fp[0]
-L028:
+L035:
 	push	fp[0]
 	push	3
 	compLT
-	j0	L029
+	j0	L036
 	push	0
 	pop	fp[1]
 	push	fp[1]
-L031:
+L038:
 	push	fp[1]
 	push	3
 	compLT
-	j0	L032
+	j0	L039
 	push	fp[0]
 	push	3
 	mul
@@ -194,7 +351,7 @@ L031:
 	add
 	push	1
 	add
-	call	L034, 1
+	call	L041, 1
 	push	fp[0]
 	push	fp[1]
 	push	0
@@ -214,29 +371,25 @@ L031:
 	add
 	pop	ac
 	pop	sb[ac]
-	jmp	L033
-L033:
+	jmp	L040
+L040:
 	push	fp[1]
 	push	1
 	add
 	pop	fp[1]
-	jmp	L031
-L032:
-	jmp	L030
-L030:
+	jmp	L038
+L039:
+	jmp	L037
+L037:
 	push	fp[0]
 	push	1
 	add
 	pop	fp[0]
-	jmp	L028
-L029:
+	jmp	L035
+L036:
 	push	0
 	ret
-L008:
-	call	L027, 0
-	push	0
-	ret
-L034:
+L041:
 	push	sp
 	push	10
 	add
@@ -417,7 +570,7 @@ L034:
 	pop	ac
 	push	sb[ac]
 	ret
-L012:
+L014:
 	push	'\n'
 	putc
 	push	0
@@ -439,7 +592,7 @@ L012:
 	add
 	pop	ac
 	push	sb[ac]
-	call	L035, 1
+	call	L042, 1
 	push	'|'
 	putc_
 	push	0
@@ -461,7 +614,7 @@ L012:
 	add
 	pop	ac
 	push	sb[ac]
-	call	L035, 1
+	call	L042, 1
 	push	'|'
 	putc_
 	push	0
@@ -483,7 +636,7 @@ L012:
 	add
 	pop	ac
 	push	sb[ac]
-	call	L035, 1
+	call	L042, 1
 	push	"\n---+---+---"
 	puts
 	push	1
@@ -505,7 +658,7 @@ L012:
 	add
 	pop	ac
 	push	sb[ac]
-	call	L035, 1
+	call	L042, 1
 	push	'|'
 	putc_
 	push	1
@@ -527,7 +680,7 @@ L012:
 	add
 	pop	ac
 	push	sb[ac]
-	call	L035, 1
+	call	L042, 1
 	push	'|'
 	putc_
 	push	1
@@ -549,7 +702,7 @@ L012:
 	add
 	pop	ac
 	push	sb[ac]
-	call	L035, 1
+	call	L042, 1
 	push	"\n---+---+---"
 	puts
 	push	2
@@ -571,7 +724,7 @@ L012:
 	add
 	pop	ac
 	push	sb[ac]
-	call	L035, 1
+	call	L042, 1
 	push	'|'
 	putc_
 	push	2
@@ -593,7 +746,7 @@ L012:
 	add
 	pop	ac
 	push	sb[ac]
-	call	L035, 1
+	call	L042, 1
 	push	'|'
 	putc_
 	push	2
@@ -615,12 +768,12 @@ L012:
 	add
 	pop	ac
 	push	sb[ac]
-	call	L035, 1
+	call	L042, 1
 	push	'\n'
 	putc
 	push	0
 	ret
-L035:
+L042:
 	push	' '
 	putc_
 	push	fp[-4]
@@ -629,27 +782,114 @@ L035:
 	putc_
 	push	0
 	ret
-L018:
+L020:
 	push	sp
-	push	3
+	push	6
 	add
 	pop	sp
+	push	0
+	push	0
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	2
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	fp[-4]
+	add
+	pop	ac
+	push	sb[ac]
+	puti
+	push	0
+	push	1
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	2
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	fp[-4]
+	add
+	pop	ac
+	push	sb[ac]
+	puti
+	push	1
+	push	0
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	2
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	fp[-4]
+	add
+	pop	ac
+	push	sb[ac]
+	puti
+	push	1
+	push	1
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	2
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	fp[-4]
+	add
+	pop	ac
+	push	sb[ac]
+	puti
 	push	'X'
 	pop	fp[0]
-	push	fp[-5]
+	push	fp[-7]
 	push	2
 	compEQ
-	j0	L036
+	j0	L043
 	push	'O'
 	pop	fp[0]
-L036:
-	push	fp[-4]
+L043:
+	push	fp[-5]
+	j0	L044
+	push	10
+	push	fp[-6]
+	sub
+	pop	fp[-6]
+L044:
+	push	fp[-6]
 	push	1
 	sub
 	push	3
 	div
 	pop	fp[1]
-	push	fp[-4]
+	push	fp[-6]
 	push	1
 	sub
 	push	3
@@ -676,360 +916,390 @@ L036:
 	pop	ac
 	pop	sb[ac]
 	push	0
+	push	0
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	2
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	fp[-4]
+	add
+	pop	ac
+	push	sb[ac]
+	push	1
+	neg
+	compEQ
+	j0	L045
+	push	fp[1]
+	push	0
+	push	0
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	2
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	fp[-4]
+	add
+	pop	ac
+	pop	sb[ac]
+	push	fp[2]
+	push	0
+	push	1
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	2
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	fp[-4]
+	add
+	pop	ac
+	pop	sb[ac]
+	push	"ggggg"
+	puts
+	push	0
+	push	0
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	2
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	fp[-4]
+	add
+	pop	ac
+	push	sb[ac]
+	puti
+	push	0
+	push	1
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	2
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	fp[-4]
+	add
+	pop	ac
+	push	sb[ac]
+	puti
+	push	1
+	push	0
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	2
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	fp[-4]
+	add
+	pop	ac
+	push	sb[ac]
+	puti
+	push	1
+	push	1
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	2
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	fp[-4]
+	add
+	pop	ac
+	push	sb[ac]
+	puti
+	jmp	L046
+L045:
+	push	1
+	push	0
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	2
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	fp[-4]
+	add
+	pop	ac
+	push	sb[ac]
+	push	1
+	neg
+	compEQ
+	j0	L047
+	push	fp[1]
+	push	1
+	push	0
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	2
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	fp[-4]
+	add
+	pop	ac
+	pop	sb[ac]
+	push	fp[2]
+	push	1
+	push	1
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	2
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	fp[-4]
+	add
+	pop	ac
+	pop	sb[ac]
+	jmp	L048
+L047:
+	push	1
+	push	0
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	2
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	fp[-4]
+	add
+	pop	ac
+	push	sb[ac]
+	push	0
+	push	0
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	2
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	fp[-4]
+	add
+	pop	ac
+	pop	sb[ac]
+	push	1
+	push	1
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	2
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	fp[-4]
+	add
+	pop	ac
+	push	sb[ac]
+	push	0
+	push	1
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	2
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	fp[-4]
+	add
+	pop	ac
+	pop	sb[ac]
+	push	fp[1]
+	push	1
+	push	0
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	2
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	fp[-4]
+	add
+	pop	ac
+	pop	sb[ac]
+	push	fp[2]
+	push	1
+	push	1
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	2
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	fp[-4]
+	add
+	pop	ac
+	pop	sb[ac]
+L048:
+L046:
+	push	0
 	ret
-L015:
+L017:
 	push	sp
 	push	2
 	add
 	pop	sp
-	push	fp[-4]
+	push	fp[-5]
 	push	1
 	compLT
-	push	fp[-4]
+	push	fp[-5]
 	push	9
 	compGT
 	or
-	j0	L037
+	j0	L049
 	push	0
 	ret
-L037:
+L049:
 	push	fp[-4]
+	push	0
+	compEQ
+	j0	L050
+	push	fp[-5]
 	push	1
 	sub
 	push	3
 	div
 	pop	fp[0]
-	push	fp[-4]
+	push	fp[-5]
 	push	1
 	sub
 	push	3
 	mod
 	pop	fp[1]
-	push	fp[0]
-	push	fp[1]
-	push	0
-	pop	ac
-	push	1
-	mul
-	push	ac
-	add
-	pop	ac
-	push	3
-	mul
-	push	ac
-	add
-	pop	ac
-	push	ac
-	push	6
-	add
-	pop	ac
-	push	sb[ac]
-	push	fp[-4]
-	call	L034, 1
-	compEQ
-	j0	L038
-	push	1
-	ret
-	jmp	L039
-L038:
-	push	0
-	ret
-L039:
-L019:
-	push	sp
-	push	2
-	add
-	pop	sp
-	push	0
-	pop	fp[0]
-L040:
-	push	fp[0]
-	push	3
-	compLT
-	j0	L041
-	push	fp[0]
-	push	0
-	push	0
-	pop	ac
-	push	1
-	mul
-	push	ac
-	add
-	pop	ac
-	push	3
-	mul
-	push	ac
-	add
-	pop	ac
-	push	ac
-	push	6
-	add
-	pop	ac
-	push	sb[ac]
-	push	fp[0]
-	push	1
-	push	0
-	pop	ac
-	push	1
-	mul
-	push	ac
-	add
-	pop	ac
-	push	3
-	mul
-	push	ac
-	add
-	pop	ac
-	push	ac
-	push	6
-	add
-	pop	ac
-	push	sb[ac]
-	compEQ
-	j0	L043
-	push	fp[0]
-	push	0
-	push	0
-	pop	ac
-	push	1
-	mul
-	push	ac
-	add
-	pop	ac
-	push	3
-	mul
-	push	ac
-	add
-	pop	ac
-	push	ac
-	push	6
-	add
-	pop	ac
-	push	sb[ac]
-	pop	fp[1]
-	push	fp[1]
-	push	fp[0]
-	push	2
-	push	0
-	pop	ac
-	push	1
-	mul
-	push	ac
-	add
-	pop	ac
-	push	3
-	mul
-	push	ac
-	add
-	pop	ac
-	push	ac
-	push	6
-	add
-	pop	ac
-	push	sb[ac]
-	compEQ
-	j0	L044
-	push	fp[1]
-	ret
-L044:
-L043:
-	jmp	L042
-L042:
-	push	fp[0]
-	push	1
-	add
-	pop	fp[0]
-	jmp	L040
-L041:
-	push	0
-	pop	fp[0]
-L045:
-	push	fp[0]
-	push	3
-	compLT
-	j0	L046
-	push	0
-	push	fp[0]
-	push	0
-	pop	ac
-	push	1
-	mul
-	push	ac
-	add
-	pop	ac
-	push	3
-	mul
-	push	ac
-	add
-	pop	ac
-	push	ac
-	push	6
-	add
-	pop	ac
-	push	sb[ac]
-	push	1
-	push	fp[0]
-	push	0
-	pop	ac
-	push	1
-	mul
-	push	ac
-	add
-	pop	ac
-	push	3
-	mul
-	push	ac
-	add
-	pop	ac
-	push	ac
-	push	6
-	add
-	pop	ac
-	push	sb[ac]
-	compEQ
-	j0	L048
-	push	0
-	push	fp[0]
-	push	0
-	pop	ac
-	push	1
-	mul
-	push	ac
-	add
-	pop	ac
-	push	3
-	mul
-	push	ac
-	add
-	pop	ac
-	push	ac
-	push	6
-	add
-	pop	ac
-	push	sb[ac]
-	pop	fp[1]
-	push	fp[1]
-	push	2
-	push	fp[0]
-	push	0
-	pop	ac
-	push	1
-	mul
-	push	ac
-	add
-	pop	ac
-	push	3
-	mul
-	push	ac
-	add
-	pop	ac
-	push	ac
-	push	6
-	add
-	pop	ac
-	push	sb[ac]
-	compEQ
-	j0	L049
-	push	fp[1]
-	ret
-L049:
-L048:
-	jmp	L047
-L047:
-	push	fp[0]
-	push	1
-	add
-	pop	fp[0]
-	jmp	L045
-L046:
-	push	0
-	push	0
-	push	0
-	pop	ac
-	push	1
-	mul
-	push	ac
-	add
-	pop	ac
-	push	3
-	mul
-	push	ac
-	add
-	pop	ac
-	push	ac
-	push	6
-	add
-	pop	ac
-	push	sb[ac]
-	push	1
-	push	1
-	push	0
-	pop	ac
-	push	1
-	mul
-	push	ac
-	add
-	pop	ac
-	push	3
-	mul
-	push	ac
-	add
-	pop	ac
-	push	ac
-	push	6
-	add
-	pop	ac
-	push	sb[ac]
-	compEQ
-	j0	L050
-	push	0
-	push	0
-	push	0
-	pop	ac
-	push	1
-	mul
-	push	ac
-	add
-	pop	ac
-	push	3
-	mul
-	push	ac
-	add
-	pop	ac
-	push	ac
-	push	6
-	add
-	pop	ac
-	push	sb[ac]
-	pop	fp[1]
-	push	fp[1]
-	push	2
-	push	2
-	push	0
-	pop	ac
-	push	1
-	mul
-	push	ac
-	add
-	pop	ac
-	push	3
-	mul
-	push	ac
-	add
-	pop	ac
-	push	ac
-	push	6
-	add
-	pop	ac
-	push	sb[ac]
-	compEQ
-	j0	L051
-	push	fp[1]
-	ret
-L051:
+	jmp	L051
 L050:
-	push	0
-	push	2
+	push	10
+	push	fp[-5]
+	sub
+	push	1
+	sub
+	push	3
+	div
+	pop	fp[0]
+	push	10
+	push	fp[-5]
+	sub
+	push	1
+	sub
+	push	3
+	mod
+	pop	fp[1]
+L051:
+	push	fp[0]
+	push	fp[1]
 	push	0
 	pop	ac
 	push	1
@@ -1047,81 +1317,399 @@ L050:
 	add
 	pop	ac
 	push	sb[ac]
-	push	1
-	push	1
-	push	0
-	pop	ac
-	push	1
-	mul
-	push	ac
-	add
-	pop	ac
-	push	3
-	mul
-	push	ac
-	add
-	pop	ac
-	push	ac
-	push	6
-	add
-	pop	ac
-	push	sb[ac]
+	push	fp[-5]
+	call	L041, 1
 	compEQ
 	j0	L052
-	push	0
-	push	2
-	push	0
-	pop	ac
 	push	1
-	mul
-	push	ac
-	add
-	pop	ac
-	push	3
-	mul
-	push	ac
-	add
-	pop	ac
-	push	ac
-	push	6
-	add
-	pop	ac
-	push	sb[ac]
-	pop	fp[1]
-	push	fp[1]
-	push	2
-	push	0
-	push	0
-	pop	ac
-	push	1
-	mul
-	push	ac
-	add
-	pop	ac
-	push	3
-	mul
-	push	ac
-	add
-	pop	ac
-	push	ac
-	push	6
-	add
-	pop	ac
-	push	sb[ac]
-	compEQ
-	j0	L053
-	push	fp[1]
 	ret
-L053:
+	jmp	L053
 L052:
 	push	0
 	ret
-L006:
-	push	fp[-4]
-	call	L054, 1
+L053:
+L021:
+	push	sp
+	push	2
+	add
+	pop	sp
+	push	0
+	pop	fp[0]
+L054:
+	push	fp[0]
+	push	3
+	compLT
+	j0	L055
+	push	fp[0]
+	push	0
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	3
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	6
+	add
+	pop	ac
+	push	sb[ac]
+	push	fp[0]
+	push	1
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	3
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	6
+	add
+	pop	ac
+	push	sb[ac]
+	compEQ
+	j0	L057
+	push	fp[0]
+	push	0
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	3
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	6
+	add
+	pop	ac
+	push	sb[ac]
+	pop	fp[1]
+	push	fp[1]
+	push	fp[0]
+	push	2
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	3
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	6
+	add
+	pop	ac
+	push	sb[ac]
+	compEQ
+	j0	L058
+	push	fp[1]
+	ret
+L058:
+L057:
+	jmp	L056
+L056:
+	push	fp[0]
+	push	1
+	add
+	pop	fp[0]
+	jmp	L054
+L055:
+	push	0
+	pop	fp[0]
+L059:
+	push	fp[0]
+	push	3
+	compLT
+	j0	L060
+	push	0
+	push	fp[0]
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	3
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	6
+	add
+	pop	ac
+	push	sb[ac]
+	push	1
+	push	fp[0]
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	3
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	6
+	add
+	pop	ac
+	push	sb[ac]
+	compEQ
+	j0	L062
+	push	0
+	push	fp[0]
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	3
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	6
+	add
+	pop	ac
+	push	sb[ac]
+	pop	fp[1]
+	push	fp[1]
+	push	2
+	push	fp[0]
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	3
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	6
+	add
+	pop	ac
+	push	sb[ac]
+	compEQ
+	j0	L063
+	push	fp[1]
+	ret
+L063:
+L062:
+	jmp	L061
+L061:
+	push	fp[0]
+	push	1
+	add
+	pop	fp[0]
+	jmp	L059
+L060:
+	push	0
+	push	0
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	3
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	6
+	add
+	pop	ac
+	push	sb[ac]
+	push	1
+	push	1
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	3
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	6
+	add
+	pop	ac
+	push	sb[ac]
+	compEQ
+	j0	L064
+	push	0
+	push	0
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	3
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	6
+	add
+	pop	ac
+	push	sb[ac]
+	pop	fp[1]
+	push	fp[1]
+	push	2
+	push	2
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	3
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	6
+	add
+	pop	ac
+	push	sb[ac]
+	compEQ
+	j0	L065
+	push	fp[1]
+	ret
+L065:
+L064:
+	push	0
+	push	2
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	3
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	6
+	add
+	pop	ac
+	push	sb[ac]
+	push	1
+	push	1
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	3
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	6
+	add
+	pop	ac
+	push	sb[ac]
+	compEQ
+	j0	L066
+	push	0
+	push	2
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	3
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	6
+	add
+	pop	ac
+	push	sb[ac]
+	pop	fp[1]
+	push	fp[1]
+	push	2
+	push	0
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	3
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	6
+	add
+	pop	ac
+	push	sb[ac]
+	compEQ
+	j0	L067
+	push	fp[1]
+	ret
+L067:
+L066:
 	push	0
 	ret
-L054:
+L008:
 	push	sp
 	push	2
 	add
@@ -1129,19 +1717,19 @@ L054:
 	push	0
 	pop	fp[0]
 	push	fp[0]
-L055:
+L068:
 	push	fp[0]
 	push	3
 	compLT
-	j0	L056
+	j0	L069
 	push	0
 	pop	fp[1]
 	push	fp[1]
-L058:
+L071:
 	push	fp[1]
 	push	3
 	compLT
-	j0	L059
+	j0	L072
 	push	10
 	push	fp[0]
 	push	3
@@ -1151,7 +1739,7 @@ L058:
 	sub
 	push	1
 	sub
-	call	L034, 1
+	call	L041, 1
 	push	fp[0]
 	push	fp[1]
 	push	0
@@ -1171,21 +1759,359 @@ L058:
 	add
 	pop	ac
 	pop	sb[ac]
-	jmp	L060
-L060:
+	jmp	L073
+L073:
 	push	fp[1]
 	push	1
 	add
 	pop	fp[1]
-	jmp	L058
-L059:
-	jmp	L057
-L057:
+	jmp	L071
+L072:
+	jmp	L070
+L070:
 	push	fp[0]
 	push	1
 	add
 	pop	fp[0]
-	jmp	L055
-L056:
+	jmp	L068
+L069:
+	push	0
+	ret
+L023:
+	push	sp
+	push	1
+	add
+	pop	sp
+	push	"Player "
+	puts_
+	push	fp[-4]
+	puti_
+	push	" Do you want to retract? (y/n): "
+	puts_
+	getc
+	pop	fp[0]
+	push	fp[0]
+	push	"Y"
+	compEQ
+	push	fp[0]
+	push	'y'
+	compEQ
+	or
+	j0	L074
+	push	1
+	ret
+	jmp	L075
+L074:
+	push	0
+	ret
+L075:
+L025:
+	push	sp
+	push	5
+	add
+	pop	sp
+	push	0
+	pop	fp[0]
+	push	0
+	pop	fp[1]
+	push	fp[-4]
+	j0	L076
+	push	10
+	push	0
+	push	0
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	2
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	fp[-5]
+	add
+	pop	ac
+	push	sb[ac]
+	push	3
+	mul
+	push	0
+	push	1
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	2
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	fp[-5]
+	add
+	pop	ac
+	push	sb[ac]
+	add
+	push	1
+	add
+	sub
+	pop	fp[0]
+	push	10
+	push	0
+	push	0
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	2
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	fp[-5]
+	add
+	pop	ac
+	push	sb[ac]
+	push	3
+	mul
+	push	0
+	push	1
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	2
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	fp[-5]
+	add
+	pop	ac
+	push	sb[ac]
+	add
+	push	1
+	add
+	sub
+	pop	fp[1]
+	jmp	L077
+L076:
+	push	0
+	push	0
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	2
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	fp[-5]
+	add
+	pop	ac
+	push	sb[ac]
+	push	3
+	mul
+	push	0
+	push	1
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	2
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	fp[-5]
+	add
+	pop	ac
+	push	sb[ac]
+	add
+	push	1
+	add
+	pop	fp[0]
+	push	0
+	push	0
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	2
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	fp[-5]
+	add
+	pop	ac
+	push	sb[ac]
+	push	3
+	mul
+	push	0
+	push	1
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	2
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	fp[-5]
+	add
+	pop	ac
+	push	sb[ac]
+	add
+	push	1
+	add
+	pop	fp[1]
+L077:
+	push	fp[0]
+	call	L041, 1
+	push	0
+	push	0
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	2
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	fp[-5]
+	add
+	pop	ac
+	push	sb[ac]
+	push	0
+	push	1
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	2
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	fp[-5]
+	add
+	pop	ac
+	push	sb[ac]
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	3
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	6
+	add
+	pop	ac
+	pop	sb[ac]
+	push	fp[1]
+	call	L041, 1
+	push	0
+	push	0
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	2
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	fp[-5]
+	add
+	pop	ac
+	push	sb[ac]
+	push	0
+	push	1
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	2
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	fp[-5]
+	add
+	pop	ac
+	push	sb[ac]
+	push	0
+	pop	ac
+	push	1
+	mul
+	push	ac
+	add
+	pop	ac
+	push	3
+	mul
+	push	ac
+	add
+	pop	ac
+	push	ac
+	push	6
+	add
+	pop	ac
+	pop	sb[ac]
 	push	0
 	ret

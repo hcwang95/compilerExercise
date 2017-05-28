@@ -22,6 +22,8 @@ function test(z){
 	x[1] = 'c';
 	x[2] = "tset";
 	puti(z[2][3][4]);
+	z[2][3][4] = 10;
+	puti(z[2][3][4]);
 	puti(x[0]);
 	putc(x[1]);
 	puts(x[2]);
