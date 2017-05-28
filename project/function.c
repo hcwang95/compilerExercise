@@ -62,7 +62,7 @@ int findLabel(char* funcName, int paramCnt, functionNode* root){
 }
 
 
-functionNode* findFuncNode(char* funcName, int paraCnt, functionNode* root){
+functionNode* findFuncNode(char* funcName, int paramCnt, functionNode* root){
     if (!root){
         return NULL;
     }else{
@@ -72,11 +72,11 @@ functionNode* findFuncNode(char* funcName, int paraCnt, functionNode* root){
         }else{
             // support function overloading 
             if (flag == 0){
-                return (paramCnt < root->paramCount)?findLabel(funcName, paramCnt, root->leftNode):
-                                                   findLabel(funcName, paramCnt, root->rightNode);
+                return (paramCnt < root->paramCount)?findFuncNode(funcName, paramCnt, root->leftNode):
+                                                   findFuncNode(funcName, paramCnt, root->rightNode);
             }else{
-                return (flag<0)?findLabel(funcName, paramCnt, root->leftNode):
-                                findLabel(funcName, paramCnt, root->rightNode);
+                return (flag<0)?findFuncNode(funcName, paramCnt, root->leftNode):
+                                findFuncNode(funcName, paramCnt, root->rightNode);
             }
         }
     }
@@ -180,17 +180,23 @@ void traverse(nodeType* p, bool isParam, bool isMain){
             #ifdef DEBUG
             printf("construct for var:%s\n", p->var.varName);
             #endif
-            construct(p, -4-funcVarCount++, &funcVarTable);
-        }else if (p->type == typeArray || p->type == typeGlobalArray){
-            // now no variable has type of this array
-            // we would traverse the whole function to confirm 
-            // that the variable is typeArray or typeGlobalArray
-            // then second time traverse will tell us to record arrayDim
             tableNode* nodePtr = getNodeFromTable(p->var.varName, (isMain || p->type == typeGlobalArray)?
-                                                                    mainVarTable:funcVarTable);
-            nodePtr->arrayDim = temp->arrayDimList[counter];
-            counter++;
-        else if(p->type == typeOpr){
+                                                                        mainVarTable:funcVarTable);
+            if (!nodePtr) {
+                construct(p, -4-funcVarCount++, &funcVarTable);
+            }
+            else if (nodePtr->varType == typeArray || nodePtr->varType == typeGlobalArray){
+                // now no variable has type of this array
+                // we would traverse the whole function to confirm 
+                // that the variable is typeArray or typeGlobalArray
+                // then second time traverse will tell us to record arrayDim
+                nodePtr->lineNo = 0;
+                nodePtr->arrayDim = temp->arrayDimList[counter];
+                counter++;
+            }
+        }else if (p->type == typeArray || p->type == typeGlobalArray){
+
+        }else if (p->type == typeOpr){
             traverse(p->opr.op[1], isParam, isMain);
             traverse(p->opr.op[0], isParam, isMain);
         }
@@ -265,6 +271,9 @@ void constructFuncVarTable(nodeType* p, int typeFunc){
             // traverse parameters second time and then add arrayDim field
             temp = nodePtr;
             traverse(p->opr.op[1], true, false);
+            if (counter != temp->arrayCount){
+                reportInvalidArrayPara();
+            }
             temp = NULL;
             counter = 0;
         }

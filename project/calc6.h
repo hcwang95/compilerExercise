@@ -46,7 +46,7 @@ typedef struct tableNode{
     char varName[13];
     int varType;
     int offset;
-    int lineNo;
+    int lineNo; // when used now it is denoted the reference parameter
     int * arrayDim;
     struct tableNode * leftNode;
     struct tableNode * rightNode;

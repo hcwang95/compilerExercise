@@ -153,6 +153,7 @@ int ex_(nodeType *p, int lcont, int lbrk, int funcType) {
           if (!isDeclaration){
               nodePtr = getNodeFromTable(p->var.varName, mainVarTable);
               printf("\tpush\t%d\n", nodePtr->offset);
+              printf("gg\n");
           }
           return 0;
       case typeOpr:
@@ -564,6 +565,29 @@ int ex_(nodeType *p, int lcont, int lbrk, int funcType) {
                         printf("\tpush\tac\n");
                         printf("\tpop\tsb[%d]\n", nodePtr->offset + index);
                     }
+                }else{
+                    //init for local array
+                    if(!nodePtr->arrayDim){
+                        printf("error on the index of array\n");
+                    }
+                    dim = nodePtr->arrayDim[0];
+                    acc = 1;
+                    index = 1;
+                    for (index; index <= dim; ++index){
+                        acc *= nodePtr->arrayDim[index];
+                    }
+                    index = 0;
+                    for (index; index < acc; ++index){
+                        printf("\tpush\tac\n");
+                    }
+                    index = 0;
+                    for (index; index < acc; ++index){
+                        printf("\tpush\tfp\n");
+                        printf("\tpush\t%d\n", nodePtr->offset + index);
+                        printf("\tadd\n");
+                        printf("\tpop\tac\n");
+                        printf("\tpop\tsb[ac]\n");
+                    }
                 }
                 return 0;
             case LREF:
@@ -609,6 +633,7 @@ int ex_(nodeType *p, int lcont, int lbrk, int funcType) {
                 nodePtr = getNodeFromTable(p->opr.op[0]->var.varName, (bool_val)?mainVarTable:funcVarTable);
                 if(!nodePtr->arrayDim){
                     printf("error on the index of array\n");
+                    reportInvalidArrayUsage(nodePtr->varName);
                 }
                 dim = nodePtr->arrayDim[0];
                 accList = (int*)malloc(sizeof(int)*dim);
@@ -629,9 +654,14 @@ int ex_(nodeType *p, int lcont, int lbrk, int funcType) {
                     printf("\tpop\tac\n");
                 }
                 printf("\tpush\tac\n");
-                printf("\tpush\t%d\n", nodePtr->offset);
+                if (nodePtr->lineNo == -1){
+                    printf("\tpush\t%d\n", nodePtr->offset);
+                }else{
+                     printf("\tpush\tfp[%d]\n", nodePtr->offset);
+                }
                 printf("\tadd\n");
-                if (!bool_val){
+                if (!bool_val && nodePtr->lineNo == -1){
+                    // not parameter of local function
                     printf("\tpush\tfp\n");
                     printf("\tadd\n");
                 }
