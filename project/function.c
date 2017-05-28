@@ -234,9 +234,9 @@ void traverse(nodeType* p, bool isParam, bool isMain){
                     nodePtr->arrayDim = p->var.arrayDim;
                     nodePtr->varType = p->type;
                 }
-                if (p->var.arrayDim && nodePtr->arrayDim){
-                    reportArrayDuplicatedDeclaration(p->var.varName);
-                }
+                // if (p->var.arrayDim && nodePtr->arrayDim){
+                //     reportArrayDuplicatedDeclaration(p->var.varName);
+                // }
                 if (nodePtr->varType == typeVar || nodePtr->varType == typeGlobalVar){
                     nodePtr->varType = p->type;
                     #ifdef DEBUG
@@ -272,6 +272,8 @@ void constructFuncVarTable(nodeType* p, int typeFunc){
             temp = nodePtr;
             traverse(p->opr.op[1], true, false);
             if (counter != temp->arrayCount){
+                printf("%d\n", counter);
+                printf("%d\n", temp->arrayCount);
                 reportInvalidArrayPara();
             }
             temp = NULL;
