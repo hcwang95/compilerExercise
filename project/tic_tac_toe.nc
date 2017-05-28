@@ -1,19 +1,25 @@
 // this is the demo code for game tic tac toe
 
 // feature to show
-// 1. multidimensional array
-// 2. function
-// 3. global varialbe
+// 1. multidimensional array                               ->@Board
+// 2. function                                             ->anywhere
+// 3. global varialbe                                      ->@Board
 // 4. pass array and normal variable as arugments
-// 5. basic control -> loop, branch, continue, break
-// 6. function overloading
-// 7. function use before definition without declaration
+// 5. basic control -> loop, branch, continue, break       ->Game Logic
+// 6. function overloading                                 ->resetBoard
+// 7. function use before definition without declaration   ->Most of the functions
 
+
+
+
+
+// main function
 
 puts_("Starting...\n");
 paramInit();
 puts("Welcome to Tic-Tac-Toe!");
 while(1){
+	count = 0;
 	puts("Are you ready to play it? (y/n)");
 	getc(cmd);
 	gets(line); // chew up the newline char
@@ -21,7 +27,13 @@ while(1){
 		break;
 	}
 	oneGame();
-	resetBoard();
+	if (count % 2 == 0){
+		reverse = 1;
+		resetBoard(reverse);
+	}else{
+		resetBoard();
+	}
+	count = count +1;
 }
 
 puts("Bye!");
@@ -90,6 +102,7 @@ function createBoard(){
 function resetBoard(){
 	createBoard();
 }
+
 function itoa(i){
 	array x[10];
 	x[0] = '0';
@@ -126,6 +139,8 @@ function printBoard(){
 	printOneSlot(@Board[2][2]);
 	putc('\n');
 }
+
+
 
 function printOneSlot(content){
 	putc_(' ');
@@ -197,3 +212,17 @@ function checkWinIcon(){
 	return 0;
 }
 
+
+function resetBoard(reverse){
+	createBoard(reverse);
+}
+
+function createBoard(reverse){
+	i = 0;
+	for (i;i<3;i=i+1;){
+		j = 0;
+		for (j;j<3;j=j+1;){
+			@board[i][j] = itoa(10 - i*3 - j - 1);
+		}
+	}
+}
