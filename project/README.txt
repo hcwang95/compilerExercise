@@ -42,8 +42,7 @@ More feature:
 
 
 	User Experience Support:
-		syntax error location suggestion (line No. and line content
-											with indication)
+		syntax error location suggestion (line No. and line content with indication)
 		error code return (in calc6.h there is a enumation table)
 
 	machine code optimization support:

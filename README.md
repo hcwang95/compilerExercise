@@ -19,4 +19,4 @@ Simple Text Parser (Using lex) for the following spec:
 * Direct register access (virtual machine)
 
 ## Assignment 3,4 Project
-See [README.txt]()
+See [README.txt](https://github.com/whcacademy/compilerExercise/tree/master/project)
