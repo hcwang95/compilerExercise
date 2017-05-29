@@ -1,4 +1,4 @@
-c6c: lex.yy.c y.tab.c c6c.c errorReport.c nodeCheck.c function.c variableType.c calc6.h
+c6c: lex.yy.c y.tab.c c6c.c errorReport.c nodeCheck.c function.c calc6.h
 	gcc -o c6c lex.yy.c y.tab.c c6c.c -g
 
 
