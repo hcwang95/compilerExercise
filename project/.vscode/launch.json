@@ -7,7 +7,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceRoot}/c6c",
-            "args": ["test/testSegmentation.nc"],
+            "args": ["tic_tac_toe.nc"],
             "stopAtEntry": false,
             "cwd": "${workspaceRoot}",
             "environment": [],
