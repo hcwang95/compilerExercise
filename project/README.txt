@@ -1,7 +1,5 @@
-COMP 3235 Assignment 3 -- Project Part I
+COMP 3235 Project
 
-Group Member:
-	WANG Haicheng	3035140108
 
 Compile Instruction:
 	make c6c
@@ -19,6 +17,8 @@ Basic feature:
 					  a normal variale in main.)
 	function support (One difference is a identifier 'function' is needed for prefix of
 					  function definition)
+	Multidimentional Array (Support passing local array to another function, restrict 
+					  passing global array to local functions)
 
 More feature:
 	Programming Language Feature Support:
@@ -36,6 +36,7 @@ More feature:
 		variable used before defined error
 		(partially) type violation error
 		invalid return error (return at main funcition)
+		error related to array usage and declaration
 
 
 
@@ -51,7 +52,14 @@ More feature:
 		Do not compile function defined but not used
 
 
+Test Case:
+	tic_tac_toe.nc
 
+Compilation:
+	./c6c tic_tac_toe.nc > tic_tac_toe.nas
+
+Execution:
+	./nas_test tic_tac_toe.nas
 
 
 (***)anywhere means you can define your function between two statements of main function.
