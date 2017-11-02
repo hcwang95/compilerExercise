@@ -20,7 +20,7 @@ Basic feature:
 	Multidimentional Array (Support passing local array to another function, restrict 
 					  passing global array to local functions)
 
-More feature:
+More features:
 	Programming Language Feature Support:
 		function definition ***anywhere, no declaration.
 			support function used before definition.
